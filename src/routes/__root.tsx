@@ -11,6 +11,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { Toaster } from "@/components/ui/sonner";
+import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { Gauge } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -91,6 +95,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap",
+      },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
@@ -119,8 +129,50 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <SiteHeader />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      <Toaster position="top-center" />
     </QueryClientProvider>
+  );
+}
+
+function SiteHeader() {
+  const { user } = useAuth();
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
+        <Link to="/" className="flex items-center gap-2">
+          <Gauge className="size-5 text-primary" />
+          <span className="font-display text-xl tracking-wide uppercase">Kliktest</span>
+        </Link>
+        <nav className="flex items-center gap-4 text-sm">
+          <Link to="/" className="text-muted-foreground transition-colors hover:text-foreground">
+            Diagnose
+          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/history"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                History
+              </Link>
+              <button
+                onClick={() => void supabase.auth.signOut()}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link to="/auth" className="text-primary transition-opacity hover:opacity-80">
+              Sign in
+            </Link>
+          )}
+        </nav>
+      </div>
+    </header>
   );
 }
