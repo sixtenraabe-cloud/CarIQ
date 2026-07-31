@@ -14,7 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cars: {
+        Row: {
+          created_at: string
+          fuel: string
+          id: string
+          make: string
+          mileage_km: number
+          model: string
+          nickname: string | null
+          transmission: string
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          fuel: string
+          id?: string
+          make: string
+          mileage_km: number
+          model: string
+          nickname?: string | null
+          transmission: string
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          fuel?: string
+          id?: string
+          make?: string
+          mileage_km?: number
+          model?: string
+          nickname?: string | null
+          transmission?: string
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      diagnoses: {
+        Row: {
+          advice: string
+          car_id: string | null
+          car_summary: string
+          causes: Json
+          checks: Json
+          confidence: number
+          created_at: string
+          estimated_cost: string | null
+          had_audio: boolean
+          headline: string
+          id: string
+          symptom: string
+          symptom_tags: string[]
+          user_id: string
+          verdict: Database["public"]["Enums"]["drive_verdict"]
+        }
+        Insert: {
+          advice?: string
+          car_id?: string | null
+          car_summary: string
+          causes?: Json
+          checks?: Json
+          confidence?: number
+          created_at?: string
+          estimated_cost?: string | null
+          had_audio?: boolean
+          headline: string
+          id?: string
+          symptom: string
+          symptom_tags?: string[]
+          user_id: string
+          verdict: Database["public"]["Enums"]["drive_verdict"]
+        }
+        Update: {
+          advice?: string
+          car_id?: string | null
+          car_summary?: string
+          causes?: Json
+          checks?: Json
+          confidence?: number
+          created_at?: string
+          estimated_cost?: string | null
+          had_audio?: boolean
+          headline?: string
+          id?: string
+          symptom?: string
+          symptom_tags?: string[]
+          user_id?: string
+          verdict?: Database["public"]["Enums"]["drive_verdict"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diagnoses_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +126,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      drive_verdict: "safe" | "caution" | "urgent"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +253,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      drive_verdict: ["safe", "caution", "urgent"],
+    },
   },
 } as const
