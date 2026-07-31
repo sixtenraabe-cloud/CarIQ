@@ -14,6 +14,19 @@ const VERDICT_ICON: Record<Verdict, typeof CheckCircle2> = {
   urgent: OctagonAlert,
 };
 
+export function VerdictBadge({ verdict }: { verdict: Verdict }) {
+  const style = VERDICT_STYLE[verdict];
+  const Icon = VERDICT_ICON[verdict];
+  return (
+    <span
+      className={`inline-flex items-center gap-2 border px-2 py-1 font-display text-xs tracking-widest uppercase ${style.border} ${style.text}`}
+    >
+      <Icon className="size-3.5" />
+      {VERDICT_LABEL[verdict]}
+    </span>
+  );
+}
+
 export function DiagnosisReport({
   result,
   carLine,
