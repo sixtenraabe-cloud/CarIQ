@@ -28,9 +28,9 @@ export type DiagnosisResult = {
 };
 
 export const VERDICT_LABEL: Record<Verdict, string> = {
-  safe: "Okay to drive",
-  caution: "Drive with care — book a garage",
-  urgent: "Stop driving — mechanic ASAP",
+  safe: "Säker att köra",
+  caution: "Kör försiktigt — boka verkstad",
+  urgent: "Stanna — till verkstad direkt",
 };
 
 export function carSummary(car: CarProfile) {
