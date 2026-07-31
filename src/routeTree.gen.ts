@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as DiagnosRouteImport } from './routes/diagnos'
 import { Route as HistoryRouteImport } from './routes/history'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DiagnosRoute = DiagnosRouteImport.update({
+  id: '/diagnos',
+  path: '/diagnos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -32,30 +38,34 @@ const HistoryRoute = HistoryRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/diagnos': typeof DiagnosRoute
   '/history': typeof HistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/diagnos': typeof DiagnosRoute
   '/history': typeof HistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/diagnos': typeof DiagnosRoute
   '/history': typeof HistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/history'
+  fullPaths: '/' | '/auth' | '/diagnos' | '/history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/history'
-  id: '__root__' | '/' | '/auth' | '/history'
+  to: '/' | '/auth' | '/diagnos' | '/history'
+  id: '__root__' | '/' | '/auth' | '/diagnos' | '/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  DiagnosRoute: typeof DiagnosRoute
   HistoryRoute: typeof HistoryRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/diagnos': {
+      id: '/diagnos'
+      path: '/diagnos'
+      fullPath: '/diagnos'
+      preLoaderRoute: typeof DiagnosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/history': {
       id: '/history'
       path: '/history'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  DiagnosRoute: DiagnosRoute,
   HistoryRoute: HistoryRoute,
 }
 export const routeTree = rootRouteImport
