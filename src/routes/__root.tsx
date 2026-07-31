@@ -12,9 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
-import { useAuth } from "@/hooks/use-auth";
-import { supabase } from "@/integrations/supabase/client";
-import { Gauge } from "lucide-react";
+import { Car, Clock, Home, User } from "lucide-react";
 
 function NotFoundComponent() {
   return (
@@ -81,11 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "BilHjälpen AI — din digitala bilhjälp" },
+      {
+        name: "description",
+        content: "Spela in ljudet från bilen och få en AI-bedömning direkt i mobilen.",
+      },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "BilHjälpen AI" },
+      { property: "og:description", content: "Din digitala bilhjälp i fickan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
@@ -99,7 +100,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap",
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
@@ -112,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="sv">
       <head>
         <HeadContent />
       </head>
@@ -129,50 +130,41 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <SiteHeader />
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <div className="flex-1 pb-24">
+          <Outlet />
+        </div>
+        <TabBar />
+      </div>
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }
 
-function SiteHeader() {
-  const { user } = useAuth();
+const TABS = [
+  { to: "/", label: "Hem", icon: Home },
+  { to: "/history", label: "Historik", icon: Clock },
+  { to: "/garage", label: "Garage", icon: Car },
+  { to: "/profil", label: "Profil", icon: User },
+] as const;
 
+function TabBar() {
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-        <Link to="/" className="flex items-center gap-2">
-          <Gauge className="size-5 text-primary" />
-          <span className="font-display text-xl tracking-wide uppercase">Kliktest</span>
-        </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link to="/" className="text-muted-foreground transition-colors hover:text-foreground">
-            Diagnose
+    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
+      <div className="mx-auto flex max-w-md items-stretch justify-between px-2 py-2">
+        {TABS.map((tab) => (
+          <Link
+            key={tab.to}
+            to={tab.to}
+            activeOptions={{ exact: tab.to === "/" }}
+            className="flex flex-1 flex-col items-center gap-1 py-1 text-[11px] font-medium text-muted-foreground transition-colors [&.active]:text-primary"
+          >
+            <tab.icon className="size-5" />
+            {tab.label}
           </Link>
-          {user ? (
-            <>
-              <Link
-                to="/history"
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                History
-              </Link>
-              <button
-                onClick={() => void supabase.auth.signOut()}
-                className="text-muted-foreground transition-colors hover:text-foreground"
-              >
-                Sign out
-              </button>
-            </>
-          ) : (
-            <Link to="/auth" className="text-primary transition-opacity hover:opacity-80">
-              Sign in
-            </Link>
-          )}
-        </nav>
+        ))}
       </div>
-    </header>
+    </nav>
   );
 }
