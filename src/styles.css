@@ -62,45 +62,45 @@
 }
 
 :root {
-  --radius: 0.25rem;
-  --background: oklch(0.17 0.008 70);
-  --foreground: oklch(0.95 0.008 85);
-  --card: oklch(0.215 0.01 70);
-  --card-foreground: oklch(0.95 0.008 85);
-  --popover: oklch(0.215 0.01 70);
-  --popover-foreground: oklch(0.95 0.008 85);
-  --primary: oklch(0.79 0.16 72);
-  --primary-foreground: oklch(0.18 0.02 70);
-  --secondary: oklch(0.27 0.012 70);
-  --secondary-foreground: oklch(0.95 0.008 85);
-  --muted: oklch(0.26 0.01 70);
-  --muted-foreground: oklch(0.7 0.015 80);
-  --accent: oklch(0.3 0.03 70);
-  --accent-foreground: oklch(0.95 0.008 85);
-  --destructive: oklch(0.6 0.21 27);
-  --destructive-foreground: oklch(0.97 0.01 85);
-  --border: oklch(0.31 0.012 70);
-  --input: oklch(0.31 0.012 70);
-  --ring: oklch(0.79 0.16 72);
-  --signal-safe: oklch(0.74 0.17 148);
-  --signal-caution: oklch(0.82 0.16 78);
-  --signal-urgent: oklch(0.64 0.22 25);
-  --grid-line: oklch(0.24 0.01 70);
+  --radius: 0.9rem;
+  --background: oklch(0.16 0.022 264);
+  --foreground: oklch(0.97 0.005 250);
+  --card: oklch(0.213 0.026 264);
+  --card-foreground: oklch(0.97 0.005 250);
+  --popover: oklch(0.213 0.026 264);
+  --popover-foreground: oklch(0.97 0.005 250);
+  --primary: oklch(0.58 0.19 260);
+  --primary-foreground: oklch(0.99 0.003 250);
+  --secondary: oklch(0.26 0.028 264);
+  --secondary-foreground: oklch(0.97 0.005 250);
+  --muted: oklch(0.25 0.026 264);
+  --muted-foreground: oklch(0.72 0.02 258);
+  --accent: oklch(0.3 0.04 262);
+  --accent-foreground: oklch(0.97 0.005 250);
+  --destructive: oklch(0.58 0.21 25);
+  --destructive-foreground: oklch(0.98 0.01 250);
+  --border: oklch(0.29 0.028 264);
+  --input: oklch(0.29 0.028 264);
+  --ring: oklch(0.58 0.19 260);
+  --signal-safe: oklch(0.72 0.17 150);
+  --signal-caution: oklch(0.8 0.15 80);
+  --signal-urgent: oklch(0.62 0.21 25);
+  --grid-line: oklch(0.2 0.024 264);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.2 0.01 70);
-  --sidebar-foreground: oklch(0.95 0.008 85);
-  --sidebar-primary: oklch(0.79 0.16 72);
-  --sidebar-primary-foreground: oklch(0.18 0.02 70);
-  --sidebar-accent: oklch(0.27 0.012 70);
-  --sidebar-accent-foreground: oklch(0.95 0.008 85);
-  --sidebar-border: oklch(0.31 0.012 70);
-  --sidebar-ring: oklch(0.79 0.16 72);
-  --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Barlow", ui-sans-serif, system-ui, sans-serif;
+  --sidebar: oklch(0.19 0.024 264);
+  --sidebar-foreground: oklch(0.97 0.005 250);
+  --sidebar-primary: oklch(0.58 0.19 260);
+  --sidebar-primary-foreground: oklch(0.99 0.003 250);
+  --sidebar-accent: oklch(0.26 0.028 264);
+  --sidebar-accent-foreground: oklch(0.97 0.005 250);
+  --sidebar-border: oklch(0.29 0.028 264);
+  --sidebar-ring: oklch(0.58 0.19 260);
+  --font-display: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
@@ -147,10 +147,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
-    background-image:
-      linear-gradient(var(--grid-line) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-    background-size: 64px 64px;
+    -webkit-font-smoothing: antialiased;
   }
 
   h1,
@@ -158,8 +155,8 @@
   h3,
   .display {
     font-family: var(--font-display);
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -172,15 +169,25 @@
 }
 
 @utility panel {
-  background-color: color-mix(in oklch, var(--card) 92%, transparent);
+  background-color: var(--card);
   border: 1px solid var(--border);
-  backdrop-filter: blur(6px);
+  border-radius: var(--radius);
 }
 
 @utility stencil {
-  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.75rem;
+  font-weight: 600;
   color: var(--muted-foreground);
+}
+
+@utility tile {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease;
 }

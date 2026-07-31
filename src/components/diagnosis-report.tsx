@@ -50,7 +50,7 @@ export function DiagnosisReport({
         </div>
         <div className="mt-5">
           <div className="stencil mb-1 flex justify-between">
-            <span>Confidence</span>
+            <span>Säkerhet</span>
             <span>{result.confidence}%</span>
           </div>
           <div className="h-1.5 w-full bg-secondary">
@@ -63,7 +63,7 @@ export function DiagnosisReport({
         <div className="panel flex gap-3 p-4">
           <Waves className="mt-0.5 size-5 shrink-0 text-primary" />
           <div>
-            <p className="stencil">What the recording sounded like</p>
+            <p className="stencil">Så lät inspelningen</p>
             <p className="mt-1 text-sm">{result.audioNote}</p>
           </div>
         </div>
@@ -71,8 +71,8 @@ export function DiagnosisReport({
 
       {result.causes.length ? (
         <div>
-          <p className="stencil mb-3">Most likely causes</p>
-          <div className="grid gap-3 md:grid-cols-2">
+          <p className="stencil mb-3">Troliga orsaker</p>
+          <div className="grid gap-3">
             {result.causes.map((cause) => (
               <div key={cause.part} className="panel p-4">
                 <div className="flex items-baseline justify-between gap-3">
@@ -88,7 +88,7 @@ export function DiagnosisReport({
 
       {result.checks.length ? (
         <div className="panel p-5">
-          <p className="stencil mb-3">Checks you can do yourself</p>
+          <p className="stencil mb-3">Kontroller du kan göra själv</p>
           <ul className="space-y-2 text-sm">
             {result.checks.map((check) => (
               <li key={check} className="flex gap-3">
@@ -100,20 +100,20 @@ export function DiagnosisReport({
         </div>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-3">
-        <div className="panel p-5 md:col-span-2">
-          <p className="stencil mb-2">What to do next</p>
+      <div className="grid gap-3">
+        <div className="panel p-5">
+          <p className="stencil mb-2">Rekommendation</p>
           <p className="text-sm whitespace-pre-line">{result.advice}</p>
         </div>
         <div className="panel p-5">
-          <p className="stencil mb-2">Rough repair cost</p>
+          <p className="stencil mb-2">Ungefärlig reparationskostnad</p>
           <p className="font-display text-2xl text-primary">{result.estimatedCost}</p>
         </div>
       </div>
 
       <p className="text-xs text-muted-foreground">
-        This is an informed guess from an AI, not a workshop inspection. Anything involving brakes,
-        steering or overheating should always be checked by a mechanic.
+        Detta är en AI-bedömning, inte en verkstadsbesiktning. Bromsar, styrning och överhettning
+        ska alltid kontrolleras av en mekaniker.
       </p>
     </div>
   );

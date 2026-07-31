@@ -11,7 +11,7 @@ function toBase64(blob: Blob): Promise<string> {
       const result = String(reader.result);
       resolve(result.slice(result.indexOf(",") + 1));
     };
-    reader.onerror = () => reject(new Error("Could not read the audio file"));
+    reader.onerror = () => reject(new Error("Kunde inte läsa ljudfilen"));
     reader.readAsDataURL(blob);
   });
 }
@@ -63,14 +63,14 @@ export function AudioRecorder({
       recorder.start();
       setRecording(true);
     } catch {
-      setError("Microphone access was blocked. You can upload a recording instead.");
+      setError("Mikrofonen blockerades. Du kan ladda upp en inspelning istället.");
     }
   };
 
   const onUpload = async (file: File) => {
     setError(null);
     if (file.size > 6_000_000) {
-      setError("That file is too large — keep clips under about 6 MB.");
+      setError("Filen är för stor — håll klippet under cirka 6 MB.");
       return;
     }
     onChange({
@@ -86,17 +86,17 @@ export function AudioRecorder({
       <div className="flex flex-wrap items-center gap-3">
         {recording ? (
           <Button type="button" variant="destructive" onClick={stop}>
-            <Square className="size-4" /> Stop ({seconds}s)
+            <Square className="size-4" /> Stoppa ({seconds}s)
           </Button>
         ) : (
           <Button type="button" variant="secondary" onClick={start}>
-            <Mic className="size-4" /> Record the sound
+            <Mic className="size-4" /> Spela in ljudet
           </Button>
         )}
 
         <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <Upload className="size-4" />
-          Upload a clip
+          Ladda upp ljudfil
           <input
             type="file"
             accept="audio/*,video/*"
@@ -110,14 +110,14 @@ export function AudioRecorder({
 
         {clip ? (
           <Button type="button" variant="ghost" onClick={() => onChange(null)}>
-            <Trash2 className="size-4" /> Remove
+            <Trash2 className="size-4" /> Ta bort
           </Button>
         ) : null}
       </div>
 
       {recording ? (
         <p className="mt-3 text-sm text-primary">
-          Recording… hold your phone near the noise, rev or roll if it is safe to do so.
+          Spelar in… håll telefonen nära ljudet, gasa eller rulla om det går säkert.
         </p>
       ) : null}
 
@@ -128,7 +128,7 @@ export function AudioRecorder({
         </div>
       ) : (
         <p className="mt-3 text-sm text-muted-foreground">
-          Optional, but a 5–15 second clip of the noise makes the analysis far more precise.
+          Frivilligt, men ett 5–15 sekunders klipp gör analysen betydligt mer träffsäker.
         </p>
       )}
 
