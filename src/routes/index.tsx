@@ -3,6 +3,7 @@ import { AlertTriangle, ChevronRight, Gauge, Volume2, Wrench } from "lucide-reac
 
 import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
+import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
 
