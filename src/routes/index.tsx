@@ -58,11 +58,18 @@ function Home() {
   return (
     <main className="px-4 pt-8">
       <header className="mb-6 flex items-start justify-between gap-3">
-        <div>
-          <h1 className="text-4xl tracking-tight">
-            Car<span className="text-primary">IQ</span>
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">{t.tagline}</p>
+        <div className="flex items-center gap-3">
+          <img
+            src={logoAsset.url}
+            alt="CarIQ logotyp"
+            className="size-12 shrink-0 rounded-xl border border-border object-cover"
+          />
+          <div>
+            <h1 className="text-4xl tracking-tight">
+              Car<span className="text-primary">IQ</span>
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t.tagline}</p>
+          </div>
         </div>
         <LanguagePicker />
       </header>
