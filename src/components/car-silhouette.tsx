@@ -102,6 +102,7 @@ export function CarSilhouette({
       <path d={shape.glassFront} fill="url(#cariq-glass)" opacity="0.85" />
       <line x1="123" y1="38" x2="123" y2="88" stroke="oklch(0.72 0.02 258)" strokeWidth="1.1" opacity="0.55" />
       <rect x="108" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
+      <rect x="132" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
 
       {/* lights */}
       <rect x="236" y="70" width="10" height="7" rx="3" fill="oklch(0.92 0.12 95)" opacity="0.9" />
@@ -127,13 +128,10 @@ export function CarSilhouette({
       {/* engine lamp with a line to the hood */}
       {highlight === "engine" ? (
         <g>
-          <line x1="206" y1="30" x2="200" y2="58" stroke={glow} strokeWidth="1.6" strokeDasharray="4 4" />
-          <circle cx="208" cy="22" r="13" fill={glow} opacity="0.18" />
-          <circle cx="208" cy="22" r="13" fill="none" stroke={glow} strokeWidth="1.6" />
-          <path
-            d="M201 22 h3 v-3 h3 v-2 h5 a4 4 0 0 1 4 4 v3 a4 4 0 0 1 -4 4 h-8 a3 3 0 0 1 -3 -3 z"
-            fill={glow}
-          />
+          <line x1="206" y1="34" x2="200" y2="58" stroke={glow} strokeWidth="1.6" strokeDasharray="4 4" />
+          <g transform="translate(190 6) scale(1.5)">
+            <CheckEngineGlyph color={glow} />
+          </g>
         </g>
       ) : null}
 
@@ -146,6 +144,27 @@ export function CarSilhouette({
 }
 
 function Wheel({ cx, cy }: { cx: number; cy: number }) {
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r="20" fill="oklch(0.2 0.02 264)" stroke="oklch(0.72 0.02 258)" strokeWidth="1.6" />
+      <circle cx={cx} cy={cy} r="10" fill="oklch(0.4 0.02 264)" />
+      <circle cx={cx} cy={cy} r="3.5" fill="oklch(0.8 0.02 258)" />
+    </g>
+  );
+}
+
+/** Classic dashboard "check engine" symbol, drawn as one filled outline. */
+export function CheckEngineGlyph({ color = "oklch(0.85 0.17 85)" }: { color?: string }) {
+  return (
+    <path
+      transform="scale(0.95)"
+      fill={color}
+      d="M6.2 4.6h6.4c.5 0 .9.4.9.9s-.4.9-.9.9h-1.9v1.1h2.6c1 0 1.8.8 1.9 1.8l.1.9h1.4V9.5c0-.5.4-.9.9-.9h1.1c.5 0 .9.4.9.9v5.2c0 .5-.4.9-.9.9h-1.1c-.5 0-.9-.4-.9-.9v-.7h-1.4l-.1.9c-.1 1-.9 1.8-1.9 1.8H7.8c-.6 0-1.1-.3-1.5-.7l-1-1.2H3.6v1.1c0 .5-.4.9-.9.9s-.9-.4-.9-.9V8.2c0-.5.4-.9.9-.9s.9.4.9.9v1.1h1.5V8.2c0-1 .8-1.8 1.8-1.8h1.6V5.3H6.2c-.5 0-.9-.4-.9-.9s.4-.9.9-.9z"
+    />
+  );
+}
+
+function WheelLegacy({ cx, cy }: { cx: number; cy: number }) {
   return (
     <g>
       <circle cx={cx} cy={cy} r="20" fill="oklch(0.2 0.02 264)" stroke="oklch(0.72 0.02 258)" strokeWidth="1.6" />
