@@ -92,6 +92,69 @@ function SeverityScale({ active }: { active: Verdict }) {
   );
 }
 
+function CauseCard({ cause }: { cause: Cause }) {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const brief = cause.summary || cause.explanation.split(/(?<=\.)\s/)[0] || cause.explanation;
+  const hasMore = Boolean(cause.explanation && cause.explanation.trim() !== brief.trim());
+
+  return (
+    <div className="panel p-4">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="text-lg">{cause.part}</h3>
+        <span className="font-display text-primary">{cause.likelihood}%</span>
+      </div>
+      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
+        <div className="h-full rounded-full bg-primary/70" style={{ width: `${cause.likelihood}%` }} />
+      </div>
+      <p className="mt-3 text-sm text-muted-foreground">{brief}</p>
+      {hasMore ? (
+        <>
+          {open ? (
+            <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{cause.explanation}</p>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary"
+          >
+            {open ? t.showLess : t.showMore}
+            <ChevronDown className={`size-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+          </button>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+function SeverityScaleUnused({ active }: { active: Verdict }) {
+  const { t } = useI18n();
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {VERDICTS.map((level) => {
+        const style = VERDICT_STYLE[level];
+        const on = level === active;
+        return (
+          <div
+            key={level}
+            className={`rounded-xl border p-2 text-center transition-colors ${
+              on ? `${style.border} ${style.bg}` : "border-border opacity-45"
+            }`}
+          >
+            <div className="text-base leading-none" aria-hidden="true">
+              {VERDICT_DOT[level]}
+            </div>
+            <p className={`mt-1 text-[11px] leading-tight font-semibold ${on ? style.text : "text-muted-foreground"}`}>
+              {t[VERDICT_KEY[level]]}
+            </p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function DiagnosisReport({
   result,
   carLine,
