@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { LogOut, Mail, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { LogOut, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -24,8 +25,9 @@ export const Route = createFileRoute("/profil")({
 
 function Profil() {
   const { user } = useAuth();
-  const { car } = useCar();
+  const { car, saveCar } = useCar();
   const { t } = useI18n();
+  const navigate = useNavigate();
 
   return (
     <main className="px-4 pt-8">
@@ -44,12 +46,35 @@ function Profil() {
         </div>
         <div className="flex items-center gap-3">
           <ShieldCheck className="size-5 text-primary" />
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <p className="stencil">{t.savedCarLabel}</p>
             <p className="truncate text-sm">
               {car ? `${car.make} ${car.model} (${car.year})` : t.noSavedCar}
             </p>
           </div>
+          {car ? (
+            <Button
+              size="icon"
+              variant="outline"
+              aria-label={t.removeCarMinus}
+              title={t.removeCarMinus}
+              onClick={() => {
+                saveCar(null);
+                toast.success(t.carRemoved);
+              }}
+            >
+              <Minus className="size-4" />
+            </Button>
+          ) : (
+            <Button
+              size="icon"
+              aria-label={t.addCarPlus}
+              title={t.addCarPlus}
+              onClick={() => void navigate({ to: "/garage" })}
+            >
+              <Plus className="size-4" />
+            </Button>
+          )}
         </div>
       </div>
 
