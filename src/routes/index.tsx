@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ChevronRight, Gauge, Volume2, Wrench } from "lucide-react";
+import { AlertTriangle, ChevronRight, Ear, Gauge, Volume2, Wrench } from "lucide-react";
 
 import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
@@ -119,6 +119,19 @@ function Home() {
       </Link>
 
       <div className="space-y-3">
+        <Link
+          to="/snabbkoll"
+          className="tile flex items-center gap-4 border-primary/50 bg-primary/5 p-4 hover:border-primary active:scale-[0.99]"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
+            <Ear className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">{t.quickHome}</span>
+            <span className="block truncate text-sm text-muted-foreground">{t.quickHomeSub}</span>
+          </span>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+        </Link>
         {ACTIONS.map((action) => (
           <Link
             key={action.tag}
