@@ -337,6 +337,7 @@ export const secondOpinion = createServerFn({ method: "POST" })
 export const saveDiagnosis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SaveSchema.parse(input))
+  .inputValidator((input: unknown) => SaveSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase
       .from("diagnoses")
