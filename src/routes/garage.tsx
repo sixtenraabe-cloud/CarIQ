@@ -8,17 +8,20 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
+import { baseModelFor } from "@/lib/base-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
   head: () => ({
     meta: [
-      { title: "Mitt garage — BilHjälpen AI" },
+      { title: "Mitt garage — CarIQ" },
       {
         name: "description",
         content: "Spara märke, modell, årsmodell och miltal så blir AI-bedömningen mer träffsäker.",
       },
-      { property: "og:title", content: "Mitt garage — BilHjälpen AI" },
+      { property: "og:title", content: "Mitt garage — CarIQ" },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
       { property: "og:description", content: "Lägg till din bil för bättre diagnoser." },
     ],
   }),
@@ -92,10 +95,13 @@ function Garage() {
 
       {form.make.trim() || form.model.trim() ? (
         <div className="panel mt-5 flex flex-col items-center p-4">
-          <CarSilhouette model={form.model} className="w-56" />
+          <CarSilhouette make={form.make} model={form.model} className="w-64" />
           <p className="stencil mt-1">
-            {form.make} {form.model}
+            {form.make} {form.model || baseModelFor(form.make)}
           </p>
+          {!form.model.trim() && baseModelFor(form.make) ? (
+            <p className="text-xs text-muted-foreground">{t.baseModelHint}</p>
+          ) : null}
         </div>
       ) : null}
 

@@ -80,14 +80,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BilHjälpen AI — din digitala bilhjälp" },
+      { title: "CarIQ — din digitala bilmekaniker" },
       {
         name: "description",
-        content: "Spela in ljudet från bilen och få en AI-bedömning direkt i mobilen.",
+        content: "Spela in ljudet från bilen och få en mekanikers AI-bedömning direkt i mobilen.",
       },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "BilHjälpen AI" },
-      { property: "og:description", content: "Din digitala bilhjälp i fickan." },
+      { property: "og:title", content: "CarIQ" },
+      { property: "og:description", content: "Din digitala bilmekaniker i fickan." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
