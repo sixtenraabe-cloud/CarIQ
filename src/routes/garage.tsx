@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
+import { useI18n } from "@/lib/i18n";
+import { suggestBrands } from "@/lib/car-brands";
+import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
   head: () => ({
@@ -22,20 +25,32 @@ export const Route = createFileRoute("/garage")({
   component: Garage,
 });
 
-const TRANSMISSIONS = ["Manuell", "Automat", "DSG", "CVT"];
-const FUELS = ["Bensin", "Diesel", "Hybrid", "El"];
-
 function Garage() {
   const { car, ready, saveCar } = useCar();
+  const { t } = useI18n();
   const navigate = useNavigate();
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
     year: "",
     mileageKm: "",
-    transmission: "Manuell",
-    fuel: "Bensin",
+    transmission: "manual",
+    fuel: "petrol",
   });
+
+  const TRANSMISSIONS = [
+    { value: "manual", label: t.manual },
+    { value: "automatic", label: t.automatic },
+    { value: "DSG", label: "DSG" },
+    { value: "CVT", label: "CVT" },
+  ];
+  const FUELS = [
+    { value: "petrol", label: t.petrol },
+    { value: "diesel", label: t.diesel },
+    { value: "hybrid", label: t.hybrid },
+    { value: "electric", label: t.electric },
+  ];
 
   useEffect(() => {
     if (car) {
@@ -50,42 +65,78 @@ function Garage() {
     }
   }, [car]);
 
+  const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
   const valid =
     form.make.trim() && form.model.trim() && Number(form.year) >= 1950 && form.mileageKm !== "";
+
+  const label = (list: { value: string; label: string }[], value: string) =>
+    list.find((o) => o.value === value)?.label ?? value;
 
   const submit = () => {
     saveCar({
       make: form.make.trim(),
       model: form.model.trim(),
       year: Number(form.year),
-      transmission: form.transmission,
-      fuel: form.fuel,
+      transmission: label(TRANSMISSIONS, form.transmission),
+      fuel: label(FUELS, form.fuel),
       mileageKm: Number(form.mileageKm),
     });
-    toast.success("Bilen är sparad.");
+    toast.success(t.carSaved);
     void navigate({ to: "/" });
   };
 
   return (
     <main className="px-4 pt-8">
-      <h1 className="text-2xl">Lägg till bil</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Uppgifterna sparas bara i den här telefonen.
-      </p>
+      <h1 className="text-2xl">{t.garageTitle}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">{t.garageSub}</p>
 
-      <div className="panel mt-6 space-y-4 p-5">
+      {form.make.trim() || form.model.trim() ? (
+        <div className="panel mt-5 flex flex-col items-center p-4">
+          <CarSilhouette model={form.model} className="w-56" />
+          <p className="stencil mt-1">
+            {form.make} {form.model}
+          </p>
+        </div>
+      ) : null}
+
+      <div className="panel mt-5 space-y-4 p-5">
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-2">
-            <Label htmlFor="make">Märke</Label>
+          <div className="relative space-y-2">
+            <Label htmlFor="make">{t.make}</Label>
             <Input
               id="make"
+              autoComplete="off"
               placeholder="Volvo"
               value={form.make}
-              onChange={(e) => setForm({ ...form, make: e.target.value })}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => window.setTimeout(() => setShowSuggestions(false), 150)}
+              onChange={(e) => {
+                setForm({ ...form, make: e.target.value });
+                setShowSuggestions(true);
+              }}
             />
+            {showSuggestions && suggestions.length ? (
+              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                {suggestions.map((brand) => (
+                  <li key={brand}>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setForm({ ...form, make: brand });
+                        setShowSuggestions(false);
+                      }}
+                    >
+                      {brand}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="model">Modell</Label>
+            <Label htmlFor="model">{t.model}</Label>
             <Input
               id="model"
               placeholder="V70"
@@ -94,7 +145,7 @@ function Garage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="year">Årsmodell</Label>
+            <Label htmlFor="year">{t.year}</Label>
             <Input
               id="year"
               type="number"
@@ -104,7 +155,7 @@ function Garage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="mileage">Mätarställning (km)</Label>
+            <Label htmlFor="mileage">{t.mileage}</Label>
             <Input
               id="mileage"
               type="number"
@@ -116,30 +167,30 @@ function Garage() {
         </div>
 
         <div className="space-y-2">
-          <Label>Växellåda</Label>
+          <Label>{t.transmission}</Label>
           <div className="flex flex-wrap gap-2">
             {TRANSMISSIONS.map((option) => (
               <Pick
-                key={option}
-                active={form.transmission === option}
-                onClick={() => setForm({ ...form, transmission: option })}
+                key={option.value}
+                active={form.transmission === option.value || form.transmission === option.label}
+                onClick={() => setForm({ ...form, transmission: option.value })}
               >
-                {option}
+                {option.label}
               </Pick>
             ))}
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label>Drivmedel</Label>
+          <Label>{t.fuel}</Label>
           <div className="flex flex-wrap gap-2">
             {FUELS.map((option) => (
               <Pick
-                key={option}
-                active={form.fuel === option}
-                onClick={() => setForm({ ...form, fuel: option })}
+                key={option.value}
+                active={form.fuel === option.value || form.fuel === option.label}
+                onClick={() => setForm({ ...form, fuel: option.value })}
               >
-                {option}
+                {option.label}
               </Pick>
             ))}
           </div>
@@ -147,7 +198,7 @@ function Garage() {
       </div>
 
       <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
-        Spara bilen
+        {t.saveCar}
       </Button>
 
       {ready && car ? (
@@ -156,10 +207,10 @@ function Garage() {
           className="mt-2 w-full text-muted-foreground"
           onClick={() => {
             saveCar(null);
-            toast.success("Bilen är borttagen.");
+            toast.success(t.carRemoved);
           }}
         >
-          Ta bort sparad bil
+          {t.removeCar}
         </Button>
       ) : null}
     </main>
