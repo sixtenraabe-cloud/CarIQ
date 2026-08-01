@@ -63,7 +63,7 @@ function Home() {
           <img
             src={logoAsset.url}
             alt="CarIQ logotyp"
-            className="size-12 shrink-0 rounded-xl border border-border object-cover"
+            className="size-16 shrink-0 rounded-2xl border border-border object-cover"
           />
           <div>
             <h1 className="text-4xl tracking-tight">
