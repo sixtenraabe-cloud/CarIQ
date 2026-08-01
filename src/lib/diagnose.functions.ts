@@ -217,6 +217,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
         const c = raw as Record<string, unknown>;
         return {
           part: String(c.part ?? "Unknown part").slice(0, 120),
+          summary: String(c.summary ?? "").slice(0, 240),
           explanation: String(c.explanation ?? "").slice(0, 1200),
           likelihood: clampNumber(c.likelihood, 40),
         };
