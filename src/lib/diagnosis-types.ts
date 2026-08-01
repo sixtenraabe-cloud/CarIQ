@@ -36,6 +36,7 @@ export type DiagnosisResult = {
   estimatedCost: string;
   audioUsed: boolean;
   audioNote: string;
+  mismatch: string;
 };
 
 export type SecondOpinion = {

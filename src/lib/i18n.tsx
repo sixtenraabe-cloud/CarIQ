@@ -64,7 +64,7 @@ const sv = {
   audioHint: "Spela in ljudet så tydligt du kan — 10–30 sekunder räcker. Steget är frivilligt.",
   noAudio: "Har ingen ljudfil",
   analyze: "Analysera min bil",
-  analyzing: "Mekanikern lyssnar…",
+  analyzing: "Analyserar…",
   saveHistory: "Spara i historik",
   saving: "Sparar…",
   saved: "Sparad",
@@ -174,6 +174,11 @@ const sv = {
   reportDeleted: "Rapporten är borttagen.",
   errDelete: "Kunde inte ta bort rapporten.",
   audioAnalyzed: "ljud analyserat",
+  pickMakeFirst: "Välj märke först",
+  modelSuggestHint: "Förslag utifrån märket du valt.",
+  unknownCar: "Vi känner inte igen den bilen — välj ett märke och en modell som finns.",
+  mismatchTitle: "Ojdå, blev det lite fel här?",
+  mismatchFallback: "Det du beskriver verkar inte höra ihop med kategorin du valde. Gör gärna en ny diagnos med rätt kategori.",
 };
 
 export type Dict = typeof sv;
@@ -224,7 +229,7 @@ const en: Dict = {
   audioHint: "Record the sound as clearly as you can — 10–30 seconds is enough. Optional.",
   noAudio: "I have no audio file",
   analyze: "Analyse my car",
-  analyzing: "The mechanic is listening…",
+  analyzing: "Analyzing…",
   saveHistory: "Save to history",
   saving: "Saving…",
   saved: "Saved",
@@ -334,6 +339,11 @@ const en: Dict = {
   reportDeleted: "Report deleted.",
   errDelete: "Couldn't delete the report.",
   audioAnalyzed: "audio analysed",
+  pickMakeFirst: "Pick a make first",
+  modelSuggestHint: "Suggestions based on the make you picked.",
+  unknownCar: "We don't recognise that car — pick a make and model that exists.",
+  mismatchTitle: "Oops, did something get mixed up?",
+  mismatchFallback: "What you describe doesn't seem to match the category you picked. Consider running a new diagnosis with the right category.",
 };
 
 const da: Dict = {
@@ -383,7 +393,7 @@ const da: Dict = {
   audioHint: "Optag lyden så tydeligt som muligt — 10–30 sekunder er nok. Valgfrit.",
   noAudio: "Jeg har ingen lydfil",
   analyze: "Analysér min bil",
-  analyzing: "Mekanikeren lytter…",
+  analyzing: "Analyserer…",
   saveHistory: "Gem i historik",
   saving: "Gemmer…",
   saved: "Gemt",
@@ -488,6 +498,11 @@ const da: Dict = {
   reportDeleted: "Rapporten er slettet.",
   errDelete: "Kunne ikke slette rapporten.",
   audioAnalyzed: "lyd analyseret",
+  pickMakeFirst: "Vælg mærke først",
+  modelSuggestHint: "Forslag ud fra det valgte mærke.",
+  unknownCar: "Vi genkender ikke den bil — vælg et mærke og en model, der findes.",
+  mismatchTitle: "Ups, gik der noget galt her?",
+  mismatchFallback: "Det du beskriver passer ikke rigtigt til den kategori, du valgte. Lav gerne en ny diagnose med den rigtige kategori.",
 };
 
 const de: Dict = {
@@ -537,7 +552,7 @@ const de: Dict = {
   audioHint: "Nimm das Geräusch möglichst klar auf — 10–30 Sekunden reichen. Optional.",
   noAudio: "Ich habe keine Audiodatei",
   analyze: "Auto analysieren",
-  analyzing: "Der Mechaniker hört zu…",
+  analyzing: "Analysiert…",
   saveHistory: "Im Verlauf speichern",
   saving: "Speichern…",
   saved: "Gespeichert",
@@ -642,6 +657,11 @@ const de: Dict = {
   reportDeleted: "Bericht gelöscht.",
   errDelete: "Bericht konnte nicht gelöscht werden.",
   audioAnalyzed: "Audio analysiert",
+  pickMakeFirst: "Zuerst Marke wählen",
+  modelSuggestHint: "Vorschläge basierend auf der gewählten Marke.",
+  unknownCar: "Dieses Auto kennen wir nicht — bitte eine existierende Marke und Modell wählen.",
+  mismatchTitle: "Hoppla, ist hier etwas durcheinandergeraten?",
+  mismatchFallback: "Ihre Beschreibung passt nicht zur gewählten Kategorie. Starten Sie am besten eine neue Diagnose mit der richtigen Kategorie.",
 };
 
 const DICTS: Record<Lang, Dict> = { sv, en, da, de };

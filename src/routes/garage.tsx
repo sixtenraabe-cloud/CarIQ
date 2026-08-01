@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
+import { isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -32,6 +33,7 @@ function Garage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showModelSuggestions, setShowModelSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -68,15 +70,21 @@ function Garage() {
   }, [car]);
 
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
-  const valid =
-    form.make.trim() && form.model.trim() && Number(form.year) >= 1950 && form.mileageKm !== "";
+  const brand = normalizeBrand(form.make);
+  const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
+  const knownCar = isKnownCar(form.make, form.model);
+  const valid = Boolean(knownCar && Number(form.year) >= 1950 && form.mileageKm !== "");
 
   const label = (list: { value: string; label: string }[], value: string) =>
     list.find((o) => o.value === value)?.label ?? value;
 
   const submit = () => {
+    if (!isKnownCar(form.make, form.model)) {
+      toast.error(t.unknownCar);
+      return;
+    }
     saveCar({
-      make: form.make.trim(),
+      make: normalizeBrand(form.make) ?? form.make.trim(),
       model: form.model.trim(),
       year: Number(form.year),
       transmission: label(TRANSMISSIONS, form.transmission),
@@ -126,7 +134,7 @@ function Garage() {
                       className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
-                        setForm({ ...form, make: brand });
+                        setForm({ ...form, make: brand, model: "" });
                         setShowSuggestions(false);
                       }}
                     >
@@ -137,14 +145,40 @@ function Garage() {
               </ul>
             ) : null}
           </div>
-          <div className="space-y-2">
+          <div className="relative space-y-2">
             <Label htmlFor="model">{t.model}</Label>
             <Input
               id="model"
-              placeholder="V70"
+              autoComplete="off"
+              disabled={!brand}
+              placeholder={brand ? "V70" : t.pickMakeFirst}
               value={form.model}
-              onChange={(e) => setForm({ ...form, model: e.target.value })}
+              onFocus={() => setShowModelSuggestions(true)}
+              onBlur={() => window.setTimeout(() => setShowModelSuggestions(false), 150)}
+              onChange={(e) => {
+                setForm({ ...form, model: e.target.value });
+                setShowModelSuggestions(true);
+              }}
             />
+            {brand && showModelSuggestions && modelSuggestions.length ? (
+              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                {modelSuggestions.map((m) => (
+                  <li key={m}>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setForm({ ...form, model: m });
+                        setShowModelSuggestions(false);
+                      }}
+                    >
+                      {m}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
@@ -202,6 +236,11 @@ function Garage() {
       <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
         {t.saveCar}
       </Button>
+      {form.make.trim() && form.model.trim() && !knownCar ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t.unknownCar}</p>
+      ) : brand ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
+      ) : null}
 
       {ready && car ? (
         <Button
@@ -209,6 +248,14 @@ function Garage() {
           className="mt-2 w-full text-muted-foreground"
           onClick={() => {
             saveCar(null);
+            setForm({
+              make: "",
+              model: "",
+              year: "",
+              mileageKm: "",
+              transmission: "manual",
+              fuel: "petrol",
+            });
             toast.success(t.carRemoved);
           }}
         >
