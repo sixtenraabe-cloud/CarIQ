@@ -13,40 +13,96 @@ export function bodyStyleFor(model: string): Body {
   return "sedan";
 }
 
-type Shape = { body: string; glassRear: string; glassFront: string; wheelY: number };
+type P = [number, number];
+
+type Shape = {
+  /** near-side profile, front pointing right */
+  rearBottom: P;
+  rearTop: P;
+  trunkTop: P;
+  beltRear: P;
+  roofRear: P;
+  roofFront: P;
+  beltFront: P;
+  hood: P;
+  noseTop: P;
+  noseBottom: P;
+  wheels: [number, number];
+};
 
 const SHAPES: Record<Body, Shape> = {
   sedan: {
-    body: "M16 86 C16 71 23 65 37 62 L76 43 C84 39 92 37 102 37 L150 37 C165 37 176 41 185 50 L204 63 L229 69 C241 71 247 75 247 83 L247 90 C247 94 244 96 240 96 L23 96 C19 96 16 92 16 86 Z",
-    glassRear: "M52 61 L84 45 C90 42 96 41 102 41 L120 41 L120 61 Z",
-    glassFront: "M127 41 L148 41 C159 41 168 45 175 53 L182 61 L127 61 Z",
-    wheelY: 92,
+    rearBottom: [20, 106],
+    rearTop: [20, 82],
+    trunkTop: [28, 70],
+    beltRear: [64, 66],
+    roofRear: [92, 42],
+    roofFront: [146, 40],
+    beltFront: [172, 64],
+    hood: [206, 62],
+    noseTop: [216, 70],
+    noseBottom: [216, 106],
+    wheels: [74, 190],
   },
   coupe: {
-    body: "M18 86 C18 72 25 66 39 63 L80 42 C89 38 97 36 108 36 L142 36 C158 36 170 41 180 51 L202 64 L228 70 C240 72 246 76 246 84 L246 90 C246 94 243 96 239 96 L25 96 C21 96 18 92 18 86 Z",
-    glassRear: "M56 62 L88 44 C94 41 101 40 108 40 L122 40 L122 62 Z",
-    glassFront: "M129 40 L141 40 C153 40 163 45 170 54 L177 62 L129 62 Z",
-    wheelY: 92,
+    rearBottom: [22, 106],
+    rearTop: [22, 84],
+    trunkTop: [32, 74],
+    beltRear: [70, 70],
+    roofRear: [102, 46],
+    roofFront: [140, 44],
+    beltFront: [176, 68],
+    hood: [208, 66],
+    noseTop: [217, 74],
+    noseBottom: [217, 106],
+    wheels: [76, 192],
   },
   wagon: {
-    body: "M16 86 C16 71 23 65 37 62 L74 41 C82 37 90 35 100 35 L162 35 C176 35 186 40 194 50 L209 63 L230 69 C242 71 247 75 247 83 L247 90 C247 94 244 96 240 96 L23 96 C19 96 16 92 16 86 Z",
-    glassRear: "M50 61 L82 43 C88 40 94 39 100 39 L120 39 L120 61 Z",
-    glassFront: "M127 39 L160 39 C170 39 178 43 184 52 L190 61 L127 61 Z",
-    wheelY: 92,
+    rearBottom: [18, 106],
+    rearTop: [18, 78],
+    trunkTop: [22, 62],
+    beltRear: [58, 60],
+    roofRear: [84, 38],
+    roofFront: [162, 36],
+    beltFront: [180, 62],
+    hood: [206, 60],
+    noseTop: [216, 68],
+    noseBottom: [216, 106],
+    wheels: [72, 190],
   },
   hatch: {
-    body: "M22 86 C22 71 29 65 43 62 L78 43 C86 39 94 37 104 37 L142 37 C156 37 166 41 174 50 L192 63 L218 69 C230 71 236 75 236 83 L236 90 C236 94 233 96 229 96 L29 96 C25 96 22 92 22 86 Z",
-    glassRear: "M56 61 L86 45 C92 42 98 41 104 41 L120 41 L120 61 Z",
-    glassFront: "M127 41 L141 41 C152 41 160 45 166 53 L172 61 L127 61 Z",
-    wheelY: 92,
+    rearBottom: [34, 106],
+    rearTop: [34, 82],
+    trunkTop: [40, 68],
+    beltRear: [70, 64],
+    roofRear: [94, 42],
+    roofFront: [144, 40],
+    beltFront: [168, 64],
+    hood: [198, 62],
+    noseTop: [208, 70],
+    noseBottom: [208, 106],
+    wheels: [82, 184],
   },
   suv: {
-    body: "M16 82 C16 66 23 59 37 56 L72 34 C80 30 88 28 98 28 L158 28 C173 28 184 33 192 44 L208 58 L230 64 C242 66 248 70 248 79 L248 90 C248 94 245 96 241 96 L23 96 C19 96 16 92 16 82 Z",
-    glassRear: "M50 56 L80 36 C86 33 92 32 98 32 L120 32 L120 56 Z",
-    glassFront: "M127 32 L156 32 C166 32 174 36 180 46 L187 56 L127 56 Z",
-    wheelY: 90,
+    rearBottom: [18, 106],
+    rearTop: [18, 76],
+    trunkTop: [22, 56],
+    beltRear: [56, 54],
+    roofRear: [80, 30],
+    roofFront: [158, 28],
+    beltFront: [178, 54],
+    hood: [204, 52],
+    noseTop: [216, 60],
+    noseBottom: [216, 106],
+    wheels: [72, 190],
   },
 };
+
+/** depth vector: how far the far side of the car sits toward the vanishing point */
+const DX = 34;
+const DY = -16;
+const off = ([x, y]: P): P => [x + DX, y + DY];
+const poly = (pts: P[]) => pts.map(([x, y]) => `${x},${y}`).join(" ");
 
 export type Zone = "front" | "rear" | "engine" | "under" | null;
 
@@ -61,166 +117,312 @@ export function CarSilhouette({
   className?: string;
   highlight?: Zone;
 }) {
-  const shape = SHAPES[bodyStyleFor(model)];
+  const s = SHAPES[bodyStyleFor(model)];
   const glow = "oklch(0.8 0.15 80)";
 
+  const nearChain: P[] = [
+    s.rearBottom,
+    s.rearTop,
+    s.trunkTop,
+    s.beltRear,
+    s.roofRear,
+    s.roofFront,
+    s.beltFront,
+    s.hood,
+    s.noseTop,
+    s.noseBottom,
+  ];
+  const farChain = nearChain.map(off);
+
+  /** the visible top / front planes: strip between the near and far profile chains */
+  const topChain: P[] = [
+    s.trunkTop,
+    s.beltRear,
+    s.roofRear,
+    s.roofFront,
+    s.beltFront,
+    s.hood,
+    s.noseTop,
+    s.noseBottom,
+  ];
+  const stripPoints = [...topChain, ...topChain.map(off).reverse()];
+
+  const beltY = (s.beltRear[1] + s.beltFront[1]) / 2;
+  const roofY = (s.roofRear[1] + s.roofFront[1]) / 2;
+  const pillarX = (s.roofRear[0] + s.roofFront[0]) / 2;
+
+  const glassRear = poly([
+    [s.beltRear[0] + 6, beltY - 2],
+    [s.roofRear[0] + 5, roofY + 5],
+    [pillarX - 3, roofY + 4],
+    [pillarX - 3, beltY - 2],
+  ]);
+  const glassFront = poly([
+    [pillarX + 4, roofY + 4],
+    [s.roofFront[0] - 5, roofY + 5],
+    [s.beltFront[0] - 5, beltY - 3],
+    [pillarX + 4, beltY - 3],
+  ]);
+  /** windscreen plane, seen in perspective */
+  const windscreen = poly([
+    s.roofFront,
+    off(s.roofFront),
+    off(s.beltFront),
+    s.beltFront,
+  ]);
+  /** front fascia plane */
+  const fascia = poly([s.noseTop, off(s.noseTop), off(s.noseBottom), s.noseBottom]);
+  /** bonnet plane */
+  const bonnet = poly([s.beltFront, off(s.beltFront), off(s.noseTop), s.noseTop, s.hood]);
+  /** roof plane */
+  const roofPlane = poly([s.roofRear, off(s.roofRear), off(s.roofFront), s.roofFront]);
+
+  const [wRear, wFront] = s.wheels;
+  const groundY = s.noseBottom[1];
+
   return (
-    <svg viewBox="0 0 264 124" className={className} role="img" aria-hidden="true">
+    <svg viewBox="0 0 300 150" className={className} role="img" aria-hidden="true">
       <defs>
-        <linearGradient id="cariq-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.68 0.055 258)" />
-          <stop offset="34%" stopColor="oklch(0.5 0.045 262)" />
-          <stop offset="52%" stopColor="oklch(0.62 0.05 258)" />
-          <stop offset="70%" stopColor="oklch(0.33 0.035 264)" />
+        <linearGradient id="cariq-flank" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.6 0.05 258)" />
+          <stop offset="38%" stopColor="oklch(0.44 0.04 262)" />
+          <stop offset="58%" stopColor="oklch(0.55 0.045 258)" />
           <stop offset="100%" stopColor="oklch(0.24 0.03 264)" />
+        </linearGradient>
+        <linearGradient id="cariq-top" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="oklch(0.78 0.05 250)" />
+          <stop offset="100%" stopColor="oklch(0.56 0.05 258)" />
+        </linearGradient>
+        <linearGradient id="cariq-face" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.66 0.05 256)" />
+          <stop offset="100%" stopColor="oklch(0.34 0.035 262)" />
         </linearGradient>
         <linearGradient id="cariq-glass" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="oklch(0.78 0.07 240)" />
-          <stop offset="55%" stopColor="oklch(0.5 0.06 252)" />
-          <stop offset="100%" stopColor="oklch(0.33 0.05 258)" />
+          <stop offset="60%" stopColor="oklch(0.48 0.06 252)" />
+          <stop offset="100%" stopColor="oklch(0.32 0.05 258)" />
         </linearGradient>
         <linearGradient id="cariq-tyre" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="oklch(0.3 0.015 264)" />
-          <stop offset="100%" stopColor="oklch(0.16 0.015 264)" />
+          <stop offset="100%" stopColor="oklch(0.15 0.015 264)" />
         </linearGradient>
         <linearGradient id="cariq-rim" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="oklch(0.9 0.01 258)" />
-          <stop offset="50%" stopColor="oklch(0.62 0.015 258)" />
-          <stop offset="100%" stopColor="oklch(0.42 0.015 258)" />
+          <stop offset="0%" stopColor="oklch(0.92 0.01 258)" />
+          <stop offset="55%" stopColor="oklch(0.6 0.015 258)" />
+          <stop offset="100%" stopColor="oklch(0.4 0.015 258)" />
         </linearGradient>
-        <radialGradient id="cariq-shadow" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stopColor="oklch(0 0 0)" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="oklch(0 0 0)" stopOpacity="0" />
-        </radialGradient>
         <linearGradient id="cariq-headlamp" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor="oklch(0.98 0.09 95)" />
-          <stop offset="100%" stopColor="oklch(0.86 0.16 85)" />
+          <stop offset="100%" stopColor="oklch(0.85 0.16 85)" />
         </linearGradient>
-        <clipPath id="cariq-clip-body">
-          <path d={shape.body} />
-        </clipPath>
+        <radialGradient id="cariq-shadow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="oklch(0 0 0)" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="oklch(0 0 0)" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      {/* ground shadow */}
-      <ellipse cx="132" cy="107" rx="118" ry="9" fill="url(#cariq-shadow)" />
+      {/* ground shadow, skewed with the car */}
+      <ellipse cx="145" cy={groundY + 6} rx="132" ry="11" fill="url(#cariq-shadow)" />
 
       {/* highlight zones */}
       {highlight === "front" || highlight === "engine" ? (
-        <rect x="150" y="24" width="106" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
+        <rect x="176" y="18" width="118" height="100" rx="20" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "rear" ? (
-        <rect x="8" y="24" width="96" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
+        <rect x="6" y="24" width="104" height="94" rx="20" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "under" ? (
-        <rect x="24" y="86" width="216" height="26" rx="13" fill={glow} opacity="0.12" stroke={glow} strokeOpacity="0.35" />
+        <polygon
+          points={poly([
+            [30, groundY + 2],
+            [30 + DX, groundY + 2 + DY + 6],
+            [s.noseBottom[0] + DX, groundY + 2 + DY + 6],
+            [s.noseBottom[0], groundY + 2],
+          ])}
+          fill={glow}
+          opacity="0.14"
+          stroke={glow}
+          strokeOpacity="0.35"
+        />
       ) : null}
 
-      <path
-        d={shape.body}
-        fill="url(#cariq-body)"
-        stroke="oklch(0.72 0.02 258)"
-        strokeWidth="1.6"
+      {/* far-side wheels peeking through */}
+      <g opacity="0.55">
+        <ellipse cx={wRear + DX} cy={groundY + DY + 2} rx="15" ry="15" fill="oklch(0.14 0.015 264)" />
+        <ellipse cx={wFront + DX} cy={groundY + DY + 2} rx="15" ry="15" fill="oklch(0.14 0.015 264)" />
+      </g>
+
+      {/* far-side body block (gives the volume) */}
+      <polygon points={poly(farChain)} fill="oklch(0.3 0.035 262)" />
+
+      {/* connecting planes: roof, windscreen, bonnet, fascia */}
+      <polygon points={poly(stripPoints)} fill="url(#cariq-top)" opacity="0.9" />
+      <polygon points={roofPlane} fill="url(#cariq-top)" />
+      <polygon points={windscreen} fill="url(#cariq-glass)" opacity="0.92" />
+      <polygon points={bonnet} fill="url(#cariq-face)" opacity="0.95" />
+      <polygon points={fascia} fill="url(#cariq-face)" />
+
+      {/* fascia detail: grille, lamps, bumper */}
+      <g>
+        <polygon
+          points={poly([
+            [s.noseTop[0] + 6, s.noseTop[1] + 6],
+            [s.noseTop[0] + DX - 4, s.noseTop[1] + DY + 8],
+            [s.noseTop[0] + DX - 4, s.noseTop[1] + DY + 22],
+            [s.noseTop[0] + 6, s.noseTop[1] + 22],
+          ])}
+          fill="oklch(0.18 0.02 264)"
+          stroke="oklch(0.62 0.02 258)"
+          strokeWidth="0.8"
+        />
+        <rect
+          x={s.noseTop[0] - 2}
+          y={s.noseTop[1] + 3}
+          width="11"
+          height="7"
+          rx="3"
+          fill="url(#cariq-headlamp)"
+          transform={`rotate(-12 ${s.noseTop[0]} ${s.noseTop[1]})`}
+        />
+        <rect
+          x={s.noseTop[0] + DX - 14}
+          y={s.noseTop[1] + DY + 5}
+          width="11"
+          height="7"
+          rx="3"
+          fill="url(#cariq-headlamp)"
+          opacity="0.85"
+          transform={`rotate(-12 ${s.noseTop[0] + DX} ${s.noseTop[1] + DY})`}
+        />
+        <ellipse cx={s.noseTop[0] + 14} cy={s.noseTop[1] + 6} rx="26" ry="13" fill="oklch(0.92 0.12 95)" opacity="0.10" />
+        <polygon
+          points={poly([
+            [s.noseBottom[0], groundY - 12],
+            [s.noseBottom[0] + DX, groundY + DY - 10],
+            [s.noseBottom[0] + DX, groundY + DY - 2],
+            [s.noseBottom[0], groundY - 4],
+          ])}
+          fill="oklch(0.2 0.02 264)"
+          opacity="0.8"
+        />
+      </g>
+
+      {/* near-side flank */}
+      <polygon
+        points={poly(nearChain)}
+        fill="url(#cariq-flank)"
+        stroke="oklch(0.74 0.02 258)"
+        strokeWidth="1.5"
         strokeLinejoin="round"
       />
 
-      {/* body sculpting: shoulder crease, rocker shadow, sill, specular sweep */}
-      <g clipPath="url(#cariq-clip-body)">
+      {/* flank detail */}
+      <g>
+        <polygon points={glassRear} fill="url(#cariq-glass)" opacity="0.9" />
+        <polygon points={glassFront} fill="url(#cariq-glass)" opacity="0.9" />
+        <polygon points={glassRear} fill="none" stroke="oklch(0.85 0.015 258)" strokeOpacity="0.5" strokeWidth="0.9" />
+        <polygon points={glassFront} fill="none" stroke="oklch(0.85 0.015 258)" strokeOpacity="0.5" strokeWidth="0.9" />
+        {/* shoulder crease + rocker shadow */}
         <path
-          d="M20 66 C70 60 190 58 246 66"
+          d={`M${s.rearBottom[0] + 6} ${beltY + 12} C 90 ${beltY + 6} 170 ${beltY + 5} ${s.noseBottom[0] - 6} ${beltY + 12}`}
           fill="none"
-          stroke="oklch(0.95 0.01 258)"
-          strokeOpacity="0.28"
+          stroke="oklch(0.96 0.01 258)"
+          strokeOpacity="0.22"
           strokeWidth="1.4"
         />
         <path
-          d="M22 76 C74 71 188 70 244 76"
+          d={`M${s.rearBottom[0] + 4} ${groundY - 14} C 90 ${groundY - 20} 170 ${groundY - 20} ${s.noseBottom[0] - 4} ${groundY - 14}`}
           fill="none"
           stroke="oklch(0.1 0.01 264)"
-          strokeOpacity="0.35"
-          strokeWidth="2"
+          strokeOpacity="0.45"
+          strokeWidth="3"
         />
-        <rect x="0" y="88" width="264" height="10" fill="oklch(0.14 0.02 264)" opacity="0.55" />
+        {/* door split + handles */}
+        <line x1={pillarX} y1={roofY + 6} x2={pillarX - 4} y2={groundY - 8} stroke="oklch(0.8 0.02 258)" strokeWidth="1" opacity="0.5" />
+        <line
+          x1={s.beltRear[0] + 4}
+          y1={beltY + 2}
+          x2={s.beltRear[0] + 1}
+          y2={groundY - 10}
+          stroke="oklch(0.8 0.02 258)"
+          strokeWidth="1"
+          opacity="0.35"
+        />
+        <rect x={pillarX - 20} y={beltY + 6} width="11" height="3" rx="1.5" fill="oklch(0.86 0.02 258)" opacity="0.85" />
+        <rect x={pillarX + 8} y={beltY + 6} width="11" height="3" rx="1.5" fill="oklch(0.86 0.02 258)" opacity="0.85" />
+        {/* mirror */}
         <path
-          d="M0 58 L120 30 L150 30 L30 58 Z"
-          fill="oklch(1 0 0)"
-          opacity="0.07"
+          d={`M${s.beltFront[0] - 4} ${beltY + 1} l10 -3 4 5 -10 3 z`}
+          fill="oklch(0.46 0.03 262)"
+          stroke="oklch(0.8 0.02 258)"
+          strokeWidth="0.8"
         />
+        {/* tail lamp */}
+        <rect x={s.rearBottom[0] + 1} y={beltY + 4} width="10" height="8" rx="3" fill="oklch(0.62 0.21 25)" />
+        <ellipse cx={s.rearBottom[0] + 6} cy={beltY + 8} rx="12" ry="9" fill="oklch(0.62 0.21 25)" opacity="0.16" />
         {/* wheel arches */}
-        <path d="M50 96 A22 22 0 0 1 94 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
-        <path d="M176 96 A22 22 0 0 1 220 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+        <path d={`M${wRear - 23} ${groundY} A 23 23 0 0 1 ${wRear + 23} ${groundY}`} fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+        <path d={`M${wFront - 23} ${groundY} A 23 23 0 0 1 ${wFront + 23} ${groundY}`} fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+        {/* specular sweep */}
+        <polygon
+          points={poly([
+            [s.rearBottom[0] + 4, beltY + 20],
+            [pillarX, beltY + 6],
+            [s.noseBottom[0] - 10, beltY + 8],
+            [s.noseBottom[0] - 10, beltY + 13],
+            [pillarX, beltY + 12],
+            [s.rearBottom[0] + 4, beltY + 26],
+          ])}
+          fill="oklch(1 0 0)"
+          opacity="0.08"
+        />
       </g>
 
-      <path d={shape.glassRear} fill="url(#cariq-glass)" opacity="0.85" />
-      <path d={shape.glassFront} fill="url(#cariq-glass)" opacity="0.85" />
-      {/* glass reflections */}
-      <g opacity="0.35">
-        <path d="M60 60 L78 47 L86 47 L66 60 Z" fill="oklch(0.98 0.01 250)" />
-        <path d="M136 58 L150 44 L156 44 L143 58 Z" fill="oklch(0.98 0.01 250)" />
-      </g>
-      {/* window trim */}
-      <path
-        d={shape.glassRear}
-        fill="none"
-        stroke="oklch(0.85 0.015 258)"
-        strokeOpacity="0.55"
-        strokeWidth="1"
-      />
-      <path
-        d={shape.glassFront}
-        fill="none"
-        stroke="oklch(0.85 0.015 258)"
-        strokeOpacity="0.55"
-        strokeWidth="1"
-      />
-      <line x1="123" y1="38" x2="123" y2="88" stroke="oklch(0.72 0.02 258)" strokeWidth="1.1" opacity="0.55" />
-      <rect x="108" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
-      <rect x="132" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
-      {/* side mirror */}
-      <path d="M150 62 l9 -2 3 4 -9 2 z" fill="oklch(0.45 0.03 262)" stroke="oklch(0.78 0.02 258)" strokeWidth="0.8" />
-
-      {/* lights */}
-      <g>
-        <ellipse cx="241" cy="73" rx="13" ry="9" fill="oklch(0.92 0.12 95)" opacity="0.16" />
-        <rect x="234" y="69" width="12" height="8" rx="3.5" fill="url(#cariq-headlamp)" />
-        <rect x="230" y="80" width="14" height="2.4" rx="1.2" fill="oklch(0.95 0.09 95)" opacity="0.65" />
-      </g>
-      <g>
-        <ellipse cx="21" cy="73" rx="11" ry="8" fill="oklch(0.62 0.21 25)" opacity="0.18" />
-        <rect x="16" y="69" width="11" height="8" rx="3.5" fill="oklch(0.62 0.21 25)" />
-        <rect x="18" y="80" width="11" height="2.2" rx="1.1" fill="oklch(0.68 0.2 25)" opacity="0.6" />
-      </g>
-
-      {/* hood highlight edge */}
+      {/* zone accents */}
       {highlight === "front" || highlight === "engine" ? (
+        <polygon points={bonnet} fill={glow} opacity="0.22" stroke={glow} strokeWidth="1.6" />
+      ) : null}
+      {highlight === "rear" ? (
+        <polygon
+          points={poly([s.rearTop, s.trunkTop, s.beltRear, off(s.beltRear), off(s.trunkTop), off(s.rearTop)])}
+          fill={glow}
+          opacity="0.22"
+          stroke={glow}
+          strokeWidth="1.6"
+        />
+      ) : null}
+      {highlight === "under" ? (
         <path
-          d="M186 51 L206 64 L232 70"
+          d={`M${s.rearBottom[0] + 12} ${groundY + 2} L ${s.noseBottom[0] - 8} ${groundY + 2}`}
           fill="none"
           stroke={glow}
           strokeWidth="3"
           strokeLinecap="round"
+          strokeDasharray="6 6"
         />
       ) : null}
-      {highlight === "rear" ? (
-        <path d="M18 68 L38 62 L58 56" fill="none" stroke={glow} strokeWidth="3" strokeLinecap="round" />
-      ) : null}
-      {highlight === "under" ? (
-        <path d="M40 98 L226 98" fill="none" stroke={glow} strokeWidth="3" strokeLinecap="round" strokeDasharray="6 6" />
-      ) : null}
 
-      {/* engine lamp with a line to the hood */}
+      {/* engine lamp with a line to the bonnet */}
       {highlight === "engine" ? (
         <g>
-          <line x1="206" y1="34" x2="200" y2="58" stroke={glow} strokeWidth="1.6" strokeDasharray="4 4" />
-          <g transform="translate(190 6) scale(1.5)">
+          <line
+            x1={s.hood[0] + 12}
+            y1={s.hood[1] - 24}
+            x2={s.hood[0] + 6}
+            y2={s.hood[1] - 4}
+            stroke={glow}
+            strokeWidth="1.6"
+            strokeDasharray="4 4"
+          />
+          <g transform={`translate(${s.hood[0] - 4} ${s.hood[1] - 54}) scale(1.6)`}>
             <CheckEngineGlyph color={glow} />
           </g>
         </g>
       ) : null}
 
-      {/* wheels */}
-      <Wheel cx={72} cy={shape.wheelY} />
-      <Wheel cx={198} cy={shape.wheelY} />
-      <line x1="10" y1="112" x2="254" y2="112" stroke="oklch(0.29 0.028 264)" strokeWidth="2" strokeLinecap="round" />
+      {/* near wheels */}
+      <Wheel cx={wRear} cy={groundY} />
+      <Wheel cx={wFront} cy={groundY} />
     </svg>
   );
 }
@@ -229,38 +431,38 @@ function Wheel({ cx, cy }: { cx: number; cy: number }) {
   const spokes = Array.from({ length: 10 }, (_, i) => (i * 360) / 10);
   return (
     <g>
-      <circle cx={cx} cy={cy} r="20" fill="url(#cariq-tyre)" stroke="oklch(0.1 0.01 264)" strokeWidth="1" />
+      <circle cx={cx} cy={cy} r="21" fill="url(#cariq-tyre)" stroke="oklch(0.1 0.01 264)" strokeWidth="1" />
       <circle
         cx={cx}
         cy={cy}
-        r="16.5"
+        r="17"
         fill="none"
         stroke="oklch(0.42 0.015 264)"
         strokeWidth="1"
         strokeDasharray="2 2.5"
         opacity="0.7"
       />
-      <circle cx={cx} cy={cy} r="13" fill="url(#cariq-rim)" stroke="oklch(0.85 0.01 258)" strokeWidth="0.8" />
-      <circle cx={cx} cy={cy} r="11" fill="oklch(0.24 0.02 264)" />
+      <circle cx={cx} cy={cy} r="13.5" fill="url(#cariq-rim)" stroke="oklch(0.85 0.01 258)" strokeWidth="0.8" />
+      <circle cx={cx} cy={cy} r="11.5" fill="oklch(0.23 0.02 264)" />
       {spokes.map((a) => (
         <rect
           key={a}
           x={cx - 1.3}
-          y={cy - 11}
+          y={cy - 11.5}
           width="2.6"
-          height="8.5"
+          height="9"
           rx="1.3"
           fill="url(#cariq-rim)"
           transform={`rotate(${a} ${cx} ${cy})`}
         />
       ))}
-      <circle cx={cx} cy={cy} r="3.6" fill="oklch(0.72 0.02 258)" stroke="oklch(0.9 0.01 258)" strokeWidth="0.6" />
+      <circle cx={cx} cy={cy} r="3.6" fill="oklch(0.74 0.02 258)" stroke="oklch(0.92 0.01 258)" strokeWidth="0.6" />
       <circle cx={cx} cy={cy} r="1.4" fill="oklch(0.58 0.19 260)" />
       <path
-        d={`M${cx - 8} ${cy - 12} A 14 14 0 0 1 ${cx + 6} ${cy - 13}`}
+        d={`M${cx - 8} ${cy - 13} A 15 15 0 0 1 ${cx + 7} ${cy - 14}`}
         fill="none"
         stroke="oklch(1 0 0)"
-        strokeOpacity="0.3"
+        strokeOpacity="0.28"
         strokeWidth="1.4"
         strokeLinecap="round"
       />
