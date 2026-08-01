@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
+import { isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -32,6 +33,7 @@ function Garage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showModelSuggestions, setShowModelSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -68,15 +70,21 @@ function Garage() {
   }, [car]);
 
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
-  const valid =
-    form.make.trim() && form.model.trim() && Number(form.year) >= 1950 && form.mileageKm !== "";
+  const brand = normalizeBrand(form.make);
+  const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
+  const knownCar = isKnownCar(form.make, form.model);
+  const valid = Boolean(knownCar && Number(form.year) >= 1950 && form.mileageKm !== "");
 
   const label = (list: { value: string; label: string }[], value: string) =>
     list.find((o) => o.value === value)?.label ?? value;
 
   const submit = () => {
+    if (!isKnownCar(form.make, form.model)) {
+      toast.error(t.unknownCar);
+      return;
+    }
     saveCar({
-      make: form.make.trim(),
+      make: normalizeBrand(form.make) ?? form.make.trim(),
       model: form.model.trim(),
       year: Number(form.year),
       transmission: label(TRANSMISSIONS, form.transmission),
