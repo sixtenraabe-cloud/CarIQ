@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCar } from "@/lib/car-store";
+import { useI18n } from "@/lib/i18n";
+import { LanguagePicker } from "@/components/language-picker";
 
 export const Route = createFileRoute("/profil")({
   head: () => ({
@@ -24,10 +26,16 @@ export const Route = createFileRoute("/profil")({
 function Profil() {
   const { user } = useAuth();
   const { car } = useCar();
+  const { t } = useI18n();
 
   return (
     <main className="px-4 pt-8">
-      <h1 className="text-2xl">Profil</h1>
+      <h1 className="text-2xl">{t.navProfile}</h1>
+
+      <div className="mt-5">
+        <p className="stencil mb-2">{t.language}</p>
+        <LanguagePicker />
+      </div>
 
       <div className="panel mt-6 space-y-3 p-5">
         <div className="flex items-center gap-3">
