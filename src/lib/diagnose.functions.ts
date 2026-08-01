@@ -6,6 +6,7 @@ import type { DiagnosisResult, SecondOpinion, Verdict } from "./diagnosis-types"
 const CarSchema = z.object({
   make: z.string().trim().min(1).max(40),
   model: z.string().trim().min(1).max(40),
+  variant: z.string().trim().max(40).optional(),
   year: z.number().int().min(1950).max(2030),
   transmission: z.string().trim().min(1).max(30),
   fuel: z.string().trim().min(1).max(30),
@@ -94,6 +95,7 @@ confidence: how CERTAIN you are in this diagnosis, 0-100. High (80-95) when the 
 causes[].summary: ONE short plain sentence (max ~15 words) an owner instantly understands. No jargon.
 causes[].explanation: the optional longer version, 2-3 sentences MAX — the mechanism, why it fits this symptom, how common it is on this model/mileage. Keep it tight; never a wall of text.
 causes[].likelihood: a realistic probability in percent. Only list causes you actually consider possible: every listed cause must be at least 5%. Never output 0% or 1% causes — leave them out entirely. List at most 4 causes, ordered from most to least likely, and their percentages together should add up to roughly 100 (never far above).
+Every cause, check, note and cost MUST be physically possible on this exact powertrain — obey the powertrain constraint in the case notes without exception.
 mismatch: "" in almost every case. Only fill it in when the owner's description clearly does NOT match the symptom category they picked (for example they picked "warning light" but describe that the car won't turn, or they picked "brakes" but describe a dashboard lamp). Then write ONE friendly sentence saying it looks like the wrong category was picked and which category fits better.
 checks: 2-5 things the owner can check in the driveway.
 advice: what to do now, in what order, and what to tell the garage.
@@ -109,6 +111,23 @@ Your job:
 
 Return ONLY JSON:
 {"summary":string,"alternatives":[{"part":string,"why":string,"likelihood":number,"stance":"more|less|same"}],"extra":string}`;
+
+function powertrainOf(fuel: string): "electric" | "hybrid" | "diesel" | "petrol" {
+  const f = fuel.toLowerCase();
+  if (/(^|\b)(el|elbil|electric|elektrisk|elektrisch|ev|bev)(\b|$)/.test(f)) return "electric";
+  if (f.includes("hybrid")) return "hybrid";
+  if (f.includes("diesel")) return "diesel";
+  return "petrol";
+}
+
+const POWERTRAIN_RULES: Record<string, string> = {
+  electric: `HARD CONSTRAINT — this is a BATTERY ELECTRIC vehicle. It has NO combustion engine, no engine oil, no oil pressure lamp, no spark plugs, no glow plugs, no timing chain/belt, no turbo, no exhaust/catalytic converter/DPF/AdBlue, no fuel pump/injectors, no clutch or conventional multi-speed gearbox, no cambelt service, no coolant thermostat for an engine block (only battery/inverter cooling), no alternator, no engine air filter, no oil change.
+Never suggest, mention or price any of those. If the owner describes something that cannot exist on an EV (for example "yellow oil lamp", "engine misfire", "smell of petrol", "gearbox oil"), set mismatch to one friendly sentence explaining that this car has no combustion engine and asking what they actually saw/heard, and interpret it as the closest thing that DOES exist on an EV (12V battery warning, high-voltage battery / drive-unit warning, coolant for the battery pack, brake fluid, reduced power mode).
+Relevant EV systems instead: high-voltage battery and BMS, drive unit/inverter/reduction gear, 12V battery, regenerative braking and rusty/glazed brake discs from little use, charging port/onboard charger, heat pump/AC, suspension, tyres, wheel bearings, cabin filter, brake fluid, coolant loop for battery/inverter, software faults.`,
+  hybrid: `This is a HYBRID. It has both a combustion engine and an electric drive/battery. Consider hybrid-specific faults (HV battery degradation, inverter/converter cooling, engine that runs rarely, brake system with regeneration, 12V battery) alongside normal engine faults.`,
+  diesel: `This is a DIESEL. No spark plugs (glow plugs instead), no petrol-specific faults. Consider DPF, EGR, injectors, glow plugs, turbo, dual-mass flywheel, AdBlue/SCR where applicable.`,
+  petrol: `This is a PETROL car. No diesel-specific parts (no DPF, no glow plugs, no AdBlue). Consider spark plugs, coils, injectors, timing chain/belt, turbo if fitted, catalytic converter, lambda sensors.`,
+};
 
 function clampVerdict(value: unknown): Verdict {
   return value === "safe" || value === "urgent" || value === "soon" ? value : "caution";
@@ -150,9 +169,10 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
     const { car } = data;
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
     const brief = [
-      `Vehicle: ${car.year} ${car.make} ${car.model}`,
+      `Vehicle: ${car.year} ${car.make} ${car.model}${car.variant ? ` ${car.variant}` : ""}`,
       `Transmission: ${car.transmission}`,
       `Fuel: ${car.fuel}`,
+      POWERTRAIN_RULES[powertrainOf(car.fuel)] ?? "",
       `Odometer: ${car.mileageKm} km`,
       data.tags.length ? `Reported symptom categories: ${data.tags.join(", ")}` : "",
       `Owner's description: ${data.symptom}`,
@@ -246,7 +266,8 @@ export const secondOpinion = createServerFn({ method: "POST" })
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
 
     const brief = [
-      `Vehicle: ${car.year} ${car.make} ${car.model} · ${car.transmission} · ${car.fuel} · ${car.mileageKm} km`,
+      `Vehicle: ${car.year} ${car.make} ${car.model}${car.variant ? ` ${car.variant}` : ""} · ${car.transmission} · ${car.fuel} · ${car.mileageKm} km`,
+      POWERTRAIN_RULES[powertrainOf(car.fuel)] ?? "",
       data.tags.length ? `Symptom categories: ${data.tags.join(", ")}` : "",
       `Owner's description: ${data.symptom}`,
       "",
