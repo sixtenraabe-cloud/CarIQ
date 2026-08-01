@@ -110,3 +110,72 @@ export function isKnownCar(brandInput: string, modelInput: string): boolean {
   const m = modelInput.trim().toLowerCase();
   return list.some((x) => x.toLowerCase() === m);
 }
+
+export type FuelValue = "petrol" | "diesel" | "hybrid" | "electric";
+export const ALL_FUELS: FuelValue[] = ["petrol", "diesel", "hybrid", "electric"];
+
+/** Brands that only sell battery-electric cars. */
+const EV_BRANDS = [
+  "Tesla",
+  "Polestar",
+  "Lucid",
+  "Rivian",
+  "Nio",
+  "Xpeng",
+  "Zeekr",
+  "Rimac",
+  "Fisker",
+  "BYD",
+];
+
+/** Individual model names that only exist as battery-electric. */
+const EV_MODELS = new Set(
+  [
+    "Audi|e-tron",
+    "BMW|i3",
+    "BMW|i4",
+    "BMW|iX",
+    "Citroën|Ami",
+    "Cupra|Born",
+    "Dacia|Spring",
+    "Fiat|500e",
+    "Honda|e",
+    "Hyundai|Ioniq 5",
+    "Jaguar|I-Pace",
+    "Kia|EV6",
+    "Mazda|MX-30",
+    "Mercedes-Benz|EQC",
+    "Mercedes-Benz|EQS",
+    "MG|MG4",
+    "Nissan|Leaf",
+    "Nissan|Ariya",
+    "Opel|Mokka-e",
+    "Porsche|Taycan",
+    "Renault|Zoe",
+    "Smart|#1",
+    "Škoda|Enyaq",
+    "Toyota|bZ4X",
+    "Volkswagen|ID.3",
+    "Volkswagen|ID.4",
+    "Volvo|EX30",
+    "Volvo|C40",
+  ].map((s) => s.toLowerCase()),
+);
+
+/** Models that are only sold as hybrids. */
+const HYBRID_MODELS = new Set(
+  ["Toyota|Prius", "Honda|Insight", "Hyundai|Ioniq", "Lexus|CT", "Kia|Niro"].map((s) =>
+    s.toLowerCase(),
+  ),
+);
+
+/** Allowed fuel types for a given brand + model. Empty model = nothing decided yet. */
+export function fuelsFor(brandInput: string, modelInput: string): FuelValue[] {
+  const brand = normalizeBrand(brandInput);
+  if (!brand || !isKnownCar(brandInput, modelInput)) return ALL_FUELS;
+  if (EV_BRANDS.some((b) => b.toLowerCase() === brand.toLowerCase())) return ["electric"];
+  const key = `${brand}|${modelInput.trim()}`.toLowerCase();
+  if (EV_MODELS.has(key)) return ["electric"];
+  if (HYBRID_MODELS.has(key)) return ["hybrid"];
+  return ALL_FUELS;
+}
