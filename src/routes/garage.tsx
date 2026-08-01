@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
-import { baseModelFor } from "@/lib/base-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({

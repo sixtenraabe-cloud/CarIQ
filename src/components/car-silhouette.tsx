@@ -1,5 +1,3 @@
-import { baseModelFor } from "@/lib/base-models";
-
 type Body = "suv" | "wagon" | "hatch" | "sedan" | "coupe";
 
 const SUV = /\b(xc\d0|q[3-8]|x[1-7]|suv|tucson|sportage|rav4|kuga|tiguan|touareg|cx-?\d0?|captur|kodiaq|karoq|duster|santa fe|sorento|evoque|discovery|defender|gl[aebcs]|macan|cayenne|model y|id\.?4|eqb|eqc|jimny|forester|outback|cherokee|atto|niva|ds 7)\b/i;
@@ -63,8 +61,7 @@ export function CarSilhouette({
   className?: string;
   highlight?: Zone;
 }) {
-  const hint = model || baseModelFor(make);
-  const shape = SHAPES[bodyStyleFor(hint)];
+  const shape = SHAPES[bodyStyleFor(model)];
   const glow = "oklch(0.8 0.15 80)";
 
   return (
