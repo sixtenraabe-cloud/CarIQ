@@ -1,11 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronLeft, Loader2, RotateCcw, Sparkles } from "lucide-react";
+import { ChevronLeft, ImagePlus, Loader2, RotateCcw, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { quickSoundCheck, type QuickCheck } from "@/lib/diagnose.functions";
 import { useCar } from "@/lib/car-store";
@@ -32,17 +31,29 @@ export const Route = createFileRoute("/snabbkoll")({
   component: QuickCheckPage,
 });
 
-const TONE: Record<QuickCheck["sounds"], string> = {
-  normal: "border-signal-safe text-signal-safe",
-  unsure: "border-signal-caution text-signal-caution",
-  attention: "border-signal-urgent text-signal-urgent",
+const TONE: Record<QuickCheck["verdict"], string> = {
+  drive: "border-signal-safe text-signal-safe",
+  workshop: "border-signal-caution text-signal-caution",
+  stop: "border-signal-urgent text-signal-urgent",
 };
 
-const DOT: Record<QuickCheck["sounds"], string> = {
-  normal: "🟢",
-  unsure: "🟡",
-  attention: "🟠",
+const DOT: Record<QuickCheck["verdict"], string> = {
+  drive: "🟢",
+  workshop: "🟡",
+  stop: "🔴",
 };
+
+function toBase64(file: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const value = String(reader.result);
+      resolve(value.slice(value.indexOf(",") + 1));
+    };
+    reader.onerror = () => reject(new Error("read error"));
+    reader.readAsDataURL(file);
+  });
+}
 
 function QuickCheckPage() {
   const navigate = useNavigate();
@@ -51,20 +62,32 @@ function QuickCheckPage() {
   const check = useServerFn(quickSoundCheck);
 
   const [clip, setClip] = useState<AudioClip | null>(null);
-  const [note, setNote] = useState("");
+  const [image, setImage] = useState<{ base64: string; mediaType: string; url: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QuickCheck | null>(null);
 
   const label =
-    result?.sounds === "normal"
-      ? t.quickNormal
-      : result?.sounds === "attention"
-        ? t.quickAttention
-        : t.quickUnsure;
+    result?.verdict === "drive"
+      ? t.quickDrive
+      : result?.verdict === "stop"
+        ? t.quickStop
+        : t.quickWorkshop;
+
+  const pickImage = async (file: File) => {
+    if (file.size > 6_000_000) {
+      toast.error("Max 6 MB");
+      return;
+    }
+    setImage({
+      base64: await toBase64(file),
+      mediaType: file.type || "image/jpeg",
+      url: URL.createObjectURL(file),
+    });
+  };
 
   const run = async () => {
-    if (!clip) {
-      toast.error(t.quickNeedAudio);
+    if (!clip && !image) {
+      toast.error(t.quickNeedMedia);
       return;
     }
     setLoading(true);
@@ -72,8 +95,8 @@ function QuickCheckPage() {
       const output = await check({
         data: {
           car: car ?? null,
-          note: note.trim(),
-          audio: { base64: clip.base64, mediaType: clip.mediaType },
+          audio: clip ? { base64: clip.base64, mediaType: clip.mediaType } : null,
+          image: image ? { base64: image.base64, mediaType: image.mediaType } : null,
           language: lang,
         },
       });
@@ -107,17 +130,47 @@ function QuickCheckPage() {
           <AudioRecorder clip={clip} onChange={setClip} />
 
           <div>
-            <p className="stencil mb-2">{t.quickNoteLabel}</p>
-            <Textarea
-              rows={3}
-              maxLength={500}
-              placeholder={t.quickNotePlaceholder}
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-            />
+            <p className="stencil mb-2">{t.quickPhotoLabel}</p>
+            <div className="panel p-4">
+              {image ? (
+                <div className="space-y-3">
+                  {image.mediaType.startsWith("video/") ? (
+                    <video src={image.url} controls className="max-h-56 w-full rounded-lg" />
+                  ) : (
+                    <img
+                      src={image.url}
+                      alt={t.quickPhotoLabel}
+                      className="max-h-56 w-full rounded-lg object-contain"
+                    />
+                  )}
+                  <Button variant="ghost" onClick={() => setImage(null)}>
+                    <Trash2 className="size-4" /> {t.removeImage}
+                  </Button>
+                </div>
+              ) : (
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+                  <ImagePlus className="size-4" />
+                  {t.uploadMedia}
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    className="hidden"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (file) void pickImage(file);
+                    }}
+                  />
+                </label>
+              )}
+            </div>
           </div>
 
-          <Button size="lg" className="w-full" disabled={loading || !clip} onClick={() => void run()}>
+          <Button
+            size="lg"
+            className="w-full"
+            disabled={loading || (!clip && !image)}
+            onClick={() => void run()}
+          >
             {loading ? (
               <>
                 <Loader2 className="size-4 animate-spin" /> {t.quickChecking}
@@ -129,9 +182,9 @@ function QuickCheckPage() {
         </div>
       ) : (
         <div className="space-y-5">
-          <div className={`panel border-l-4 p-4 ${TONE[result.sounds]}`}>
+          <div className={`panel border-l-4 p-4 ${TONE[result.verdict]}`}>
             <p className="text-sm font-semibold">
-              {DOT[result.sounds]} {label}
+              {DOT[result.verdict]} {label}
             </p>
             {result.headline ? (
               <p className="mt-1 text-lg font-bold text-foreground">{result.headline}</p>
@@ -155,7 +208,7 @@ function QuickCheckPage() {
             onClick={() => {
               setResult(null);
               setClip(null);
-              setNote("");
+              setImage(null);
             }}
           >
             <RotateCcw className="size-4" /> {t.quickAgain}
