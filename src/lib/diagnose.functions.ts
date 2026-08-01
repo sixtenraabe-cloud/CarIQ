@@ -88,11 +88,13 @@ Severity (verdict) — pick exactly one:
 "urgent" = brakes, steering, suspension, overheating, oil pressure, anything that can fail catastrophically — stop driving.
 
 Return ONLY JSON matching this shape:
-{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string}
+{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string,"mismatch":string}
 mechanicNote: 4-8 sentences of the mechanic talking the owner through the case — what he suspects, why, and how this normally behaves on this exact car.
 confidence: how CERTAIN you are in this diagnosis, 0-100. High (80-95) when the symptom is textbook and the evidence is strong; medium (50-70) when it fits but could be two or three things; low (15-40) when you are mostly guessing from thin information. Never output a low number when you are sure — the number goes UP with certainty.
 causes[].summary: ONE short plain sentence (max ~15 words) an owner instantly understands. No jargon.
 causes[].explanation: the optional longer version, 2-3 sentences MAX — the mechanism, why it fits this symptom, how common it is on this model/mileage. Keep it tight; never a wall of text.
+causes[].likelihood: a realistic probability in percent. Only list causes you actually consider possible: every listed cause must be at least 5%. Never output 0% or 1% causes — leave them out entirely. List at most 4 causes, ordered from most to least likely, and their percentages together should add up to roughly 100 (never far above).
+mismatch: "" in almost every case. Only fill it in when the owner's description clearly does NOT match the symptom category they picked (for example they picked "warning light" but describe that the car won't turn, or they picked "brakes" but describe a dashboard lamp). Then write ONE friendly sentence saying it looks like the wrong category was picked and which category fits better.
 checks: 2-5 things the owner can check in the driveway.
 advice: what to do now, in what order, and what to tell the garage.
 estimatedCost: a realistic price range including labour, in the requested currency.
@@ -202,6 +204,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
         estimatedCost: "Unknown",
         audioUsed,
         audioNote: "",
+        mismatch: "",
       };
     }
 
@@ -213,20 +216,25 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       headline: String(parsed.headline ?? "Possible issue detected").slice(0, 300),
       confidence: clampNumber(parsed.confidence, 50),
       mechanicNote: String(parsed.mechanicNote ?? "").slice(0, 3000),
-      causes: causes.slice(0, 4).map((raw) => {
-        const c = raw as Record<string, unknown>;
-        return {
-          part: String(c.part ?? "Unknown part").slice(0, 120),
-          summary: String(c.summary ?? "").slice(0, 240),
-          explanation: String(c.explanation ?? "").slice(0, 1200),
-          likelihood: clampNumber(c.likelihood, 40),
-        };
-      }),
+      causes: causes
+        .map((raw) => {
+          const c = raw as Record<string, unknown>;
+          return {
+            part: String(c.part ?? "Unknown part").slice(0, 120),
+            summary: String(c.summary ?? "").slice(0, 240),
+            explanation: String(c.explanation ?? "").slice(0, 1200),
+            likelihood: clampNumber(c.likelihood, 40),
+          };
+        })
+        .filter((c) => c.likelihood >= 5)
+        .sort((a, b) => b.likelihood - a.likelihood)
+        .slice(0, 4),
       checks: checks.slice(0, 6).map((c) => String(c).slice(0, 240)),
       advice: String(parsed.advice ?? "").slice(0, 2500),
       estimatedCost: String(parsed.estimatedCost ?? "Unknown").slice(0, 160),
       audioUsed,
       audioNote: audioUsed ? String(parsed.audioNote ?? "").slice(0, 300) : "",
+      mismatch: String(parsed.mismatch ?? "").slice(0, 400),
     };
   });
 
