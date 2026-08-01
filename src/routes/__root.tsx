@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Car, Clock, Home, User } from "lucide-react";
+import { LanguageProvider, useI18n } from "@/lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -130,6 +131,7 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <LanguageProvider>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <div className="flex-1 pb-24">
@@ -137,19 +139,21 @@ function RootComponent() {
         </div>
         <TabBar />
       </div>
+      </LanguageProvider>
       <Toaster position="top-center" />
     </QueryClientProvider>
   );
 }
 
 const TABS = [
-  { to: "/", label: "Hem", icon: Home },
-  { to: "/history", label: "Historik", icon: Clock },
-  { to: "/garage", label: "Garage", icon: Car },
-  { to: "/profil", label: "Profil", icon: User },
+  { to: "/", key: "navHome", icon: Home },
+  { to: "/history", key: "navHistory", icon: Clock },
+  { to: "/garage", key: "navGarage", icon: Car },
+  { to: "/profil", key: "navProfile", icon: User },
 ] as const;
 
 function TabBar() {
+  const { t } = useI18n();
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
       <div className="mx-auto flex max-w-md items-stretch justify-between px-2 py-2">
@@ -161,7 +165,7 @@ function TabBar() {
             className="flex flex-1 flex-col items-center gap-1 py-1 text-[11px] font-medium text-muted-foreground transition-colors [&.active]:text-primary"
           >
             <tab.icon className="size-5" />
-            {tab.label}
+            {t[tab.key]}
           </Link>
         ))}
       </div>
