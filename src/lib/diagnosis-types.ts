@@ -12,6 +12,7 @@ export const VERDICT_DOT: Record<Verdict, string> = {
 export type CarProfile = {
   make: string;
   model: string;
+  variant?: string;
   year: number;
   transmission: string;
   fuel: string;
@@ -51,5 +52,5 @@ export type SecondOpinion = {
 };
 
 export function carSummary(car: CarProfile) {
-  return `${car.year} ${car.make} ${car.model} · ${car.transmission} · ${car.fuel} · ${car.mileageKm.toLocaleString()} km`;
+  return `${car.year} ${car.make} ${car.model}${car.variant ? " " + car.variant : ""} · ${car.transmission} · ${car.fuel} · ${car.mileageKm.toLocaleString()} km`;
 }

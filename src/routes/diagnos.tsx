@@ -308,7 +308,7 @@ function Diagnos() {
           <div className="min-w-0">
             <p className="stencil">{t.myCar}</p>
             <p className="truncate text-sm">
-              {car.make} {car.model} · {car.year}
+              {car.make} {car.model}{car.variant ? ` ${car.variant}` : ""} · {car.year}
             </p>
           </div>
         </div>
