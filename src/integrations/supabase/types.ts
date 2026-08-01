@@ -72,7 +72,7 @@ export type Database = {
           symptom: string
           symptom_tags: string[]
           user_id: string
-          verdict: Database["public"]["Enums"]["drive_verdict"]
+          verdict: string
         }
         Insert: {
           advice?: string
@@ -89,7 +89,7 @@ export type Database = {
           symptom: string
           symptom_tags?: string[]
           user_id: string
-          verdict: Database["public"]["Enums"]["drive_verdict"]
+          verdict: string
         }
         Update: {
           advice?: string
@@ -106,7 +106,7 @@ export type Database = {
           symptom?: string
           symptom_tags?: string[]
           user_id?: string
-          verdict?: Database["public"]["Enums"]["drive_verdict"]
+          verdict?: string
         }
         Relationships: [
           {
@@ -126,7 +126,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      drive_verdict: "safe" | "caution" | "urgent"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -253,8 +253,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      drive_verdict: ["safe", "caution", "urgent"],
-    },
+    Enums: {},
   },
 } as const
