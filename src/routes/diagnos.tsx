@@ -422,18 +422,19 @@ function Diagnos() {
         <div className="space-y-5">
           <p className="text-sm text-muted-foreground">{t.audioHint}</p>
           <AudioRecorder clip={clip} onChange={setClip} />
-          <Button size="lg" className="w-full" disabled={loading} onClick={() => void run()}>
-            {loading ? (
-              <>
-                <Loader2 className="size-4 animate-spin" /> {t.analyzing}
-              </>
-            ) : (
-              t.analyze
-            )}
-          </Button>
-          {!clip ? (
+          {clip ? (
+            <Button size="lg" className="w-full" disabled={loading} onClick={() => void run()}>
+              {loading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
+                </>
+              ) : (
+                t.analyze
+              )}
+            </Button>
+          ) : (
             <Button
-              variant="secondary"
+              size="lg"
               className="w-full"
               disabled={loading}
               onClick={() => {
@@ -441,9 +442,15 @@ function Diagnos() {
                 void run();
               }}
             >
-              {t.noAudio}
+              {loading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
+                </>
+              ) : (
+                t.noAudio
+              )}
             </Button>
-          ) : null}
+          )}
         </div>
       ) : null}
 
