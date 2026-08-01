@@ -179,6 +179,10 @@ const sv = {
   unknownCar: "Vi känner inte igen den bilen — välj ett märke och en modell som finns.",
   mismatchTitle: "Ojdå, blev det lite fel här?",
   mismatchFallback: "Det du beskriver verkar inte höra ihop med kategorin du valde. Gör gärna en ny diagnos med rätt kategori.",
+  pickModelFirst: "Välj modell först",
+  fuelLocked: "Den här modellen finns bara som {fuel} — därför är den låst.",
+  addCarPlus: "Lägg till bil",
+  removeCarMinus: "Ta bort bil",
 };
 
 export type Dict = typeof sv;
@@ -344,6 +348,10 @@ const en: Dict = {
   unknownCar: "We don't recognise that car — pick a make and model that exists.",
   mismatchTitle: "Oops, did something get mixed up?",
   mismatchFallback: "What you describe doesn't seem to match the category you picked. Consider running a new diagnosis with the right category.",
+  pickModelFirst: "Pick a model first",
+  fuelLocked: "This model only exists as {fuel} — so it is locked.",
+  addCarPlus: "Add car",
+  removeCarMinus: "Remove car",
 };
 
 const da: Dict = {
@@ -503,6 +511,10 @@ const da: Dict = {
   unknownCar: "Vi genkender ikke den bil — vælg et mærke og en model, der findes.",
   mismatchTitle: "Ups, gik der noget galt her?",
   mismatchFallback: "Det du beskriver passer ikke rigtigt til den kategori, du valgte. Lav gerne en ny diagnose med den rigtige kategori.",
+  pickModelFirst: "Vælg model først",
+  fuelLocked: "Denne model findes kun som {fuel} — derfor er den låst.",
+  addCarPlus: "Tilføj bil",
+  removeCarMinus: "Fjern bil",
 };
 
 const de: Dict = {
@@ -662,6 +674,10 @@ const de: Dict = {
   unknownCar: "Dieses Auto kennen wir nicht — bitte eine existierende Marke und Modell wählen.",
   mismatchTitle: "Hoppla, ist hier etwas durcheinandergeraten?",
   mismatchFallback: "Ihre Beschreibung passt nicht zur gewählten Kategorie. Starten Sie am besten eine neue Diagnose mit der richtigen Kategorie.",
+  pickModelFirst: "Zuerst Modell wählen",
+  fuelLocked: "Dieses Modell gibt es nur als {fuel} — daher ist es gesperrt.",
+  addCarPlus: "Auto hinzufügen",
+  removeCarMinus: "Auto entfernen",
 };
 
 const DICTS: Record<Lang, Dict> = { sv, en, da, de };

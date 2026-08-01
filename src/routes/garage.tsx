@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
-import { isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
+import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -73,10 +73,22 @@ function Garage() {
   const brand = normalizeBrand(form.make);
   const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
   const knownCar = isKnownCar(form.make, form.model);
+  const makeError = form.make.trim() !== "" && !brand;
+  const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
+  const allowedFuels = fuelsFor(form.make, form.model);
+  const fuelLocked = knownCar && allowedFuels.length === 1;
   const valid = Boolean(knownCar && Number(form.year) >= 1950 && form.mileageKm !== "");
 
   const label = (list: { value: string; label: string }[], value: string) =>
     list.find((o) => o.value === value)?.label ?? value;
+
+  useEffect(() => {
+    if (!knownCar) return;
+    if (!allowedFuels.includes(form.fuel as never)) {
+      setForm((f) => ({ ...f, fuel: allowedFuels[0]! }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form.make, form.model, knownCar]);
 
   const submit = () => {
     if (!isKnownCar(form.make, form.model)) {
@@ -117,6 +129,8 @@ function Garage() {
               id="make"
               autoComplete="off"
               placeholder="Volvo"
+              aria-invalid={makeError}
+              className={makeError ? "border-destructive focus-visible:ring-destructive" : ""}
               value={form.make}
               onFocus={() => setShowSuggestions(true)}
               onBlur={() => window.setTimeout(() => setShowSuggestions(false), 150)}
@@ -151,6 +165,8 @@ function Garage() {
               id="model"
               autoComplete="off"
               disabled={!brand}
+              aria-invalid={modelError}
+              className={modelError ? "border-destructive focus-visible:ring-destructive" : ""}
               placeholder={brand ? "V70" : t.pickMakeFirst}
               value={form.model}
               onFocus={() => setShowModelSuggestions(true)}
@@ -219,25 +235,38 @@ function Garage() {
 
         <div className="space-y-2">
           <Label>{t.fuel}</Label>
-          <div className="flex flex-wrap gap-2">
-            {FUELS.map((option) => (
-              <Pick
-                key={option.value}
-                active={form.fuel === option.value || form.fuel === option.label}
-                onClick={() => setForm({ ...form, fuel: option.value })}
-              >
-                {option.label}
-              </Pick>
-            ))}
-          </div>
+          {!knownCar ? (
+            <p className="text-xs text-muted-foreground">{t.pickModelFirst}</p>
+          ) : (
+            <>
+              <div className="flex flex-wrap gap-2">
+                {FUELS.filter((o) => allowedFuels.includes(o.value as never)).map((option) => (
+                  <Pick
+                    key={option.value}
+                    active={form.fuel === option.value || form.fuel === option.label}
+                    onClick={() => {
+                      if (!fuelLocked) setForm({ ...form, fuel: option.value });
+                    }}
+                  >
+                    {option.label}
+                  </Pick>
+                ))}
+              </div>
+              {fuelLocked ? (
+                <p className="text-xs text-muted-foreground">
+                  {t.fuelLocked.replace("{fuel}", label(FUELS, allowedFuels[0]!).toLowerCase())}
+                </p>
+              ) : null}
+            </>
+          )}
         </div>
       </div>
 
       <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
         {t.saveCar}
       </Button>
-      {form.make.trim() && form.model.trim() && !knownCar ? (
-        <p className="mt-2 text-center text-xs text-muted-foreground">{t.unknownCar}</p>
+      {makeError || modelError ? (
+        <p className="mt-2 text-center text-xs text-destructive">{t.unknownCar}</p>
       ) : brand ? (
         <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
       ) : null}
