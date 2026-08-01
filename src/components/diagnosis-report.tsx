@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   ChevronDown,
+  HelpCircle,
   OctagonAlert,
   TriangleAlert,
   Waves,
@@ -140,9 +141,19 @@ export function DiagnosisReport({
   const { t } = useI18n();
   const style = VERDICT_STYLE[result.verdict] ?? VERDICT_STYLE.caution;
   const Icon = VERDICT_ICON[result.verdict] ?? AlertTriangle;
+  const causes = result.causes.filter((c) => c.likelihood >= 5);
 
   return (
     <div className="space-y-6">
+      {result.mismatch ? (
+        <div className="panel flex gap-3 border-l-4 border-signal-caution p-4">
+          <HelpCircle className="mt-0.5 size-5 shrink-0 text-signal-caution" />
+          <div>
+            <p className="font-semibold text-signal-caution">{t.mismatchTitle}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{result.mismatch || t.mismatchFallback}</p>
+          </div>
+        </div>
+      ) : null}
       <div className={`panel border-l-4 ${style.border} p-5`}>
         <p className="stencil">{carLine}</p>
         <div className="mt-3 flex items-start gap-3">
@@ -192,11 +203,11 @@ export function DiagnosisReport({
         </div>
       ) : null}
 
-      {result.causes.length ? (
+      {causes.length ? (
         <div>
           <p className="stencil mb-3">{t.likelyCauses}</p>
           <div className="grid gap-3">
-            {result.causes.map((cause) => (
+            {causes.map((cause) => (
               <CauseCard key={cause.part} cause={cause} />
             ))}
           </div>
