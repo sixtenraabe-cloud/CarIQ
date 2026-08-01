@@ -459,24 +459,25 @@ export const deleteDiagnosis = createServerFn({ method: "POST" })
 
 const QuickSchema = z.object({
   car: CarSchema.nullable().default(null),
-  note: z.string().trim().max(500).default(""),
   audio: MediaSchema,
+  image: MediaSchema,
   language: z.enum(["sv", "en", "da", "de"]).default("sv"),
 });
 
 export type QuickCheck = {
-  sounds: "normal" | "unsure" | "attention";
+  verdict: "drive" | "workshop" | "stop";
   headline: string;
   note: string;
 };
 
-const QUICK_PROMPT = `You are a master mechanic doing a 10-second "does this sound normal?" gut check on a short clip an owner just recorded. This is NOT a full diagnosis — you are only saying whether it sounds normal, whether you are unsure, or whether something clearly deserves a proper look.
+const QUICK_PROMPT = `You are a master mechanic doing a 10-second gut check on a short clip and/or photo an owner just captured. This is NOT a full diagnosis. Your only job is to answer one question: can the owner keep driving?
 
-Listen to the clip (if attached) and judge rhythm, pitch, whether it scales with RPM or wheel speed, metallic vs rubbing vs ticking, and whether it is within normal operating noise for that kind of car.
+Use only the attached media (audio and/or image) plus the vehicle facts. Listen for rhythm, pitch, whether it scales with RPM or wheel speed, metallic vs rubbing vs ticking. Look at the photo for warning lamps, leaks, damage or wear.
 
-Return ONLY JSON: {"sounds":"normal|unsure|attention","headline":string,"note":string}
+Return ONLY JSON: {"verdict":"drive|workshop|stop","headline":string,"note":string}
+verdict: "drive" = nothing alarming, keep driving. "workshop" = drivable but book a workshop. "stop" = do not drive, safety or damage risk.
 headline: max 8 words, the verdict in plain language.
-note: 1-3 short spoken sentences saying what you hear and why you landed there. Never diagnose a specific part with certainty here — if it needs digging, say a full analysis would settle it.`;
+note: 1-3 short spoken sentences on what you saw/heard and why you landed there. Never name a specific failed part with certainty — say a full analysis would settle it.`;
 
 export const quickSoundCheck = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => QuickSchema.parse(input))
@@ -490,8 +491,8 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
         ? `Vehicle: ${car.year} ${car.make} ${car.model}${car.variant ? ` ${car.variant}` : ""} · ${car.transmission} · ${car.fuel} · ${car.mileageKm} km`
         : "Vehicle: unknown.",
       car ? (POWERTRAIN_RULES[powertrainOf(car.fuel)] ?? "") : "",
-      data.note ? `Owner's note: ${data.note}` : "",
-      data.audio ? "A short recording is attached — listen to it." : "No recording attached; judge from the note only and say you would need to hear it.",
+      data.audio ? "A short recording is attached — listen to it." : "",
+      data.image ? "A photo or video is attached — look at it." : "",
       `Write every field in ${languageName}.`,
     ]
       .filter(Boolean)
@@ -500,6 +501,9 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
     const content: Array<Record<string, unknown>> = [{ type: "text", text: brief }];
     if (data.audio) {
       content.push({ type: "file", data: data.audio.base64, mediaType: data.audio.mediaType });
+    }
+    if (data.image) {
+      content.push({ type: "file", data: data.image.base64, mediaType: data.image.mediaType });
     }
 
     const { text } = await withTimeout(
@@ -512,9 +516,9 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
     );
 
     const parsed = parseJson(text);
-    const sounds = parsed?.sounds;
+    const verdict = parsed?.verdict;
     return {
-      sounds: sounds === "normal" || sounds === "attention" ? sounds : "unsure",
+      verdict: verdict === "drive" || verdict === "stop" ? verdict : "workshop",
       headline: String(parsed?.headline ?? "").slice(0, 120),
       note: String(parsed?.note ?? text).slice(0, 800),
     };
