@@ -1,5 +1,15 @@
-import { AlertTriangle, CheckCircle2, OctagonAlert, TriangleAlert, Waves, Wrench } from "lucide-react";
+import { useState } from "react";
+import {
+  AlertTriangle,
+  CheckCircle2,
+  ChevronDown,
+  OctagonAlert,
+  TriangleAlert,
+  Waves,
+  Wrench,
+} from "lucide-react";
 import type { DiagnosisResult, SecondOpinion, Verdict } from "@/lib/diagnosis-types";
+import type { Cause } from "@/lib/diagnosis-types";
 import { VERDICTS, VERDICT_DOT } from "@/lib/diagnosis-types";
 import { useI18n, type Dict } from "@/lib/i18n";
 
@@ -117,6 +127,7 @@ export function DiagnosisReport({
           <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
             <div className={`h-full rounded-full ${style.bar}`} style={{ width: `${result.confidence}%` }} />
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">{t.confidenceHint}</p>
         </div>
       </div>
 
@@ -150,16 +161,7 @@ export function DiagnosisReport({
           <p className="stencil mb-3">{t.likelyCauses}</p>
           <div className="grid gap-3">
             {result.causes.map((cause) => (
-              <div key={cause.part} className="panel p-4">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="text-lg">{cause.part}</h3>
-                  <span className="font-display text-primary">{cause.likelihood}%</span>
-                </div>
-                <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
-                  <div className="h-full rounded-full bg-primary/70" style={{ width: `${cause.likelihood}%` }} />
-                </div>
-                <p className="mt-3 text-sm whitespace-pre-line text-muted-foreground">{cause.explanation}</p>
-              </div>
+              <CauseCard key={cause.part} cause={cause} />
             ))}
           </div>
         </div>
