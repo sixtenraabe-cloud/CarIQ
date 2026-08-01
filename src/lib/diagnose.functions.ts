@@ -194,7 +194,9 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       `Odometer: ${car.mileageKm} km`,
       data.tags.length ? `Reported symptom categories: ${data.tags.join(", ")}` : "",
       `Owner's description: ${data.symptom}`,
-      data.image ? "A photo (for example of the dashboard warning light) is attached — read it." : "",
+      data.image
+        ? "A photo or video (for example of the dashboard warning light) is attached — study it and identify any warning lamp in it."
+        : "",
       `Write every field of your answer in ${languageName}.`,
       `Give estimatedCost as a range in ${data.currency}, formatted for that market.`,
       data.audio ? "An audio recording of the problem is attached — analyse it." : "No audio recording provided.",
