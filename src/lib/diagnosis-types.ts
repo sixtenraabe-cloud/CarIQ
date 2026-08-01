@@ -1,4 +1,13 @@
-export type Verdict = "safe" | "caution" | "urgent";
+export type Verdict = "safe" | "caution" | "soon" | "urgent";
+
+export const VERDICTS: Verdict[] = ["safe", "caution", "soon", "urgent"];
+
+export const VERDICT_DOT: Record<Verdict, string> = {
+  safe: "🟢",
+  caution: "🟡",
+  soon: "🟠",
+  urgent: "🔴",
+};
 
 export type CarProfile = {
   make: string;
@@ -19,6 +28,7 @@ export type DiagnosisResult = {
   verdict: Verdict;
   headline: string;
   confidence: number;
+  mechanicNote: string;
   causes: Cause[];
   checks: string[];
   advice: string;
@@ -27,10 +37,15 @@ export type DiagnosisResult = {
   audioNote: string;
 };
 
-export const VERDICT_LABEL: Record<Verdict, string> = {
-  safe: "Säker att köra",
-  caution: "Kör försiktigt — boka verkstad",
-  urgent: "Stanna — till verkstad direkt",
+export type SecondOpinion = {
+  summary: string;
+  alternatives: {
+    part: string;
+    why: string;
+    likelihood: number;
+    stance: "more" | "less" | "same";
+  }[];
+  extra: string;
 };
 
 export function carSummary(car: CarProfile) {

@@ -2,24 +2,27 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { AlertTriangle, ChevronRight, Gauge, Volume2, Wrench } from "lucide-react";
 
 import { useCar, carLine } from "@/lib/car-store";
-import { useI18n } from "@/lib/i18n";
+import { useI18n, APP_NAME } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
+import { baseModelFor } from "@/lib/base-models";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "BilHjälpen AI — lyssna på bilen, få svar direkt" },
+      { title: "CarIQ — lyssna på bilen, få en mekanikers svar" },
       {
         name: "description",
         content:
-          "Spela in ljudet, beskriv problemet och få en AI-bedömning av vad som är fel och om bilen är säker att köra.",
+          "Spela in ljudet, beskriv problemet och få en AI-mekanikers bedömning av vad som är fel och om bilen är säker att köra.",
       },
-      { property: "og:title", content: "BilHjälpen AI — din digitala bilhjälp" },
+      { property: "og:title", content: "CarIQ — din digitala bilmekaniker" },
       {
         property: "og:description",
-        content: "Spela in ljudet från bilen och få en AI-bedömning på under en minut.",
+        content: "Spela in ljudet från bilen och få en bedömning på under en minut.",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,
@@ -53,33 +56,41 @@ const ACTIONS = [
 function Home() {
   const { car } = useCar();
   const { t } = useI18n();
+  const base = car ? "" : baseModelFor("volvo");
 
   return (
     <main className="px-4 pt-8">
-      <header className="mb-5">
-        <h1 className="text-3xl">BilHjälpen AI</h1>
-        <p className="mt-1 text-sm text-primary">{t.tagline}</p>
+      <header className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-4xl tracking-tight">
+            Car<span className="text-primary">IQ</span>
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t.tagline}</p>
+        </div>
+        <LanguagePicker />
       </header>
 
-      <div className="mb-5">
-        <p className="stencil mb-2">{t.language}</p>
-        <LanguagePicker />
-      </div>
-
-      <Link to="/garage" className="tile mb-6 flex items-center gap-4 p-4 active:scale-[0.99]">
-        <span className="grid size-16 shrink-0 place-items-center rounded-xl bg-secondary">
-          <CarSilhouette model={car?.model ?? ""} className="w-14" />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="stencil block">{t.myCar}</span>
-          <span className="block truncate font-semibold">
-            {car ? `${car.make} ${car.model}` : t.addCar}
+      <Link
+        to="/garage"
+        className="tile mb-6 block overflow-hidden active:scale-[0.99] hover:border-primary/60"
+      >
+        <div className="flex items-center gap-3 px-4 pt-4">
+          <span className="min-w-0 flex-1">
+            <span className="stencil block">{t.myCar}</span>
+            <span className="block truncate text-lg font-semibold">
+              {car ? `${car.make} ${car.model}` : t.addCar}
+            </span>
+            <span className="block truncate text-sm text-muted-foreground">
+              {car ? carLine(car) : t.carSub}
+            </span>
           </span>
-          <span className="block truncate text-sm text-muted-foreground">
-            {car ? carLine(car) : t.carSub}
-          </span>
-        </span>
-        <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+        </div>
+        <CarSilhouette
+          make={car?.make ?? ""}
+          model={car?.model ?? base}
+          className="mx-auto -mt-1 w-64"
+        />
       </Link>
 
       <div className="space-y-3">
@@ -104,7 +115,9 @@ function Home() {
         ))}
       </div>
 
-      <p className="mt-6 text-xs text-muted-foreground">{t.disclaimer}</p>
+      <p className="mt-6 text-xs text-muted-foreground">
+        {APP_NAME} · {t.disclaimer}
+      </p>
     </main>
   );
 }

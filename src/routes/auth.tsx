@@ -8,20 +8,21 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/hooks/use-auth";
+import { useI18n } from "@/lib/i18n";
+import { LanguagePicker } from "@/components/language-picker";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — Kliktest car diagnosis" },
+      { title: "Logga in — CarIQ" },
       {
         name: "description",
-        content: "Sign in to save your car diagnosis reports and follow how a problem develops.",
+        content: "Skapa ett konto eller logga in för att spara dina bildiagnoser i CarIQ.",
       },
-      { property: "og:title", content: "Sign in — Kliktest" },
-      {
-        property: "og:description",
-        content: "Save and revisit your AI car diagnosis reports.",
-      },
+      { property: "og:title", content: "Logga in — CarIQ" },
+      { property: "og:description", content: "Spara och följ dina AI-diagnoser." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: AuthPage,
@@ -30,6 +31,7 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t } = useI18n();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,19 +46,21 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
-        toast.success("Account created — you're signed in.");
+        if (data.session) toast.success(t.welcomeBack);
+        else toast.success(t.checkEmail);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+        toast.success(t.welcomeBack);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Something went wrong");
+      toast.error(error instanceof Error ? error.message : t.authFailed);
     } finally {
       setBusy(false);
     }
@@ -67,7 +71,7 @@ function AuthPage() {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
-      toast.error("Google sign-in failed. Try again.");
+      toast.error(t.googleFailed);
       return;
     }
     if (result.redirected) return;
@@ -75,47 +79,52 @@ function AuthPage() {
   };
 
   return (
-    <main className="mx-auto max-w-md px-4 py-16">
-      <p className="stencil">Garage log</p>
-      <h1 className="mt-2 text-4xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
-      <p className="mt-3 text-sm text-muted-foreground">
-        Keep every diagnosis in one place so you can show a mechanic what changed.
-      </p>
+    <main className="px-4 pt-8">
+      <div className="mb-6 flex items-start justify-between gap-3">
+        <div>
+          <p className="stencil">{t.authKicker}</p>
+          <h1 className="mt-1 text-3xl">{mode === "signin" ? t.authSignIn : t.authSignUp}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{t.authSub}</p>
+        </div>
+        <LanguagePicker />
+      </div>
 
-      <form onSubmit={submit} className="panel mt-6 space-y-4 p-6">
+      <form onSubmit={submit} className="panel space-y-4 p-5">
         <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">{t.emailLabel}</Label>
           <Input
             id="email"
             type="email"
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
+          <Label htmlFor="password">{t.passwordLabel}</Label>
           <Input
             id="password"
             type="password"
+            autoComplete={mode === "signin" ? "current-password" : "new-password"}
             required
             minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={busy}>
-          {mode === "signin" ? "Sign in" : "Create account"}
+        <Button type="submit" size="lg" className="w-full" disabled={busy}>
+          {mode === "signin" ? t.authSignIn : t.authSignUp}
         </Button>
         <Button type="button" variant="outline" className="w-full" onClick={() => void google()}>
-          Continue with Google
+          {t.continueGoogle}
         </Button>
         <button
           type="button"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="w-full text-sm text-muted-foreground hover:text-foreground"
         >
-          {mode === "signin" ? "No account yet? Create one" : "Already have an account? Sign in"}
+          {mode === "signin" ? t.toSignUp : t.toSignIn}
         </button>
       </form>
     </main>

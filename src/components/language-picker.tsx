@@ -1,27 +1,60 @@
+import { useEffect, useRef, useState } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { LANGUAGES, useI18n } from "@/lib/i18n";
 
-export function LanguagePicker({ compact = false }: { compact?: boolean }) {
-  const { lang, setLang } = useI18n();
+export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
+  const { lang, setLang, t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const current = LANGUAGES.find((l) => l.code === lang)!;
+
+  useEffect(() => {
+    const onClick = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, []);
 
   return (
-    <div className={compact ? "flex gap-1.5" : "flex flex-wrap gap-2"}>
-      {LANGUAGES.map((option) => (
-        <button
-          key={option.code}
-          type="button"
-          onClick={() => setLang(option.code)}
-          aria-pressed={lang === option.code}
-          aria-label={option.label}
-          className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 text-sm transition-colors ${
-            lang === option.code
-              ? "border-primary bg-primary/15 text-foreground"
-              : "border-border text-muted-foreground"
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={t.chooseLanguage}
+        aria-expanded={open}
+        className="flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-lg leading-none transition-colors hover:border-primary/60"
+      >
+        <span aria-hidden="true">{current.flag}</span>
+        <ChevronDown className="size-4 text-muted-foreground" />
+      </button>
+
+      {open ? (
+        <ul
+          className={`absolute z-50 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-xl ${
+            align === "end" ? "right-0" : "left-0"
           }`}
         >
-          <span aria-hidden="true">{option.flag}</span>
-          {compact ? null : <span>{option.label}</span>}
-        </button>
-      ))}
+          {LANGUAGES.map((option) => (
+            <li key={option.code}>
+              <button
+                type="button"
+                onClick={() => {
+                  setLang(option.code);
+                  setOpen(false);
+                }}
+                className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-secondary"
+              >
+                <span aria-hidden="true" className="text-lg leading-none">
+                  {option.flag}
+                </span>
+                <span className="flex-1">{option.label}</span>
+                {option.code === lang ? <Check className="size-4 text-primary" /> : null}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }

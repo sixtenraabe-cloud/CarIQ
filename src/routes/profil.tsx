@@ -11,13 +11,12 @@ import { LanguagePicker } from "@/components/language-picker";
 export const Route = createFileRoute("/profil")({
   head: () => ({
     meta: [
-      { title: "Profil — BilHjälpen AI" },
-      {
-        name: "description",
-        content: "Hantera ditt konto och din sparade bil i BilHjälpen AI.",
-      },
-      { property: "og:title", content: "Profil — BilHjälpen AI" },
+      { title: "Profil — CarIQ" },
+      { name: "description", content: "Hantera ditt konto, språk och din sparade bil i CarIQ." },
+      { property: "og:title", content: "Profil — CarIQ" },
       { property: "og:description", content: "Konto, sparad bil och inställningar." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Profil,
@@ -30,10 +29,8 @@ function Profil() {
 
   return (
     <main className="px-4 pt-8">
-      <h1 className="text-2xl">{t.navProfile}</h1>
-
-      <div className="mt-5">
-        <p className="stencil mb-2">{t.language}</p>
+      <div className="flex items-center justify-between gap-3">
+        <h1 className="text-2xl">{t.navProfile}</h1>
         <LanguagePicker />
       </div>
 
@@ -41,16 +38,16 @@ function Profil() {
         <div className="flex items-center gap-3">
           <Mail className="size-5 text-primary" />
           <div className="min-w-0">
-            <p className="stencil">Konto</p>
-            <p className="truncate text-sm">{user?.email ?? "Inte inloggad"}</p>
+            <p className="stencil">{t.account}</p>
+            <p className="truncate text-sm">{user?.email ?? t.notSignedIn}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <ShieldCheck className="size-5 text-primary" />
           <div className="min-w-0">
-            <p className="stencil">Sparad bil</p>
+            <p className="stencil">{t.savedCarLabel}</p>
             <p className="truncate text-sm">
-              {car ? `${car.make} ${car.model} (${car.year})` : "Ingen bil sparad"}
+              {car ? `${car.make} ${car.model} (${car.year})` : t.noSavedCar}
             </p>
           </div>
         </div>
@@ -58,15 +55,15 @@ function Profil() {
 
       <div className="mt-5 grid gap-3">
         <Button asChild variant="secondary">
-          <Link to="/garage">Hantera min bil</Link>
+          <Link to="/garage">{t.manageCar}</Link>
         </Button>
         {user ? (
           <Button variant="outline" onClick={() => void supabase.auth.signOut()}>
-            <LogOut className="size-4" /> Logga ut
+            <LogOut className="size-4" /> {t.signOut}
           </Button>
         ) : (
           <Button asChild>
-            <Link to="/auth">Logga in</Link>
+            <Link to="/auth">{t.authSignIn}</Link>
           </Button>
         )}
       </div>
