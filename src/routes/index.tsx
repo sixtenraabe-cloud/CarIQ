@@ -5,7 +5,6 @@ import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
-import { baseModelFor } from "@/lib/base-models";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -56,8 +55,6 @@ const ACTIONS = [
 function Home() {
   const { car } = useCar();
   const { t } = useI18n();
-  const base = car ? "" : baseModelFor("volvo");
-
   return (
     <main className="px-4 pt-8">
       <header className="mb-6 flex items-start justify-between gap-3">
@@ -86,11 +83,7 @@ function Home() {
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </div>
-        <CarSilhouette
-          make={car?.make ?? ""}
-          model={car?.model ?? base}
-          className="mx-auto -mt-1 w-64"
-        />
+        <CarSilhouette make={car?.make ?? ""} model={car?.model ?? ""} className="mx-auto -mt-1 w-64" />
       </Link>
 
       <div className="space-y-3">

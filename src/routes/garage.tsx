@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
-import { baseModelFor } from "@/lib/base-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -97,11 +96,8 @@ function Garage() {
         <div className="panel mt-5 flex flex-col items-center p-4">
           <CarSilhouette make={form.make} model={form.model} className="w-64" />
           <p className="stencil mt-1">
-            {form.make} {form.model || baseModelFor(form.make)}
+            {form.make} {form.model}
           </p>
-          {!form.model.trim() && baseModelFor(form.make) ? (
-            <p className="text-xs text-muted-foreground">{t.baseModelHint}</p>
-          ) : null}
         </div>
       ) : null}
 

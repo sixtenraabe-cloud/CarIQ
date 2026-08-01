@@ -249,13 +249,15 @@ function Diagnos() {
   return (
     <main className="px-4 pt-6">
       <header className="mb-5 flex items-center gap-3">
-        <button
-          onClick={back}
-          aria-label={t.back}
-          className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground"
-        >
-          <ChevronLeft className="size-5" />
-        </button>
+        {step < 4 ? (
+          <button
+            onClick={back}
+            aria-label={t.back}
+            className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground"
+          >
+            <ChevronLeft className="size-5" />
+          </button>
+        ) : null}
         <h1 className="text-xl">{titles[step - 1]}</h1>
       </header>
 
@@ -396,7 +398,9 @@ function Diagnos() {
 
           <div>
             <p className="stencil mb-2">{isLamp ? t.lampDescribe : t.describeOwnWords}</p>
-            <p className="mb-2 text-xs text-muted-foreground">{t.describeHint}</p>
+            <p className="mb-2 text-xs text-muted-foreground">
+              {isLamp ? t.lampDescribeHint : t.describeHint}
+            </p>
             <Textarea
               rows={5}
               maxLength={2000}

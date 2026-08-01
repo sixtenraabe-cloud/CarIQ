@@ -39,7 +39,16 @@ const ResultSchema = z.object({
   headline: z.string().max(300),
   confidence: z.number().int().min(0).max(100),
   mechanicNote: z.string().max(4000).default(""),
-  causes: z.array(z.object({ part: z.string(), explanation: z.string(), likelihood: z.number() })).max(8),
+  causes: z
+    .array(
+      z.object({
+        part: z.string(),
+        summary: z.string().default(""),
+        explanation: z.string(),
+        likelihood: z.number(),
+      }),
+    )
+    .max(8),
   checks: z.array(z.string()).max(10),
   advice: z.string().max(3000),
   estimatedCost: z.string().max(200),
@@ -79,9 +88,11 @@ Severity (verdict) — pick exactly one:
 "urgent" = brakes, steering, suspension, overheating, oil pressure, anything that can fail catastrophically — stop driving.
 
 Return ONLY JSON matching this shape:
-{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string}
+{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string}
 mechanicNote: 4-8 sentences of the mechanic talking the owner through the case — what he suspects, why, and how this normally behaves on this exact car.
-causes[].explanation: 2-4 sentences each — the mechanism, why it fits this symptom, and how common it is on this model/mileage.
+confidence: how CERTAIN you are in this diagnosis, 0-100. High (80-95) when the symptom is textbook and the evidence is strong; medium (50-70) when it fits but could be two or three things; low (15-40) when you are mostly guessing from thin information. Never output a low number when you are sure — the number goes UP with certainty.
+causes[].summary: ONE short plain sentence (max ~15 words) an owner instantly understands. No jargon.
+causes[].explanation: the optional longer version, 2-3 sentences MAX — the mechanism, why it fits this symptom, how common it is on this model/mileage. Keep it tight; never a wall of text.
 checks: 2-5 things the owner can check in the driveway.
 advice: what to do now, in what order, and what to tell the garage.
 estimatedCost: a realistic price range including labour, in the requested currency.
@@ -206,6 +217,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
         const c = raw as Record<string, unknown>;
         return {
           part: String(c.part ?? "Unknown part").slice(0, 120),
+          summary: String(c.summary ?? "").slice(0, 240),
           explanation: String(c.explanation ?? "").slice(0, 1200),
           likelihood: clampNumber(c.likelihood, 40),
         };

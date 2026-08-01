@@ -20,6 +20,7 @@ export type CarProfile = {
 
 export type Cause = {
   part: string;
+  summary: string;
   explanation: string;
   likelihood: number;
 };
