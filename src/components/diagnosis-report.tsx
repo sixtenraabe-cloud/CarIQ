@@ -103,7 +103,10 @@ function CauseCard({ cause }: { cause: Cause }) {
     <div className="panel p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-lg">{cause.part}</h3>
-        <span className="font-display text-primary">{cause.likelihood}%</span>
+        <span className="flex items-baseline gap-1.5 whitespace-nowrap">
+          <span className="font-display text-primary">{cause.likelihood}%</span>
+          <span className="text-[11px] text-muted-foreground">{t.likelihoodLabel}</span>
+        </span>
       </div>
       <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-secondary">
         <div className="h-full rounded-full bg-primary/70" style={{ width: `${cause.likelihood}%` }} />
