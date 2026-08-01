@@ -339,6 +339,7 @@ export const saveDiagnosis = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SaveSchema.parse(input))
   .inputValidator((input: unknown) => SaveSchema.parse(input))
   .handler(async ({ data, context }) => {
+  .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase
       .from("diagnoses")
       .insert({
