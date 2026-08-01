@@ -3,6 +3,22 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 import type { DiagnosisResult, SecondOpinion, Verdict } from "./diagnosis-types";
 
+const TIMEOUT_MS = 60_000;
+
+async function withTimeout<T>(promise: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error("TIMEOUT")), TIMEOUT_MS);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 const CarSchema = z.object({
   make: z.string().trim().min(1).max(40),
   model: z.string().trim().min(1).max(40),
@@ -89,7 +105,7 @@ Severity (verdict) — pick exactly one:
 "urgent" = brakes, steering, suspension, overheating, oil pressure, anything that can fail catastrophically — stop driving.
 
 Return ONLY JSON matching this shape:
-{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string,"mismatch":string}
+{"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string,"mismatch":string,"lampName":string,"lampMeaning":string}
 mechanicNote: 4-8 sentences of the mechanic talking the owner through the case — what he suspects, why, and how this normally behaves on this exact car.
 confidence: how CERTAIN you are in this diagnosis, 0-100. High (80-95) when the symptom is textbook and the evidence is strong; medium (50-70) when it fits but could be two or three things; low (15-40) when you are mostly guessing from thin information. Never output a low number when you are sure — the number goes UP with certainty.
 causes[].summary: ONE short plain sentence (max ~15 words) an owner instantly understands. No jargon.
@@ -99,8 +115,10 @@ Every cause, check, note and cost MUST be physically possible on this exact powe
 mismatch: "" in almost every case. Only fill it in when the owner's description clearly does NOT match the symptom category they picked (for example they picked "warning light" but describe that the car won't turn, or they picked "brakes" but describe a dashboard lamp). Then write ONE friendly sentence saying it looks like the wrong category was picked and which category fits better.
 checks: 2-5 things the owner can check in the driveway.
 advice: what to do now, in what order, and what to tell the garage.
-estimatedCost: a realistic price range including labour, in the requested currency.
-audioNote: one sentence about what the recording sounded like, or "" if no audio.`;
+estimatedCost: a realistic total price range for the owner in the requested currency, and it MUST include the workshop time: parts plus labour hours at a normal shop rate for that market. Write it like "4 500–6 200 kr (varav ca 2 h arbetstid)" — always state roughly how many hours in the workshop are included.
+audioNote: one sentence about what the recording sounded like, or "" if no audio.
+lampName: if a photo or video of a dashboard warning light is attached, identify EXACTLY which warning lamp it is by its common name (check engine / engine management, oil pressure lamp, low oil level, battery/charging, coolant temperature, ABS, brake system / handbrake, tyre pressure TPMS, airbag/SRS, ESP/traction, glow plug, DPF, power steering, AdBlue, EV drive/battery warning, etc.), including its colour (red/amber/green). If no lamp is visible or no image is attached, use "".
+lampMeaning: 2-4 sentences explaining what that specific lamp monitors, why it typically lights up on this exact car, how serious the colour makes it, and what to do. "" if lampName is "".`;
 
 const SECOND_PROMPT = `You are a SECOND independent master mechanic giving a second opinion on a colleague's diagnosis. You have the same case notes but you are deliberately sceptical and thorough.
 
@@ -192,12 +210,14 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       if (withAudio && data.audio) {
         content.push({ type: "file", data: data.audio.base64, mediaType: data.audio.mediaType });
       }
-      return generateText({
-        model,
-        system: SYSTEM_PROMPT,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        messages: [{ role: "user", content: content as any }],
-      });
+      return withTimeout(
+        generateText({
+          model,
+          system: SYSTEM_PROMPT,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          messages: [{ role: "user", content: content as any }],
+        }),
+      );
     };
 
     let audioUsed = Boolean(data.audio);
@@ -205,7 +225,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
     try {
       text = (await runOnce(audioUsed)).text;
     } catch (error) {
-      if (!audioUsed) throw error;
+      if (!audioUsed || (error instanceof Error && error.message === "TIMEOUT")) throw error;
       console.error("Audio analysis failed, retrying without audio", error);
       audioUsed = false;
       text = (await runOnce(false)).text;
@@ -225,6 +245,8 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
         audioUsed,
         audioNote: "",
         mismatch: "",
+        lampName: "",
+        lampMeaning: "",
       };
     }
 
@@ -255,6 +277,8 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       audioUsed,
       audioNote: audioUsed ? String(parsed.audioNote ?? "").slice(0, 300) : "",
       mismatch: String(parsed.mismatch ?? "").slice(0, 400),
+      lampName: String(parsed.lampName ?? "").slice(0, 120),
+      lampMeaning: String(parsed.lampMeaning ?? "").slice(0, 1200),
     };
   });
 
