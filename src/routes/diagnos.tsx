@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { DiagnosisReport } from "@/components/diagnosis-report";
+import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { CarDiagram, type ZoneKey } from "@/components/car-diagram";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
@@ -150,7 +151,13 @@ function Diagnos() {
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       toast.error(
-        message.includes("429") ? t.errRate : message.includes("402") ? t.errCredits : t.errGeneric,
+        message.includes("TIMEOUT")
+          ? t.errTimeout
+          : message.includes("429")
+            ? t.errRate
+            : message.includes("402")
+              ? t.errCredits
+              : t.errGeneric,
       );
     } finally {
       setLoading(false);
@@ -341,11 +348,15 @@ function Diagnos() {
               <div className="panel p-4">
                 {image ? (
                   <div className="space-y-3">
-                    <img
-                      src={image.url}
-                      alt={t.lampPhoto}
-                      className="max-h-56 w-full rounded-lg object-contain"
-                    />
+                    {image.mediaType.startsWith("video/") ? (
+                      <video src={image.url} controls className="max-h-56 w-full rounded-lg" />
+                    ) : (
+                      <img
+                        src={image.url}
+                        alt={t.lampPhoto}
+                        className="max-h-56 w-full rounded-lg object-contain"
+                      />
+                    )}
                     <Button variant="ghost" onClick={() => setImage(null)}>
                       <Trash2 className="size-4" /> {t.removeImage}
                     </Button>
@@ -354,11 +365,10 @@ function Diagnos() {
                   <>
                     <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
                       <ImagePlus className="size-4" />
-                      {t.uploadImage}
+                      {t.uploadMedia}
                       <input
                         type="file"
-                        accept="image/*"
-                        capture="environment"
+                        accept="image/*,video/*"
                         className="hidden"
                         onChange={(event) => {
                           const file = event.target.files?.[0];
@@ -457,6 +467,7 @@ function Diagnos() {
       {step === 4 && result ? (
         <div className="space-y-5">
           <DiagnosisReport result={result} carLine={car ? carSummary(car) : ""} secondOpinion={second} />
+          {car ? <MechanicChat car={car} tags={tags} symptom={description} result={result} /> : null}
           <div className="grid gap-3">
             {!second ? (
               <Button variant="outline" disabled={secondLoading} onClick={() => void getSecond()}>
