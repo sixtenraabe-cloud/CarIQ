@@ -78,6 +78,7 @@ function Garage() {
   const variantSuggestions = suggestVariants(form.make, form.model, form.variant).filter(
     (v) => v !== form.variant,
   );
+  const variantExamples = suggestVariants(form.make, form.model, "", 3).join(" / ");
   const knownCar = isKnownCar(form.make, form.model);
   const makeError = form.make.trim() !== "" && !brand;
   const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
@@ -209,7 +210,7 @@ function Garage() {
               id="variant"
               autoComplete="off"
               disabled={!knownCar}
-              placeholder={knownCar ? "G80 / 335i / 991.2" : t.variantPickModel}
+              placeholder={knownCar ? variantExamples || t.variant : t.variantPickModel}
               value={form.variant}
               onFocus={() => setShowVariantSuggestions(true)}
               onBlur={() => window.setTimeout(() => setShowVariantSuggestions(false), 150)}
