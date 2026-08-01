@@ -68,14 +68,41 @@ export function CarSilhouette({
     <svg viewBox="0 0 264 124" className={className} role="img" aria-hidden="true">
       <defs>
         <linearGradient id="cariq-body" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.5 0.03 264)" />
-          <stop offset="100%" stopColor="oklch(0.3 0.03 264)" />
+          <stop offset="0%" stopColor="oklch(0.68 0.055 258)" />
+          <stop offset="34%" stopColor="oklch(0.5 0.045 262)" />
+          <stop offset="52%" stopColor="oklch(0.62 0.05 258)" />
+          <stop offset="70%" stopColor="oklch(0.33 0.035 264)" />
+          <stop offset="100%" stopColor="oklch(0.24 0.03 264)" />
         </linearGradient>
         <linearGradient id="cariq-glass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="oklch(0.7 0.06 250)" />
-          <stop offset="100%" stopColor="oklch(0.45 0.05 255)" />
+          <stop offset="0%" stopColor="oklch(0.78 0.07 240)" />
+          <stop offset="55%" stopColor="oklch(0.5 0.06 252)" />
+          <stop offset="100%" stopColor="oklch(0.33 0.05 258)" />
         </linearGradient>
+        <linearGradient id="cariq-tyre" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.3 0.015 264)" />
+          <stop offset="100%" stopColor="oklch(0.16 0.015 264)" />
+        </linearGradient>
+        <linearGradient id="cariq-rim" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="oklch(0.9 0.01 258)" />
+          <stop offset="50%" stopColor="oklch(0.62 0.015 258)" />
+          <stop offset="100%" stopColor="oklch(0.42 0.015 258)" />
+        </linearGradient>
+        <radialGradient id="cariq-shadow" cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0%" stopColor="oklch(0 0 0)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="oklch(0 0 0)" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="cariq-headlamp" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="oklch(0.98 0.09 95)" />
+          <stop offset="100%" stopColor="oklch(0.86 0.16 85)" />
+        </linearGradient>
+        <clipPath id="cariq-clip-body">
+          <path d={shape.body} />
+        </clipPath>
       </defs>
+
+      {/* ground shadow */}
+      <ellipse cx="132" cy="107" rx="118" ry="9" fill="url(#cariq-shadow)" />
 
       {/* highlight zones */}
       {highlight === "front" || highlight === "engine" ? (
@@ -95,15 +122,73 @@ export function CarSilhouette({
         strokeWidth="1.6"
         strokeLinejoin="round"
       />
+
+      {/* body sculpting: shoulder crease, rocker shadow, sill, specular sweep */}
+      <g clipPath="url(#cariq-clip-body)">
+        <path
+          d="M20 66 C70 60 190 58 246 66"
+          fill="none"
+          stroke="oklch(0.95 0.01 258)"
+          strokeOpacity="0.28"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M22 76 C74 71 188 70 244 76"
+          fill="none"
+          stroke="oklch(0.1 0.01 264)"
+          strokeOpacity="0.35"
+          strokeWidth="2"
+        />
+        <rect x="0" y="88" width="264" height="10" fill="oklch(0.14 0.02 264)" opacity="0.55" />
+        <path
+          d="M0 58 L120 30 L150 30 L30 58 Z"
+          fill="oklch(1 0 0)"
+          opacity="0.07"
+        />
+        {/* wheel arches */}
+        <path d="M50 96 A22 22 0 0 1 94 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+        <path d="M176 96 A22 22 0 0 1 220 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+      </g>
+
       <path d={shape.glassRear} fill="url(#cariq-glass)" opacity="0.85" />
       <path d={shape.glassFront} fill="url(#cariq-glass)" opacity="0.85" />
+      {/* glass reflections */}
+      <g opacity="0.35">
+        <path d="M60 60 L78 47 L86 47 L66 60 Z" fill="oklch(0.98 0.01 250)" />
+        <path d="M136 58 L150 44 L156 44 L143 58 Z" fill="oklch(0.98 0.01 250)" />
+      </g>
+      {/* window trim */}
+      <path
+        d={shape.glassRear}
+        fill="none"
+        stroke="oklch(0.85 0.015 258)"
+        strokeOpacity="0.55"
+        strokeWidth="1"
+      />
+      <path
+        d={shape.glassFront}
+        fill="none"
+        stroke="oklch(0.85 0.015 258)"
+        strokeOpacity="0.55"
+        strokeWidth="1"
+      />
       <line x1="123" y1="38" x2="123" y2="88" stroke="oklch(0.72 0.02 258)" strokeWidth="1.1" opacity="0.55" />
       <rect x="108" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
       <rect x="132" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
+      {/* side mirror */}
+      <path d="M150 62 l9 -2 3 4 -9 2 z" fill="oklch(0.45 0.03 262)" stroke="oklch(0.78 0.02 258)" strokeWidth="0.8" />
 
       {/* lights */}
-      <rect x="236" y="70" width="10" height="7" rx="3" fill="oklch(0.92 0.12 95)" opacity="0.9" />
-      <rect x="17" y="70" width="9" height="7" rx="3" fill="oklch(0.62 0.21 25)" opacity="0.9" />
+      <g>
+        <ellipse cx="241" cy="73" rx="13" ry="9" fill="oklch(0.92 0.12 95)" opacity="0.16" />
+        <rect x="234" y="69" width="12" height="8" rx="3.5" fill="url(#cariq-headlamp)" />
+        <rect x="230" y="80" width="14" height="2.4" rx="1.2" fill="oklch(0.95 0.09 95)" opacity="0.65" />
+      </g>
+      <g>
+        <ellipse cx="21" cy="73" rx="11" ry="8" fill="oklch(0.62 0.21 25)" opacity="0.18" />
+        <rect x="16" y="69" width="11" height="8" rx="3.5" fill="oklch(0.62 0.21 25)" />
+        <rect x="18" y="80" width="11" height="2.2" rx="1.1" fill="oklch(0.68 0.2 25)" opacity="0.6" />
+      </g>
 
       {/* hood highlight edge */}
       {highlight === "front" || highlight === "engine" ? (
@@ -141,11 +226,44 @@ export function CarSilhouette({
 }
 
 function Wheel({ cx, cy }: { cx: number; cy: number }) {
+  const spokes = Array.from({ length: 10 }, (_, i) => (i * 360) / 10);
   return (
     <g>
-      <circle cx={cx} cy={cy} r="20" fill="oklch(0.2 0.02 264)" stroke="oklch(0.72 0.02 258)" strokeWidth="1.6" />
-      <circle cx={cx} cy={cy} r="10" fill="oklch(0.4 0.02 264)" />
-      <circle cx={cx} cy={cy} r="3.5" fill="oklch(0.8 0.02 258)" />
+      <circle cx={cx} cy={cy} r="20" fill="url(#cariq-tyre)" stroke="oklch(0.1 0.01 264)" strokeWidth="1" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r="16.5"
+        fill="none"
+        stroke="oklch(0.42 0.015 264)"
+        strokeWidth="1"
+        strokeDasharray="2 2.5"
+        opacity="0.7"
+      />
+      <circle cx={cx} cy={cy} r="13" fill="url(#cariq-rim)" stroke="oklch(0.85 0.01 258)" strokeWidth="0.8" />
+      <circle cx={cx} cy={cy} r="11" fill="oklch(0.24 0.02 264)" />
+      {spokes.map((a) => (
+        <rect
+          key={a}
+          x={cx - 1.3}
+          y={cy - 11}
+          width="2.6"
+          height="8.5"
+          rx="1.3"
+          fill="url(#cariq-rim)"
+          transform={`rotate(${a} ${cx} ${cy})`}
+        />
+      ))}
+      <circle cx={cx} cy={cy} r="3.6" fill="oklch(0.72 0.02 258)" stroke="oklch(0.9 0.01 258)" strokeWidth="0.6" />
+      <circle cx={cx} cy={cy} r="1.4" fill="oklch(0.58 0.19 260)" />
+      <path
+        d={`M${cx - 8} ${cy - 12} A 14 14 0 0 1 ${cx + 6} ${cy - 13}`}
+        fill="none"
+        stroke="oklch(1 0 0)"
+        strokeOpacity="0.3"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+      />
     </g>
   );
 }
