@@ -15,6 +15,7 @@ import { Route as DiagnosRouteImport } from './routes/diagnos'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProfilRouteImport } from './routes/profil'
+import { Route as SnabbkollRouteImport } from './routes/snabbkoll'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const ProfilRoute = ProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SnabbkollRoute = SnabbkollRouteImport.update({
+  id: '/snabbkoll',
+  path: '/snabbkoll',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,14 +79,36 @@ export interface FileRoutesById {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/diagnos' | '/garage' | '/history' | '/profil'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/diagnos'
+    | '/garage'
+    | '/history'
+    | '/profil'
+    | '/snabbkoll'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/diagnos' | '/garage' | '/history' | '/profil'
+  to:
+    | '/'
+    | '/auth'
+    | '/diagnos'
+    | '/garage'
+    | '/history'
+    | '/profil'
+    | '/snabbkoll'
   id:
-    '__root__' | '/' | '/auth' | '/diagnos' | '/garage' | '/history' | '/profil'
+    | '__root__'
+    | '/'
+    | '/auth'
+    | '/diagnos'
+    | '/garage'
+    | '/history'
+    | '/profil'
+    | '/snabbkoll'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -88,6 +118,7 @@ export interface RootRouteChildren {
   GarageRoute: typeof GarageRoute
   HistoryRoute: typeof HistoryRoute
   ProfilRoute: typeof ProfilRoute
+  SnabbkollRoute: typeof SnabbkollRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/snabbkoll': {
+      id: '/snabbkoll'
+      path: '/snabbkoll'
+      fullPath: '/snabbkoll'
+      preLoaderRoute: typeof SnabbkollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -144,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   GarageRoute: GarageRoute,
   HistoryRoute: HistoryRoute,
   ProfilRoute: ProfilRoute,
+  SnabbkollRoute: SnabbkollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
