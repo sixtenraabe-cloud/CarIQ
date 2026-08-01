@@ -289,10 +289,6 @@ export const secondOpinion = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<SecondOpinion> => {
     const { generateText, model } = await gatewayModel();
     const { car, first } = data;
-  .inputValidator((input: unknown) => SecondSchema.parse(input))
-  .handler(async ({ data }): Promise<SecondOpinion> => {
-    const { generateText, model } = await gatewayModel();
-    const { car, first } = data;
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
 
     const brief = [
