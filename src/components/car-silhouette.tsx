@@ -13,16 +13,42 @@ export function bodyStyleFor(model: string): Body {
   return "sedan";
 }
 
-export type Zone = "front" | "rear" | "engine" | "under" | null;
+type Shape = { body: string; glassRear: string; glassFront: string; wheelY: number };
 
-/** per-body tweaks applied to one master 3/4 front-quarter drawing */
-const TUNE: Record<Body, { roof: number; rear: number; ride: number; tail: number }> = {
-  sedan: { roof: 0, rear: 0, ride: 0, tail: 0 },
-  coupe: { roof: 4, rear: 6, ride: 3, tail: -6 },
-  wagon: { roof: -4, rear: -10, ride: -1, tail: 10 },
-  hatch: { roof: -2, rear: 4, ride: -1, tail: 22 },
-  suv: { roof: -16, rear: -14, ride: -9, tail: 4 },
+const SHAPES: Record<Body, Shape> = {
+  sedan: {
+    body: "M16 86 C16 71 23 65 37 62 L76 43 C84 39 92 37 102 37 L150 37 C165 37 176 41 185 50 L204 63 L229 69 C241 71 247 75 247 83 L247 90 C247 94 244 96 240 96 L23 96 C19 96 16 92 16 86 Z",
+    glassRear: "M52 61 L84 45 C90 42 96 41 102 41 L120 41 L120 61 Z",
+    glassFront: "M127 41 L148 41 C159 41 168 45 175 53 L182 61 L127 61 Z",
+    wheelY: 92,
+  },
+  coupe: {
+    body: "M18 86 C18 72 25 66 39 63 L80 42 C89 38 97 36 108 36 L142 36 C158 36 170 41 180 51 L202 64 L228 70 C240 72 246 76 246 84 L246 90 C246 94 243 96 239 96 L25 96 C21 96 18 92 18 86 Z",
+    glassRear: "M56 62 L88 44 C94 41 101 40 108 40 L122 40 L122 62 Z",
+    glassFront: "M129 40 L141 40 C153 40 163 45 170 54 L177 62 L129 62 Z",
+    wheelY: 92,
+  },
+  wagon: {
+    body: "M16 86 C16 71 23 65 37 62 L74 41 C82 37 90 35 100 35 L162 35 C176 35 186 40 194 50 L209 63 L230 69 C242 71 247 75 247 83 L247 90 C247 94 244 96 240 96 L23 96 C19 96 16 92 16 86 Z",
+    glassRear: "M50 61 L82 43 C88 40 94 39 100 39 L120 39 L120 61 Z",
+    glassFront: "M127 39 L160 39 C170 39 178 43 184 52 L190 61 L127 61 Z",
+    wheelY: 92,
+  },
+  hatch: {
+    body: "M22 86 C22 71 29 65 43 62 L78 43 C86 39 94 37 104 37 L142 37 C156 37 166 41 174 50 L192 63 L218 69 C230 71 236 75 236 83 L236 90 C236 94 233 96 229 96 L29 96 C25 96 22 92 22 86 Z",
+    glassRear: "M56 61 L86 45 C92 42 98 41 104 41 L120 41 L120 61 Z",
+    glassFront: "M127 41 L141 41 C152 41 160 45 166 53 L172 61 L127 61 Z",
+    wheelY: 92,
+  },
+  suv: {
+    body: "M16 82 C16 66 23 59 37 56 L72 34 C80 30 88 28 98 28 L158 28 C173 28 184 33 192 44 L208 58 L230 64 C242 66 248 70 248 79 L248 90 C248 94 245 96 241 96 L23 96 C19 96 16 92 16 82 Z",
+    glassRear: "M50 56 L80 36 C86 33 92 32 98 32 L120 32 L120 56 Z",
+    glassFront: "M127 32 L156 32 C166 32 174 36 180 46 L187 56 L127 56 Z",
+    wheelY: 90,
+  },
 };
+
+export type Zone = "front" | "rear" | "engine" | "under" | null;
 
 export function CarSilhouette({
   make = "",
@@ -35,241 +61,206 @@ export function CarSilhouette({
   className?: string;
   highlight?: Zone;
 }) {
-  const t = TUNE[bodyStyleFor(model)];
-  const glow = "oklch(0.82 0.16 82)";
-
-  /* master geometry, front-right 3/4 view */
-  const roofY = 64 + t.roof;
-  const rearX = 52 + t.tail;
-  const rearTopY = 112 + t.rear;
-  const ride = t.ride;
-
-  /** near-side + front outline */
-  const bodyPath = `
-    M ${rearX} ${132 + ride}
-    C ${rearX - 6} ${rearTopY + 6} ${rearX - 4} ${rearTopY - 4} ${rearX + 14} ${rearTopY - 10}
-    C ${rearX + 34} ${rearTopY - 20} ${rearX + 46} ${rearTopY - 22} ${rearX + 66} ${rearTopY - 24}
-    C ${140} ${roofY + 22} ${168} ${roofY + 2} ${206} ${roofY - 2}
-    C ${240} ${roofY - 5} ${262} ${roofY + 4} ${286} ${roofY + 20}
-    C ${306} ${roofY + 33} ${318} ${roofY + 40} ${336} ${roofY + 43}
-    C ${358} ${roofY + 46} ${372} ${roofY + 52} ${380} ${roofY + 64}
-    C ${389} ${roofY + 77} ${390} ${112 + ride} ${386} ${126 + ride}
-    C ${383} ${137 + ride} ${374} ${150 + ride} ${360} ${154 + ride}
-    L ${250} ${158 + ride}
-    C ${210} ${159 + ride} ${150} ${152 + ride} ${104} ${146 + ride}
-    C ${80} ${143 + ride} ${62} ${140 + ride} ${rearX} ${132 + ride} Z`;
-
-  /** greenhouse */
-  const glassPath = `
-    M ${rearX + 26} ${rearTopY - 12}
-    C ${rearX + 56} ${rearTopY - 22} ${150} ${roofY + 14} ${204} ${roofY + 6}
-    C ${238} ${roofY + 3} ${258} ${roofY + 12} ${278} ${roofY + 26}
-    C ${250} ${roofY + 30} ${180} ${roofY + 34} ${120} ${roofY + 32}
-    C ${92} ${roofY + 31} ${rearX + 34} ${rearTopY - 6} ${rearX + 26} ${rearTopY - 12} Z`;
-
-  const rearWheel = { cx: 118 + t.tail / 2, cy: 138 + ride, rx: 21, ry: 25 };
-  const frontWheel = { cx: 300, cy: 150 + ride, rx: 32, ry: 34 };
+  const shape = SHAPES[bodyStyleFor(model)];
+  const glow = "oklch(0.8 0.15 80)";
 
   return (
-    <svg viewBox="0 0 420 210" className={className} role="img" aria-hidden="true">
+    <svg viewBox="0 0 264 124" className={className} role="img" aria-hidden="true">
       <defs>
-        <linearGradient id="ciq-body" x1="0.1" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stopColor="oklch(0.86 0.004 260)" />
-          <stop offset="42%" stopColor="oklch(0.7 0.006 260)" />
-          <stop offset="70%" stopColor="oklch(0.52 0.008 262)" />
-          <stop offset="100%" stopColor="oklch(0.36 0.008 264)" />
+        <linearGradient id="cariq-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.68 0.055 258)" />
+          <stop offset="34%" stopColor="oklch(0.5 0.045 262)" />
+          <stop offset="52%" stopColor="oklch(0.62 0.05 258)" />
+          <stop offset="70%" stopColor="oklch(0.33 0.035 264)" />
+          <stop offset="100%" stopColor="oklch(0.24 0.03 264)" />
         </linearGradient>
-        <linearGradient id="ciq-glass2" x1="0" y1="0" x2="0.3" y2="1">
-          <stop offset="0%" stopColor="oklch(0.42 0.012 258)" />
-          <stop offset="55%" stopColor="oklch(0.26 0.012 260)" />
-          <stop offset="100%" stopColor="oklch(0.18 0.01 262)" />
+        <linearGradient id="cariq-glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.78 0.07 240)" />
+          <stop offset="55%" stopColor="oklch(0.5 0.06 252)" />
+          <stop offset="100%" stopColor="oklch(0.33 0.05 258)" />
         </linearGradient>
-        <linearGradient id="ciq-rim2" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="oklch(0.93 0.003 260)" />
-          <stop offset="60%" stopColor="oklch(0.62 0.005 260)" />
-          <stop offset="100%" stopColor="oklch(0.38 0.005 260)" />
+        <linearGradient id="cariq-tyre" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="oklch(0.3 0.015 264)" />
+          <stop offset="100%" stopColor="oklch(0.16 0.015 264)" />
         </linearGradient>
-        <linearGradient id="ciq-lamp" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="oklch(0.98 0.02 250)" />
-          <stop offset="100%" stopColor="oklch(0.74 0.02 250)" />
+        <linearGradient id="cariq-rim" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="oklch(0.9 0.01 258)" />
+          <stop offset="50%" stopColor="oklch(0.62 0.015 258)" />
+          <stop offset="100%" stopColor="oklch(0.42 0.015 258)" />
         </linearGradient>
-        <radialGradient id="ciq-shadow2" cx="0.5" cy="0.5" r="0.5">
+        <radialGradient id="cariq-shadow" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0%" stopColor="oklch(0 0 0)" stopOpacity="0.55" />
           <stop offset="100%" stopColor="oklch(0 0 0)" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id="cariq-headlamp" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="oklch(0.98 0.09 95)" />
+          <stop offset="100%" stopColor="oklch(0.86 0.16 85)" />
+        </linearGradient>
+        <clipPath id="cariq-clip-body">
+          <path d={shape.body} />
+        </clipPath>
       </defs>
 
-      <ellipse cx="215" cy={170 + ride} rx="170" ry="16" fill="url(#ciq-shadow2)" />
+      {/* ground shadow */}
+      <ellipse cx="132" cy="107" rx="118" ry="9" fill="url(#cariq-shadow)" />
 
       {/* highlight zones */}
       {highlight === "front" || highlight === "engine" ? (
-        <rect x="272" y="30" width="140" height="130" rx="26" fill={glow} opacity="0.09" stroke={glow} strokeOpacity="0.32" />
+        <rect x="150" y="24" width="106" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "rear" ? (
-        <rect x="16" y="60" width="130" height="104" rx="24" fill={glow} opacity="0.09" stroke={glow} strokeOpacity="0.32" />
+        <rect x="8" y="24" width="96" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "under" ? (
-        <rect x="60" y={150 + ride} width="310" height="18" rx="9" fill={glow} opacity="0.14" stroke={glow} strokeOpacity="0.32" />
+        <rect x="24" y="86" width="216" height="26" rx="13" fill={glow} opacity="0.12" stroke={glow} strokeOpacity="0.35" />
       ) : null}
 
-      {/* far-side wheels */}
-      <ellipse cx={rearWheel.cx + 42} cy={rearWheel.cy - 12} rx="14" ry="19" fill="oklch(0.2 0.006 262)" opacity="0.75" />
-      <ellipse cx={frontWheel.cx + 40} cy={frontWheel.cy - 20} rx="15" ry="21" fill="oklch(0.2 0.006 262)" opacity="0.75" />
-
-      {/* body */}
-      <path d={bodyPath} fill="url(#ciq-body)" stroke="oklch(0.94 0.002 260)" strokeWidth="1.8" strokeLinejoin="round" />
-
-      {/* lower flank shade */}
       <path
-        d={`M ${rearX + 12} ${134 + ride} C 120 ${146 + ride} 220 ${154 + ride} ${344} ${152 + ride} L ${348} ${158 + ride} C 230 ${160 + ride} 120 ${152 + ride} ${rearX + 8} ${138 + ride} Z`}
-        fill="oklch(0.2 0.008 264)"
-        opacity="0.55"
-      />
-
-      {/* glass */}
-      <path d={glassPath} fill="url(#ciq-glass2)" stroke="oklch(0.9 0.002 260)" strokeOpacity="0.55" strokeWidth="1.2" />
-      <path
-        d={`M ${rearX + 46} ${roofY + 26} C ${120} ${roofY + 16} ${170} ${roofY + 8} ${212} ${roofY + 8}`}
-        fill="none"
-        stroke="oklch(1 0 0)"
-        strokeOpacity="0.22"
-        strokeWidth="4"
-        strokeLinecap="round"
-      />
-      {/* B-pillar */}
-      <path
-        d={`M ${168} ${roofY + 10} L ${172} ${roofY + 33}`}
-        stroke="oklch(0.9 0.002 260)"
-        strokeOpacity="0.45"
+        d={shape.body}
+        fill="url(#cariq-body)"
+        stroke="oklch(0.72 0.02 258)"
         strokeWidth="1.6"
+        strokeLinejoin="round"
       />
 
-      {/* shoulder crease + character line */}
+      {/* body sculpting: shoulder crease, rocker shadow, sill, specular sweep */}
+      <g clipPath="url(#cariq-clip-body)">
+        <path
+          d="M20 66 C70 60 190 58 246 66"
+          fill="none"
+          stroke="oklch(0.95 0.01 258)"
+          strokeOpacity="0.28"
+          strokeWidth="1.4"
+        />
+        <path
+          d="M22 76 C74 71 188 70 244 76"
+          fill="none"
+          stroke="oklch(0.1 0.01 264)"
+          strokeOpacity="0.35"
+          strokeWidth="2"
+        />
+        <rect x="0" y="88" width="264" height="10" fill="oklch(0.14 0.02 264)" opacity="0.55" />
+        <path
+          d="M0 58 L120 30 L150 30 L30 58 Z"
+          fill="oklch(1 0 0)"
+          opacity="0.07"
+        />
+        {/* wheel arches */}
+        <path d="M50 96 A22 22 0 0 1 94 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+        <path d="M176 96 A22 22 0 0 1 220 96" fill="none" stroke="oklch(0.12 0.01 264)" strokeOpacity="0.6" strokeWidth="3" />
+      </g>
+
+      <path d={shape.glassRear} fill="url(#cariq-glass)" opacity="0.85" />
+      <path d={shape.glassFront} fill="url(#cariq-glass)" opacity="0.85" />
+      {/* glass reflections */}
+      <g opacity="0.35">
+        <path d="M60 60 L78 47 L86 47 L66 60 Z" fill="oklch(0.98 0.01 250)" />
+        <path d="M136 58 L150 44 L156 44 L143 58 Z" fill="oklch(0.98 0.01 250)" />
+      </g>
+      {/* window trim */}
       <path
-        d={`M ${rearX + 10} ${rearTopY - 2} C 130 ${roofY + 44} 220 ${roofY + 50} ${300} ${roofY + 46}`}
+        d={shape.glassRear}
         fill="none"
-        stroke="oklch(1 0 0)"
-        strokeOpacity="0.3"
-        strokeWidth="1.6"
-      />
-      <path
-        d={`M ${rearX + 16} ${126 + ride} C 130 ${134 + ride} 210 ${140 + ride} ${288} ${138 + ride}`}
-        fill="none"
-        stroke="oklch(0.16 0.008 264)"
-        strokeOpacity="0.45"
-        strokeWidth="2"
-      />
-
-      {/* doors */}
-      <path d={`M ${170} ${roofY + 33} C ${168} ${112 + ride} ${166} ${126 + ride} ${164} ${140 + ride}`} fill="none" stroke="oklch(0.9 0.002 260)" strokeOpacity="0.35" strokeWidth="1.2" />
-      <path d={`M ${rearX + 44} ${roofY + 30} C ${rearX + 44} ${112 + ride} ${rearX + 42} ${124 + ride} ${rearX + 40} ${134 + ride}`} fill="none" stroke="oklch(0.9 0.002 260)" strokeOpacity="0.25" strokeWidth="1.2" />
-      <rect x={182} y={roofY + 42} width="16" height="3.4" rx="1.7" fill="oklch(0.9 0.002 260)" opacity="0.8" />
-      <rect x={rearX + 54} y={roofY + 40} width="15" height="3.2" rx="1.6" fill="oklch(0.9 0.002 260)" opacity="0.6" />
-
-      {/* mirror */}
-      <path d={`M ${282} ${roofY + 30} l 16 -5 6 8 -16 5 z`} fill="oklch(0.46 0.008 262)" stroke="oklch(0.92 0.002 260)" strokeWidth="1" strokeLinejoin="round" />
-
-      {/* bonnet split */}
-      <path d={`M ${300} ${roofY + 30} C ${330} ${roofY + 34} ${358} ${roofY + 44} ${378} ${roofY + 62}`} fill="none" stroke="oklch(1 0 0)" strokeOpacity="0.25" strokeWidth="1.4" />
-
-      {/* headlight */}
-      <path
-        d={`M ${340} ${roofY + 52} C ${358} ${roofY + 54} ${372} ${roofY + 60} ${380} ${roofY + 70} L ${358} ${roofY + 72} C ${352} ${roofY + 62} ${346} ${roofY + 57} ${336} ${roofY + 56} Z`}
-        fill="url(#ciq-lamp)"
-        opacity="0.9"
-      />
-      {/* grille + intake */}
-      <path
-        d={`M ${352} ${118 + ride} C ${368} ${118 + ride} ${380} ${120 + ride} ${384} ${124 + ride} C ${382} ${134 + ride} ${374} ${142 + ride} ${360} ${145 + ride} C ${352} ${136 + ride} ${350} ${126 + ride} ${352} ${118 + ride} Z`}
-        fill="oklch(0.22 0.008 264)"
-        stroke="oklch(0.88 0.002 260)"
+        stroke="oklch(0.85 0.015 258)"
         strokeOpacity="0.55"
-        strokeWidth="1.1"
+        strokeWidth="1"
       />
       <path
-        d={`M ${330} ${146 + ride} C ${346} ${150 + ride} ${358} ${150 + ride} ${368} ${146 + ride}`}
+        d={shape.glassFront}
         fill="none"
-        stroke="oklch(0.16 0.008 264)"
-        strokeOpacity="0.6"
-        strokeWidth="4"
-        strokeLinecap="round"
+        stroke="oklch(0.85 0.015 258)"
+        strokeOpacity="0.55"
+        strokeWidth="1"
       />
+      <line x1="123" y1="38" x2="123" y2="88" stroke="oklch(0.72 0.02 258)" strokeWidth="1.1" opacity="0.55" />
+      <rect x="108" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
+      <rect x="132" y="68" width="12" height="3" rx="1.5" fill="oklch(0.82 0.02 258)" opacity="0.8" />
+      {/* side mirror */}
+      <path d="M150 62 l9 -2 3 4 -9 2 z" fill="oklch(0.45 0.03 262)" stroke="oklch(0.78 0.02 258)" strokeWidth="0.8" />
 
-      {/* tail lamp */}
-      <path
-        d={`M ${rearX - 2} ${rearTopY + 2} C ${rearX + 10} ${rearTopY - 2} ${rearX + 20} ${rearTopY - 3} ${rearX + 30} ${rearTopY - 4} L ${rearX + 30} ${rearTopY + 3} C ${rearX + 18} ${rearTopY + 5} ${rearX + 8} ${rearTopY + 7} ${rearX - 1} ${rearTopY + 9} Z`}
-        fill="oklch(0.6 0.2 25)"
-        opacity="0.85"
-      />
+      {/* lights */}
+      <g>
+        <ellipse cx="241" cy="73" rx="13" ry="9" fill="oklch(0.92 0.12 95)" opacity="0.16" />
+        <rect x="234" y="69" width="12" height="8" rx="3.5" fill="url(#cariq-headlamp)" />
+        <rect x="230" y="80" width="14" height="2.4" rx="1.2" fill="oklch(0.95 0.09 95)" opacity="0.65" />
+      </g>
+      <g>
+        <ellipse cx="21" cy="73" rx="11" ry="8" fill="oklch(0.62 0.21 25)" opacity="0.18" />
+        <rect x="16" y="69" width="11" height="8" rx="3.5" fill="oklch(0.62 0.21 25)" />
+        <rect x="18" y="80" width="11" height="2.2" rx="1.1" fill="oklch(0.68 0.2 25)" opacity="0.6" />
+      </g>
 
-      {/* wheel arches */}
-      <path
-        d={`M ${rearWheel.cx - 26} ${rearWheel.cy + 4} C ${rearWheel.cx - 24} ${rearWheel.cy - 30} ${rearWheel.cx + 22} ${rearWheel.cy - 32} ${rearWheel.cx + 26} ${rearWheel.cy - 4}`}
-        fill="none"
-        stroke="oklch(0.14 0.008 264)"
-        strokeOpacity="0.7"
-        strokeWidth="3.5"
-      />
-      <path
-        d={`M ${frontWheel.cx - 38} ${frontWheel.cy + 2} C ${frontWheel.cx - 36} ${frontWheel.cy - 42} ${frontWheel.cx + 30} ${frontWheel.cy - 44} ${frontWheel.cx + 36} ${frontWheel.cy - 8}`}
-        fill="none"
-        stroke="oklch(0.14 0.008 264)"
-        strokeOpacity="0.7"
-        strokeWidth="3.5"
-      />
-
-      {/* zone accents */}
+      {/* hood highlight edge */}
       {highlight === "front" || highlight === "engine" ? (
-        <path d={`M ${300} ${roofY + 30} C ${336} ${roofY + 34} ${366} ${roofY + 46} ${384} ${roofY + 68} L ${356} ${roofY + 72} C ${342} ${roofY + 56} ${324} ${roofY + 44} ${296} ${roofY + 40} Z`} fill={glow} opacity="0.3" stroke={glow} strokeWidth="1.6" />
+        <path
+          d="M186 51 L206 64 L232 70"
+          fill="none"
+          stroke={glow}
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
       ) : null}
       {highlight === "rear" ? (
-        <path d={`M ${rearX - 2} ${rearTopY + 4} C ${rearX + 4} ${rearTopY - 12} ${rearX + 40} ${rearTopY - 22} ${rearX + 70} ${rearTopY - 26} L ${rearX + 66} ${rearTopY - 12} C ${rearX + 36} ${rearTopY - 6} ${rearX + 14} ${rearTopY + 2} ${rearX + 4} ${rearTopY + 12} Z`} fill={glow} opacity="0.3" stroke={glow} strokeWidth="1.6" />
+        <path d="M18 68 L38 62 L58 56" fill="none" stroke={glow} strokeWidth="3" strokeLinecap="round" />
       ) : null}
       {highlight === "under" ? (
-        <path d={`M ${rearX + 20} ${164 + ride} L ${350} ${166 + ride}`} fill="none" stroke={glow} strokeWidth="3" strokeLinecap="round" strokeDasharray="7 7" />
+        <path d="M40 98 L226 98" fill="none" stroke={glow} strokeWidth="3" strokeLinecap="round" strokeDasharray="6 6" />
       ) : null}
 
+      {/* engine lamp with a line to the hood */}
       {highlight === "engine" ? (
         <g>
-          <line x1={330} y1={roofY + 6} x2={344} y2={roofY + 40} stroke={glow} strokeWidth="1.6" strokeDasharray="4 4" />
-          <g transform={`translate(${312} ${roofY - 34}) scale(1.7)`}>
+          <line x1="206" y1="34" x2="200" y2="58" stroke={glow} strokeWidth="1.6" strokeDasharray="4 4" />
+          <g transform="translate(190 6) scale(1.5)">
             <CheckEngineGlyph color={glow} />
           </g>
         </g>
       ) : null}
 
-      <Wheel {...frontWheel} />
-      <Wheel {...rearWheel} />
+      {/* wheels */}
+      <Wheel cx={72} cy={shape.wheelY} />
+      <Wheel cx={198} cy={shape.wheelY} />
+      <line x1="10" y1="112" x2="254" y2="112" stroke="oklch(0.29 0.028 264)" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
 
-function Wheel({ cx, cy, rx, ry }: { cx: number; cy: number; rx: number; ry: number }) {
+function Wheel({ cx, cy }: { cx: number; cy: number }) {
   const spokes = Array.from({ length: 10 }, (_, i) => (i * 360) / 10);
   return (
     <g>
-      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill="oklch(0.17 0.006 264)" stroke="oklch(0.1 0.005 264)" strokeWidth="1" />
-      <ellipse cx={cx} cy={cy} rx={rx * 0.82} ry={ry * 0.82} fill="none" stroke="oklch(0.4 0.005 264)" strokeWidth="1" strokeDasharray="2 2.5" opacity="0.7" />
-      <ellipse cx={cx} cy={cy} rx={rx * 0.66} ry={ry * 0.66} fill="url(#ciq-rim2)" stroke="oklch(0.88 0.002 260)" strokeWidth="0.8" />
-      <ellipse cx={cx} cy={cy} rx={rx * 0.56} ry={ry * 0.56} fill="oklch(0.22 0.008 264)" />
+      <circle cx={cx} cy={cy} r="20" fill="url(#cariq-tyre)" stroke="oklch(0.1 0.01 264)" strokeWidth="1" />
+      <circle
+        cx={cx}
+        cy={cy}
+        r="16.5"
+        fill="none"
+        stroke="oklch(0.42 0.015 264)"
+        strokeWidth="1"
+        strokeDasharray="2 2.5"
+        opacity="0.7"
+      />
+      <circle cx={cx} cy={cy} r="13" fill="url(#cariq-rim)" stroke="oklch(0.85 0.01 258)" strokeWidth="0.8" />
+      <circle cx={cx} cy={cy} r="11" fill="oklch(0.24 0.02 264)" />
       {spokes.map((a) => (
         <rect
           key={a}
-          x={cx - rx * 0.06}
-          y={cy - ry * 0.56}
-          width={rx * 0.12}
-          height={ry * 0.44}
-          rx={rx * 0.06}
-          fill="url(#ciq-rim2)"
+          x={cx - 1.3}
+          y={cy - 11}
+          width="2.6"
+          height="8.5"
+          rx="1.3"
+          fill="url(#cariq-rim)"
           transform={`rotate(${a} ${cx} ${cy})`}
         />
       ))}
-      <ellipse cx={cx} cy={cy} rx={rx * 0.17} ry={ry * 0.17} fill="oklch(0.76 0.003 260)" />
+      <circle cx={cx} cy={cy} r="3.6" fill="oklch(0.72 0.02 258)" stroke="oklch(0.9 0.01 258)" strokeWidth="0.6" />
+      <circle cx={cx} cy={cy} r="1.4" fill="oklch(0.58 0.19 260)" />
       <path
-        d={`M ${cx - rx * 0.5} ${cy - ry * 0.62} A ${rx} ${ry} 0 0 1 ${cx + rx * 0.42} ${cy - ry * 0.68}`}
+        d={`M${cx - 8} ${cy - 12} A 14 14 0 0 1 ${cx + 6} ${cy - 13}`}
         fill="none"
         stroke="oklch(1 0 0)"
-        strokeOpacity="0.25"
+        strokeOpacity="0.3"
         strokeWidth="1.4"
         strokeLinecap="round"
       />
