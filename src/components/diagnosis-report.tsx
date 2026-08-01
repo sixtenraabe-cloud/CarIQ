@@ -128,33 +128,6 @@ function CauseCard({ cause }: { cause: Cause }) {
   );
 }
 
-function SeverityScaleUnused({ active }: { active: Verdict }) {
-  const { t } = useI18n();
-  return (
-    <div className="grid grid-cols-4 gap-2">
-      {VERDICTS.map((level) => {
-        const style = VERDICT_STYLE[level];
-        const on = level === active;
-        return (
-          <div
-            key={level}
-            className={`rounded-xl border p-2 text-center transition-colors ${
-              on ? `${style.border} ${style.bg}` : "border-border opacity-45"
-            }`}
-          >
-            <div className="text-base leading-none" aria-hidden="true">
-              {VERDICT_DOT[level]}
-            </div>
-            <p className={`mt-1 text-[11px] leading-tight font-semibold ${on ? style.text : "text-muted-foreground"}`}>
-              {t[VERDICT_KEY[level]]}
-            </p>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export function DiagnosisReport({
   result,
   carLine,
