@@ -155,7 +155,7 @@ function Garage() {
                       className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
-                        setForm({ ...form, make: brand, model: "" });
+                        setForm({ ...form, make: brand, model: "", variant: "" });
                         setShowSuggestions(false);
                       }}
                     >
@@ -202,6 +202,42 @@ function Garage() {
                 ))}
               </ul>
             ) : null}
+          </div>
+          <div className="relative col-span-2 space-y-2">
+            <Label htmlFor="variant">{t.variant}</Label>
+            <Input
+              id="variant"
+              autoComplete="off"
+              disabled={!knownCar}
+              placeholder={knownCar ? "G80 / 335i / 991.2" : t.variantPickModel}
+              value={form.variant}
+              onFocus={() => setShowVariantSuggestions(true)}
+              onBlur={() => window.setTimeout(() => setShowVariantSuggestions(false), 150)}
+              onChange={(e) => {
+                setForm({ ...form, variant: e.target.value });
+                setShowVariantSuggestions(true);
+              }}
+            />
+            {knownCar && showVariantSuggestions && variantSuggestions.length ? (
+              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                {variantSuggestions.map((v) => (
+                  <li key={v}>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setForm({ ...form, variant: v });
+                        setShowVariantSuggestions(false);
+                      }}
+                    >
+                      {v}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            {knownCar ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
@@ -287,6 +323,7 @@ function Garage() {
             setForm({
               make: "",
               model: "",
+              variant: "",
               year: "",
               mileageKm: "",
               transmission: "manual",
