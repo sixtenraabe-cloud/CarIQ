@@ -23,7 +23,23 @@ const AnalyzeSchema = z.object({
     })
     .nullable()
     .default(null),
+  image: z
+    .object({
+      base64: z.string().max(9000000),
+      mediaType: z.string().max(60),
+    })
+    .nullable()
+    .default(null),
+  language: z.enum(["sv", "en", "da", "de"]).default("sv"),
+  currency: z.string().max(40).default("SEK (svenska kronor)"),
 });
+
+const LANGUAGE_NAME: Record<string, string> = {
+  sv: "Swedish",
+  en: "English",
+  da: "Danish",
+  de: "German",
+};
 
 const SaveSchema = z.object({
   carSummary: z.string().max(200),
@@ -44,7 +60,7 @@ const SaveSchema = z.object({
 const SYSTEM_PROMPT = `You are an experienced master car mechanic doing a remote triage.
 You never claim certainty. You reason from the vehicle's age, mileage, drivetrain and the described (or recorded) symptom.
 If an audio clip is attached, describe what you actually hear (rhythm, pitch, whether it scales with engine RPM or wheel speed, metallic vs rubbing vs ticking) and use it as your main evidence.
-Always return: a drivability verdict, a short headline, a confidence percentage (0-100), 2-4 likely causes with a likelihood percentage each, 2-5 quick checks the owner can do themselves, plain-language advice, and a rough repair cost range in EUR.
+Always return: a drivability verdict, a short headline, a confidence percentage (0-100), 2-4 likely causes with a likelihood percentage each, 2-5 quick checks the owner can do themselves, plain-language advice, and a rough repair cost range in the requested currency.
 Verdict rules: "safe" = likely fine to keep driving but monitor. "caution" = drivable short distances, book a garage soon. "urgent" = braking, steering, suspension, overheating, oil pressure, or anything that can fail catastrophically — stop driving and get it to a mechanic.
 Never diagnose with false confidence; this is guidance, not a replacement for a mechanic.
 Return ONLY JSON matching this shape:
@@ -85,6 +101,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
     const gateway = createLovableAiGatewayProvider(apiKey);
 
     const { car } = data;
+    const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
     const brief = [
       `Vehicle: ${car.year} ${car.make} ${car.model}`,
       `Transmission: ${car.transmission}`,
@@ -92,6 +109,9 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       `Odometer: ${car.mileageKm} km`,
       data.tags.length ? `Reported symptom categories: ${data.tags.join(", ")}` : "",
       `Owner's description: ${data.symptom}`,
+      data.image ? "A photo (for example of the dashboard warning light) is attached — read it." : "",
+      `Write every field of your answer in ${languageName}.`,
+      `Give estimatedCost as a range in ${data.currency}, formatted for that market.`,
       data.audio ? "An audio recording of the problem is attached — analyse it." : "No audio recording provided.",
     ]
       .filter(Boolean)
@@ -99,6 +119,13 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
 
     const runOnce = async (withAudio: boolean) => {
       const content: Array<Record<string, unknown>> = [{ type: "text", text: brief }];
+      if (data.image) {
+        content.push({
+          type: "file",
+          data: data.image.base64,
+          mediaType: data.image.mediaType,
+        });
+      }
       if (withAudio && data.audio) {
         content.push({
           type: "file",

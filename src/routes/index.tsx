@@ -1,7 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, Car, ChevronRight, Gauge, Volume2, Wrench } from "lucide-react";
+import { AlertTriangle, ChevronRight, Gauge, Volume2, Wrench } from "lucide-react";
 
 import { useCar, carLine } from "@/lib/car-store";
+import { useI18n } from "@/lib/i18n";
+import { LanguagePicker } from "@/components/language-picker";
+import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,31 +26,25 @@ export const Route = createFileRoute("/")({
 });
 
 const ACTIONS = [
-  {
-    tag: "noise",
-    title: "Min bil låter konstigt",
-    subtitle: "Spela in ljud eller beskriv det",
-    icon: Volume2,
-    tone: "text-primary bg-primary/15",
-  },
+  { tag: "noise", title: "aNoise", subtitle: "aNoiseSub", icon: Volume2, tone: "text-primary bg-primary/15" },
   {
     tag: "warning",
-    title: "Varningslampa lyser",
-    subtitle: "Beskriv lampan på instrumentpanelen",
+    title: "aWarning",
+    subtitle: "aWarningSub",
     icon: AlertTriangle,
     tone: "text-signal-urgent bg-signal-urgent/15",
   },
   {
     tag: "nostart",
-    title: "Bilen fungerar inte",
-    subtitle: "Rycker, startar dåligt m.m.",
+    title: "aNostart",
+    subtitle: "aNostartSub",
     icon: Wrench,
     tone: "text-signal-caution bg-signal-caution/15",
   },
   {
     tag: "performance",
-    title: "Dålig prestanda",
-    subtitle: "Tappar kraft eller drar mycket",
+    title: "aPerf",
+    subtitle: "aPerfSub",
     icon: Gauge,
     tone: "text-signal-safe bg-signal-safe/15",
   },
@@ -55,25 +52,31 @@ const ACTIONS = [
 
 function Home() {
   const { car } = useCar();
+  const { t } = useI18n();
 
   return (
     <main className="px-4 pt-8">
-      <header className="mb-6">
+      <header className="mb-5">
         <h1 className="text-3xl">BilHjälpen AI</h1>
-        <p className="mt-1 text-sm text-primary">Din digitala bilhjälp</p>
+        <p className="mt-1 text-sm text-primary">{t.tagline}</p>
       </header>
 
+      <div className="mb-5">
+        <p className="stencil mb-2">{t.language}</p>
+        <LanguagePicker />
+      </div>
+
       <Link to="/garage" className="tile mb-6 flex items-center gap-4 p-4 active:scale-[0.99]">
-        <span className="grid size-14 shrink-0 place-items-center rounded-xl bg-secondary">
-          <Car className="size-7 text-muted-foreground" />
+        <span className="grid size-16 shrink-0 place-items-center rounded-xl bg-secondary">
+          <CarSilhouette model={car?.model ?? ""} className="w-14" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="stencil block">Min bil</span>
+          <span className="stencil block">{t.myCar}</span>
           <span className="block truncate font-semibold">
-            {car ? `${car.make} ${car.model}` : "Lägg till din bil"}
+            {car ? `${car.make} ${car.model}` : t.addCar}
           </span>
           <span className="block truncate text-sm text-muted-foreground">
-            {car ? carLine(car) : "Märke, årsmodell och miltal"}
+            {car ? carLine(car) : t.carSub}
           </span>
         </span>
         <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
@@ -91,9 +94,9 @@ function Home() {
               <action.icon className="size-5" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-semibold">{action.title}</span>
+              <span className="block font-semibold">{t[action.title]}</span>
               <span className="block truncate text-sm text-muted-foreground">
-                {action.subtitle}
+                {t[action.subtitle]}
               </span>
             </span>
             <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
@@ -101,9 +104,7 @@ function Home() {
         ))}
       </div>
 
-      <p className="mt-6 text-xs text-muted-foreground">
-        Bedömningen är AI-genererad vägledning — inte en verkstadsbesiktning.
-      </p>
+      <p className="mt-6 text-xs text-muted-foreground">{t.disclaimer}</p>
     </main>
   );
 }

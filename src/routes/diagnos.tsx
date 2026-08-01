@@ -1,17 +1,19 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
-import { ChevronLeft, Loader2, RotateCcw, Save } from "lucide-react";
+import { ChevronLeft, ImagePlus, Loader2, RotateCcw, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { DiagnosisReport } from "@/components/diagnosis-report";
+import { CarSilhouette } from "@/components/car-silhouette";
 import { analyzeSymptoms, saveDiagnosis } from "@/lib/diagnose.functions";
 import { carSummary, type DiagnosisResult } from "@/lib/diagnosis-types";
 import { useCar } from "@/lib/car-store";
 import { useAuth } from "@/hooks/use-auth";
+import { currencyFor, useI18n } from "@/lib/i18n";
 
 type Search = { tag?: string };
 
@@ -33,40 +35,61 @@ export const Route = createFileRoute("/diagnos")({
   component: Diagnos,
 });
 
-const PROBLEMS: Record<string, string> = {
-  noise: "Min bil låter konstigt",
-  warning: "Varningslampa lyser",
-  nostart: "Bilen fungerar inte",
-  performance: "Dålig prestanda / kraft",
-  brakes: "Bromsar / fjädring / styrning",
-  other: "Annat problem",
-};
+type ImageFile = { base64: string; mediaType: string; url: string };
 
-const WHERE = ["Fram", "Bak", "Motorn", "Under bilen", "Vet inte"];
-const WHEN = ["Vid start", "Vid körning", "Vid bromsning", "Vid svängning", "Hela tiden", "Annat"];
+function toBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = String(reader.result);
+      resolve(result.slice(result.indexOf(",") + 1));
+    };
+    reader.onerror = () => reject(new Error("read error"));
+    reader.readAsDataURL(file);
+  });
+}
 
 function Diagnos() {
   const { tag } = Route.useSearch();
   const navigate = useNavigate();
   const { car } = useCar();
   const { user } = useAuth();
+  const { t, lang } = useI18n();
   const analyze = useServerFn(analyzeSymptoms);
   const save = useServerFn(saveDiagnosis);
 
+  const PROBLEMS: { key: string; label: string }[] = [
+    { key: "noise", label: t.aNoise },
+    { key: "warning", label: t.aWarning },
+    { key: "nostart", label: t.aNostart },
+    { key: "performance", label: t.aPerf },
+    { key: "brakes", label: t.aBrakes },
+    { key: "other", label: t.aOther },
+  ];
+  const WHERE = [t.front, t.rear, t.engine, t.under, t.dontKnow];
+  const WHEN = [t.atStart, t.whileDriving, t.whenBraking, t.whenTurning, t.always, t.other];
+
   const [step, setStep] = useState<1 | 2 | 3 | 4>(tag ? 2 : 1);
-  const [problem, setProblem] = useState(tag && PROBLEMS[tag] ? PROBLEMS[tag] : "");
+  const [problemKey, setProblemKey] = useState(tag ?? "");
   const [where, setWhere] = useState("");
   const [when, setWhen] = useState("");
   const [symptom, setSymptom] = useState("");
   const [clip, setClip] = useState<AudioClip | null>(null);
+  const [image, setImage] = useState<ImageFile | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [result, setResult] = useState<DiagnosisResult | null>(null);
 
-  const tags = [problem, where && `Ljud/känsla: ${where}`, when && `Uppträder: ${when}`].filter(
-    Boolean,
-  ) as string[];
+  const isLamp = problemKey === "warning";
+  const problem = PROBLEMS.find((p) => p.key === problemKey)?.label ?? "";
+
+  const tags = [
+    problem,
+    !isLamp && where ? `${t.whereFrom} ${where}` : "",
+    when ? `${t.whenNoticed} ${when}` : "",
+    isLamp && image ? "Photo of warning light attached" : "",
+  ].filter(Boolean) as string[];
 
   const description = symptom.trim() || tags.join(", ");
 
@@ -77,11 +100,11 @@ function Diagnos() {
 
   const run = async () => {
     if (!car) {
-      toast.error("Lägg till din bil i garaget först.");
+      toast.error(t.needCar);
       return;
     }
     if (description.length < 3) {
-      toast.error("Berätta lite om problemet först.");
+      toast.error(t.needDescription);
       return;
     }
     setLoading(true);
@@ -93,6 +116,9 @@ function Diagnos() {
           tags,
           symptom: description,
           audio: clip ? { base64: clip.base64, mediaType: clip.mediaType } : null,
+          image: image ? { base64: image.base64, mediaType: image.mediaType } : null,
+          language: lang,
+          currency: currencyFor(lang).currencyName,
         },
       });
       setResult(output);
@@ -101,11 +127,7 @@ function Diagnos() {
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       toast.error(
-        message.includes("429")
-          ? "För många förfrågningar just nu — försök igen om en stund."
-          : message.includes("402")
-            ? "AI-krediterna är slut för den här arbetsytan."
-            : "Kunde inte analysera. Försök igen.",
+        message.includes("429") ? t.errRate : message.includes("402") ? t.errCredits : t.errGeneric,
       );
     } finally {
       setLoading(false);
@@ -134,9 +156,9 @@ function Diagnos() {
         },
       });
       setSaved(true);
-      toast.success("Sparad i din historik.");
+      toast.success(t.savedToast);
     } catch {
-      toast.error("Kunde inte spara rapporten.");
+      toast.error(t.errSave);
     } finally {
       setSaving(false);
     }
@@ -145,22 +167,35 @@ function Diagnos() {
   const restart = () => {
     setResult(null);
     setStep(1);
-    setProblem("");
+    setProblemKey("");
     setWhere("");
     setWhen("");
     setSymptom("");
     setClip(null);
+    setImage(null);
     setSaved(false);
   };
 
-  const titles = ["Vad är problemet?", "Beskriv problemet", "Spela in ljud", "Resultat"];
+  const titles = [t.step1, t.step2, t.step3, t.step4];
+
+  const pickImage = async (file: File) => {
+    if (file.size > 6_000_000) {
+      toast.error("Max 6 MB");
+      return;
+    }
+    setImage({
+      base64: await toBase64(file),
+      mediaType: file.type || "image/jpeg",
+      url: URL.createObjectURL(file),
+    });
+  };
 
   return (
     <main className="px-4 pt-6">
       <header className="mb-5 flex items-center gap-3">
         <button
           onClick={back}
-          aria-label="Tillbaka"
+          aria-label={t.back}
           className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground"
         >
           <ChevronLeft className="size-5" />
@@ -189,25 +224,36 @@ function Diagnos() {
 
       {!car && step < 4 ? (
         <Link to="/garage" className="tile mb-5 block p-4 text-sm">
-          Du har ingen bil sparad ännu — <span className="text-primary">lägg till din bil</span> för
-          en mer träffsäker bedömning.
+          {t.noCarYet} <span className="text-primary">{t.addCarLink}</span> {t.noCarYetEnd}
         </Link>
+      ) : null}
+
+      {car && step < 4 ? (
+        <div className="panel mb-5 flex items-center gap-4 p-3">
+          <CarSilhouette model={car.model} className="w-24 shrink-0" />
+          <div className="min-w-0">
+            <p className="stencil">{t.myCar}</p>
+            <p className="truncate text-sm">
+              {car.make} {car.model} · {car.year}
+            </p>
+          </div>
+        </div>
       ) : null}
 
       {step === 1 ? (
         <div className="grid grid-cols-2 gap-3">
-          {Object.entries(PROBLEMS).map(([key, label]) => (
+          {PROBLEMS.map((option) => (
             <button
-              key={key}
+              key={option.key}
               onClick={() => {
-                setProblem(label);
+                setProblemKey(option.key);
                 setStep(2);
               }}
               className={`tile min-h-24 p-4 text-left text-sm font-semibold ${
-                problem === label ? "border-primary bg-primary/15" : ""
+                problemKey === option.key ? "border-primary bg-primary/15" : ""
               }`}
             >
-              {label}
+              {option.label}
             </button>
           ))}
         </div>
@@ -215,18 +261,57 @@ function Diagnos() {
 
       {step === 2 ? (
         <div className="space-y-5">
-          <div>
-            <p className="stencil mb-2">Var kommer det ifrån?</p>
-            <div className="grid grid-cols-2 gap-2">
-              {WHERE.map((option) => (
-                <Chip key={option} active={where === option} onClick={() => setWhere(option)}>
-                  {option}
-                </Chip>
-              ))}
+          {isLamp ? (
+            <div>
+              <p className="stencil mb-2">{t.lampPhoto}</p>
+              <div className="panel p-4">
+                {image ? (
+                  <div className="space-y-3">
+                    <img
+                      src={image.url}
+                      alt={t.lampPhoto}
+                      className="max-h-56 w-full rounded-lg object-contain"
+                    />
+                    <Button variant="ghost" onClick={() => setImage(null)}>
+                      <Trash2 className="size-4" /> {t.removeImage}
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+                      <ImagePlus className="size-4" />
+                      {t.uploadImage}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        className="hidden"
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void pickImage(file);
+                        }}
+                      />
+                    </label>
+                    <p className="mt-3 text-sm text-muted-foreground">{t.lampPhotoHint}</p>
+                  </>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <p className="stencil mb-2">{t.whereFrom}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {WHERE.map((option) => (
+                  <Chip key={option} active={where === option} onClick={() => setWhere(option)}>
+                    {option}
+                  </Chip>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
-            <p className="stencil mb-2">När märks det?</p>
+            <p className="stencil mb-2">{t.whenNoticed}</p>
             <div className="grid grid-cols-3 gap-2">
               {WHEN.map((option) => (
                 <Chip key={option} active={when === option} onClick={() => setWhen(option)}>
@@ -235,56 +320,69 @@ function Diagnos() {
               ))}
             </div>
           </div>
+
           <div>
-            <p className="stencil mb-2">Beskriv med egna ord</p>
+            <p className="stencil mb-2">{isLamp ? t.lampDescribe : t.describeOwnWords}</p>
             <Textarea
               rows={4}
               maxLength={2000}
-              placeholder="Ett malande ljud från vänster fram som ökar med hastigheten och försvinner när jag bromsar."
+              placeholder={isLamp ? t.lampPlaceholder : t.describePlaceholder}
               value={symptom}
               onChange={(e) => setSymptom(e.target.value)}
             />
           </div>
+
           <Button size="lg" className="w-full" onClick={() => setStep(3)}>
-            Nästa
+            {t.next}
           </Button>
         </div>
       ) : null}
 
       {step === 3 ? (
         <div className="space-y-5">
-          <p className="text-sm text-muted-foreground">
-            Spela in ljudet så tydligt du kan — 10–30 sekunder räcker. Steget är frivilligt.
-          </p>
+          <p className="text-sm text-muted-foreground">{t.audioHint}</p>
           <AudioRecorder clip={clip} onChange={setClip} />
           <Button size="lg" className="w-full" disabled={loading} onClick={() => void run()}>
             {loading ? (
               <>
-                <Loader2 className="size-4 animate-spin" /> AI analyserar…
+                <Loader2 className="size-4 animate-spin" /> {t.analyzing}
               </>
             ) : (
-              "Analysera min bil"
+              t.analyze
             )}
           </Button>
+          {!clip ? (
+            <Button
+              variant="secondary"
+              className="w-full"
+              disabled={loading}
+              onClick={() => {
+                setClip(null);
+                void run();
+              }}
+            >
+              {t.noAudio}
+            </Button>
+          ) : null}
         </div>
       ) : null}
 
       {step === 4 && result ? (
         <div className="space-y-5">
-          <DiagnosisReport result={result} carLine={car ? carSummary(car) : "Okänd bil"} />
+          <DiagnosisReport result={result} carLine={car ? carSummary(car) : ""} />
           <div className="grid gap-3">
             {user ? (
               <Button onClick={() => void persist()} disabled={saving || saved}>
                 <Save className="size-4" />
-                {saved ? "Sparad" : saving ? "Sparar…" : "Spara i historik"}
+                {saved ? t.saved : saving ? t.saving : t.saveHistory}
               </Button>
             ) : (
               <Button asChild variant="outline">
-                <Link to="/auth">Logga in för att spara rapporten</Link>
+                <Link to="/auth">{t.loginToSave}</Link>
               </Button>
             )}
             <Button variant="secondary" onClick={restart}>
-              <RotateCcw className="size-4" /> Ny diagnos
+              <RotateCcw className="size-4" /> {t.newDiagnosis}
             </Button>
           </div>
         </div>
