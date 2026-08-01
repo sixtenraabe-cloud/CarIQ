@@ -342,9 +342,8 @@ function Diagnos() {
 
       {step === 2 ? (
         <div className="space-y-5">
-          {isLamp ? (
-            <div>
-              <p className="stencil mb-2">{t.lampPhoto}</p>
+          <div>
+            <p className="stencil mb-2">{isLamp ? t.lampPhoto : t.uploadMedia}</p>
               <div className="panel p-4">
                 {image ? (
                   <div className="space-y-3">
@@ -380,8 +379,7 @@ function Diagnos() {
                   </>
                 )}
               </div>
-            </div>
-          ) : null}
+          </div>
 
           {showWhere ? (
             <div>
