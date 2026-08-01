@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 import { LANGUAGES, useI18n } from "@/lib/i18n";
+import { Flag } from "@/components/flag";
 
 export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
   const { lang, setLang, t } = useI18n();
@@ -25,7 +26,7 @@ export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
         aria-expanded={open}
         className="flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-lg leading-none transition-colors hover:border-primary/60"
       >
-        <span aria-hidden="true">{current.flag}</span>
+        <Flag code={current.code} className="h-4 w-6" />
         <ChevronDown className="size-4 text-muted-foreground" />
       </button>
 
@@ -45,9 +46,7 @@ export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
                 }}
                 className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-secondary"
               >
-                <span aria-hidden="true" className="text-lg leading-none">
-                  {option.flag}
-                </span>
+                <Flag code={option.code} className="h-4 w-6" />
                 <span className="flex-1">{option.label}</span>
                 {option.code === lang ? <Check className="size-4 text-primary" /> : null}
               </button>

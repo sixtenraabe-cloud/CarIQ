@@ -82,13 +82,13 @@ export function CarSilhouette({
 
       {/* highlight zones */}
       {highlight === "front" || highlight === "engine" ? (
-        <rect x="150" y="24" width="106" height="76" rx="18" fill={glow} opacity="0.16" />
+        <rect x="150" y="24" width="106" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "rear" ? (
-        <rect x="8" y="24" width="96" height="76" rx="18" fill={glow} opacity="0.16" />
+        <rect x="8" y="24" width="96" height="76" rx="18" fill={glow} opacity="0.10" stroke={glow} strokeOpacity="0.35" />
       ) : null}
       {highlight === "under" ? (
-        <rect x="24" y="86" width="216" height="26" rx="13" fill={glow} opacity="0.18" />
+        <rect x="24" y="86" width="216" height="26" rx="13" fill={glow} opacity="0.12" stroke={glow} strokeOpacity="0.35" />
       ) : null}
 
       <path
