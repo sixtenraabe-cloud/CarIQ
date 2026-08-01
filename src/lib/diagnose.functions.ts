@@ -334,11 +334,82 @@ export const secondOpinion = createServerFn({ method: "POST" })
     };
   });
 
+const ChatSchema = z.object({
+  car: CarSchema,
+  tags: z.array(z.string().max(60)).max(12),
+  symptom: z.string().trim().max(2000),
+  language: z.enum(["sv", "en", "da", "de"]).default("sv"),
+  currency: z.string().max(40).default("SEK (svenska kronor)"),
+  result: ResultSchema.extend({
+    lampName: z.string().max(120).default(""),
+    lampMeaning: z.string().max(1200).default(""),
+  }),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().max(4000),
+      }),
+    )
+    .max(40),
+});
+
+const CHAT_PROMPT = `You are the same master mechanic who just gave this owner their diagnosis, now chatting with them one-to-one in a messaging window. You already know the whole case — never ask for information that is in the case notes, and refer to it naturally ("I saw you photographed the amber check-engine lamp").
+
+How you chat:
+- Short, warm, spoken language. 1-4 sentences per message, no bullet lists, no markdown headings.
+- Be curious like a mechanic in the workshop: ask ONE concrete follow-up question at a time to narrow the fault down.
+- Answer the owner's question first, then ask your next question.
+- Any price you mention must include workshop labour time and be in the requested currency.
+- Stay physically consistent with the powertrain constraint in the case notes.
+- If the situation sounds dangerous, tell them plainly to stop driving.
+
+If there are no messages yet, open the conversation yourself: greet them, say what you already know from what they filled in (the symptom category, the warning lamp you identified by name if there is one, when it happens), ask them to confirm it, and ask your first follow-up question.
+
+Reply with plain text only — no JSON, no quotes around your answer.`;
+
+export const mechanicChat = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => ChatSchema.parse(input))
+  .handler(async ({ data }): Promise<{ reply: string }> => {
+    const { generateText, model } = await gatewayModel();
+    const { car, result } = data;
+    const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
+
+    const brief = [
+      "CASE NOTES:",
+      `Vehicle: ${car.year} ${car.make} ${car.model}${car.variant ? ` ${car.variant}` : ""} · ${car.transmission} · ${car.fuel} · ${car.mileageKm} km`,
+      POWERTRAIN_RULES[powertrainOf(car.fuel)] ?? "",
+      data.tags.length ? `What the owner picked in the app: ${data.tags.join(", ")}` : "",
+      data.symptom ? `Owner's own description: ${data.symptom}` : "",
+      result.lampName ? `Warning lamp identified from the owner's photo: ${result.lampName}` : "",
+      result.lampMeaning ? `What that lamp means: ${result.lampMeaning}` : "",
+      `Your diagnosis: ${result.verdict} (${result.confidence}% confidence) — ${result.headline}`,
+      result.mechanicNote ? `Your notes: ${result.mechanicNote}` : "",
+      result.causes.length
+        ? `Likely causes: ${result.causes.map((c) => `${c.part} (${c.likelihood}%)`).join(", ")}`
+        : "",
+      `Cost estimate given: ${result.estimatedCost}`,
+      `Write in ${languageName}. Prices in ${data.currency}, always including workshop hours.`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const messages = [
+      { role: "user" as const, content: brief },
+      ...(data.messages.length
+        ? data.messages
+        : [{ role: "user" as const, content: "(The owner just opened the chat — start the conversation.)" }]),
+    ];
+
+    const { text } = await withTimeout(
+      generateText({ model, system: CHAT_PROMPT, messages }),
+    );
+    return { reply: text.trim().slice(0, 2000) };
+  });
+
 export const saveDiagnosis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SaveSchema.parse(input))
-  .inputValidator((input: unknown) => SaveSchema.parse(input))
-  .handler(async ({ data, context }) => {
   .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase
       .from("diagnoses")
