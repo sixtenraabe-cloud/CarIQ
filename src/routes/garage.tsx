@@ -134,7 +134,7 @@ function Garage() {
                       className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
-                        setForm({ ...form, make: brand });
+                        setForm({ ...form, make: brand, model: "" });
                         setShowSuggestions(false);
                       }}
                     >
@@ -145,14 +145,40 @@ function Garage() {
               </ul>
             ) : null}
           </div>
-          <div className="space-y-2">
+          <div className="relative space-y-2">
             <Label htmlFor="model">{t.model}</Label>
             <Input
               id="model"
-              placeholder="V70"
+              autoComplete="off"
+              disabled={!brand}
+              placeholder={brand ? "V70" : t.pickMakeFirst}
               value={form.model}
-              onChange={(e) => setForm({ ...form, model: e.target.value })}
+              onFocus={() => setShowModelSuggestions(true)}
+              onBlur={() => window.setTimeout(() => setShowModelSuggestions(false), 150)}
+              onChange={(e) => {
+                setForm({ ...form, model: e.target.value });
+                setShowModelSuggestions(true);
+              }}
             />
+            {brand && showModelSuggestions && modelSuggestions.length ? (
+              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
+                {modelSuggestions.map((m) => (
+                  <li key={m}>
+                    <button
+                      type="button"
+                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => {
+                        setForm({ ...form, model: m });
+                        setShowModelSuggestions(false);
+                      }}
+                    >
+                      {m}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
@@ -210,6 +236,11 @@ function Garage() {
       <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
         {t.saveCar}
       </Button>
+      {form.make.trim() && form.model.trim() && !knownCar ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t.unknownCar}</p>
+      ) : brand ? (
+        <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
+      ) : null}
 
       {ready && car ? (
         <Button
@@ -217,6 +248,14 @@ function Garage() {
           className="mt-2 w-full text-muted-foreground"
           onClick={() => {
             saveCar(null);
+            setForm({
+              make: "",
+              model: "",
+              year: "",
+              mileageKm: "",
+              transmission: "manual",
+              fuel: "petrol",
+            });
             toast.success(t.carRemoved);
           }}
         >
