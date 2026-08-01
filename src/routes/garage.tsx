@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
-import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
+import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -34,9 +34,11 @@ function Garage() {
   const navigate = useNavigate();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
+  const [showVariantSuggestions, setShowVariantSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
+    variant: "",
     year: "",
     mileageKm: "",
     transmission: "manual",
@@ -61,6 +63,7 @@ function Garage() {
       setForm({
         make: car.make,
         model: car.model,
+        variant: car.variant ?? "",
         year: String(car.year),
         mileageKm: String(car.mileageKm),
         transmission: car.transmission,
@@ -72,6 +75,9 @@ function Garage() {
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
   const brand = normalizeBrand(form.make);
   const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
+  const variantSuggestions = suggestVariants(form.make, form.model, form.variant).filter(
+    (v) => v !== form.variant,
+  );
   const knownCar = isKnownCar(form.make, form.model);
   const makeError = form.make.trim() !== "" && !brand;
   const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
@@ -98,6 +104,7 @@ function Garage() {
     saveCar({
       make: normalizeBrand(form.make) ?? form.make.trim(),
       model: form.model.trim(),
+      variant: form.variant.trim(),
       year: Number(form.year),
       transmission: label(TRANSMISSIONS, form.transmission),
       fuel: label(FUELS, form.fuel),
@@ -172,7 +179,7 @@ function Garage() {
               onFocus={() => setShowModelSuggestions(true)}
               onBlur={() => window.setTimeout(() => setShowModelSuggestions(false), 150)}
               onChange={(e) => {
-                setForm({ ...form, model: e.target.value });
+                setForm({ ...form, model: e.target.value, variant: "" });
                 setShowModelSuggestions(true);
               }}
             />
@@ -185,7 +192,7 @@ function Garage() {
                       className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
-                        setForm({ ...form, model: m });
+                        setForm({ ...form, model: m, variant: "" });
                         setShowModelSuggestions(false);
                       }}
                     >
