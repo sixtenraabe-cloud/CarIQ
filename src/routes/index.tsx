@@ -77,20 +77,44 @@ function Home() {
 
       <Link
         to="/garage"
-        className="tile mb-6 block overflow-hidden active:scale-[0.99] hover:border-primary/60"
+        className={`tile mb-6 block overflow-hidden active:scale-[0.99] hover:border-primary/60 ${
+          car ? "border-primary/50 bg-primary/5" : ""
+        }`}
       >
         <div className="flex items-center gap-3 px-4 pt-4">
           <span className="min-w-0 flex-1">
-            <span className="stencil block">{t.myCar}</span>
-            <span className="block truncate text-lg font-semibold">
+            <span className="flex items-center gap-2">
+              {car ? (
+                <span className="inline-flex size-1.5 rounded-full bg-primary" aria-hidden="true" />
+              ) : null}
+              <span className="stencil block">{t.myCar}</span>
+            </span>
+            <span className="mt-0.5 block truncate text-2xl font-bold tracking-tight">
               {car ? `${car.make} ${car.model}` : t.addCar}
             </span>
-            <span className="block truncate text-sm text-muted-foreground">
-              {car ? carLine(car) : t.carSub}
-            </span>
+            {car?.variant ? (
+              <span className="block truncate text-sm font-medium text-primary">{car.variant}</span>
+            ) : null}
+            {!car ? (
+              <span className="block truncate text-sm text-muted-foreground">{t.carSub}</span>
+            ) : null}
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </div>
+        {car ? (
+          <div className="mt-2 flex flex-wrap gap-1.5 px-4">
+            {carLine(car)
+              .split(" · ")
+              .map((chip) => (
+                <span
+                  key={chip}
+                  className="rounded-md border border-border bg-secondary/60 px-2 py-0.5 text-xs font-medium text-muted-foreground"
+                >
+                  {chip}
+                </span>
+              ))}
+          </div>
+        ) : null}
         <CarSilhouette make={car?.make ?? ""} model={car?.model ?? ""} className="mx-auto -mt-1 w-64" />
       </Link>
 
