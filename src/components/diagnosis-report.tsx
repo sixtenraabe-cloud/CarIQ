@@ -196,6 +196,19 @@ export function DiagnosisReport({
         </div>
       ) : null}
 
+      {result.lampName ? (
+        <div className="panel flex gap-3 border-l-4 border-signal-caution p-4">
+          <AlertTriangle className="mt-0.5 size-5 shrink-0 text-signal-caution" />
+          <div>
+            <p className="stencil">{t.lampTitle}</p>
+            <p className="mt-1 font-semibold">{result.lampName}</p>
+            {result.lampMeaning ? (
+              <p className="mt-1 text-sm whitespace-pre-line text-muted-foreground">{result.lampMeaning}</p>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       {result.audioUsed && result.audioNote ? (
         <div className="panel flex gap-3 p-4">
           <Waves className="mt-0.5 size-5 shrink-0 text-primary" />
@@ -239,6 +252,7 @@ export function DiagnosisReport({
         <div className="panel p-5">
           <p className="stencil mb-2">{t.estimatedCost}</p>
           <p className="font-display text-2xl text-primary">{result.estimatedCost}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{t.costIncludesLabour}</p>
         </div>
       </div>
 

@@ -38,7 +38,11 @@ export type DiagnosisResult = {
   audioUsed: boolean;
   audioNote: string;
   mismatch: string;
+  lampName: string;
+  lampMeaning: string;
 };
+
+export type ChatMessage = { role: "user" | "assistant"; content: string };
 
 export type SecondOpinion = {
   summary: string;
