@@ -163,13 +163,3 @@ export function CheckEngineGlyph({ color = "oklch(0.85 0.17 85)" }: { color?: st
     />
   );
 }
-
-function WheelLegacy({ cx, cy }: { cx: number; cy: number }) {
-  return (
-    <g>
-      <circle cx={cx} cy={cy} r="20" fill="oklch(0.2 0.02 264)" stroke="oklch(0.72 0.02 258)" strokeWidth="1.6" />
-      <circle cx={cx} cy={cy} r="10" fill="oklch(0.4 0.02 264)" />
-      <circle cx={cx} cy={cy} r="3.5" fill="oklch(0.8 0.02 258)" />
-    </g>
-  );
-}
