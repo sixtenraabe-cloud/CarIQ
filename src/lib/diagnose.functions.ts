@@ -411,6 +411,7 @@ export const mechanicChat = createServerFn({ method: "POST" })
 
 export const saveDiagnosis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   .inputValidator((input: unknown) => SaveSchema.parse(input))
   .handler(async ({ data, context }) => {
     const { error, data: row } = await context.supabase
