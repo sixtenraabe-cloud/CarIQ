@@ -80,17 +80,21 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CarIQ — din digitala bilmekaniker" },
+      { title: "CarIQ — Your Digital Pocket Mechanic" },
       {
         name: "description",
-        content: "Spela in ljudet från bilen och få en mekanikers AI-bedömning direkt i mobilen.",
+        content: "Diagnose car problems using sound, photos, and intelligent AI analysis.",
       },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "CarIQ" },
-      { property: "og:description", content: "Din digitala bilmekaniker i fickan." },
+      { property: "og:title", content: "CarIQ — Your Digital Pocket Mechanic" },
+      { property: "og:description", content: "Diagnose car problems using sound, photos, and intelligent AI analysis." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "CarIQ — Your Digital Pocket Mechanic" },
+      { name: "twitter:description", content: "Diagnose car problems using sound, photos, and intelligent AI analysis." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lE1hyG4ER5bzDUP6vC0POLDY4GQ2/social-images/social-1785665111356-social-image.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lE1hyG4ER5bzDUP6vC0POLDY4GQ2/social-images/social-1785665111356-social-image.webp" },
     ],
     links: [
       {

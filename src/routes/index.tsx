@@ -10,16 +10,16 @@ import { CarSilhouette } from "@/components/car-silhouette";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CarIQ — lyssna på bilen, få en mekanikers svar" },
+      { title: "CarIQ — Your Digital Pocket Mechanic" },
       {
         name: "description",
         content:
-          "Spela in ljudet, beskriv problemet och få en AI-mekanikers bedömning av vad som är fel och om bilen är säker att köra.",
+          "Diagnose car problems using sound, photos, and intelligent AI analysis.",
       },
-      { property: "og:title", content: "CarIQ — din digitala bilmekaniker" },
+      { property: "og:title", content: "CarIQ — Your Digital Pocket Mechanic" },
       {
         property: "og:description",
-        content: "Spela in ljudet från bilen och få en bedömning på under en minut.",
+        content: "Diagnose car problems using sound, photos, and intelligent AI analysis.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
