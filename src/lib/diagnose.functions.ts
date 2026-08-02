@@ -324,7 +324,7 @@ export const secondOpinion = createServerFn({ method: "POST" })
 
     const { text } = await generateText({
       model,
-      system: SECOND_PROMPT,
+      system: SECOND_PROMPT + UNTRUSTED_NOTE,
       messages: [{ role: "user", content: brief }],
     });
 
@@ -420,7 +420,7 @@ export const mechanicChat = createServerFn({ method: "POST" })
     ];
 
     const { text } = await withTimeout(
-      generateText({ model, system: CHAT_PROMPT, messages }),
+      generateText({ model, system: CHAT_PROMPT + UNTRUSTED_NOTE, messages }),
     );
     return { reply: text.trim().slice(0, 2000) };
   });
@@ -527,7 +527,7 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
     const { text } = await withTimeout(
       generateText({
         model,
-        system: QUICK_PROMPT,
+        system: QUICK_PROMPT + UNTRUSTED_NOTE,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         messages: [{ role: "user", content: content as any }],
       }),
