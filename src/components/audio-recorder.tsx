@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Square, Trash2, Upload } from "lucide-react";
+import { Mic, Square, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
 
@@ -69,20 +69,6 @@ export function AudioRecorder({
     }
   };
 
-  const onUpload = async (file: File) => {
-    setError(null);
-    if (file.size > 6_000_000) {
-      setError("Filen är för stor — håll klippet under cirka 6 MB.");
-      return;
-    }
-    onChange({
-      base64: await toBase64(file),
-      mediaType: file.type || "audio/mpeg",
-      url: URL.createObjectURL(file),
-      label: file.name,
-    });
-  };
-
   return (
     <div className="panel p-4">
       <div className="flex flex-wrap items-center gap-3">
@@ -95,20 +81,6 @@ export function AudioRecorder({
             <Mic className="size-4" /> {t.recordSound}
           </Button>
         )}
-
-        <label className="inline-flex cursor-pointer items-center gap-2 border border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
-          <Upload className="size-4" />
-          {t.uploadAudio}
-          <input
-            type="file"
-            accept="audio/*,video/*"
-            className="hidden"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (file) void onUpload(file);
-            }}
-          />
-        </label>
 
         {clip ? (
           <Button type="button" variant="ghost" onClick={() => onChange(null)}>
