@@ -148,12 +148,13 @@ function QuickCheckPage() {
                   </Button>
                 </div>
               ) : (
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
                   <ImagePlus className="size-4" />
                   {t.uploadMedia}
                   <input
                     type="file"
                     accept="image/*,video/*"
+                    capture="environment"
                     className="hidden"
                     onChange={(event) => {
                       const file = event.target.files?.[0];
