@@ -154,7 +154,6 @@ function QuickCheckPage() {
                   <input
                     type="file"
                     accept="image/*,video/*"
-                    capture="environment"
                     className="hidden"
                     onChange={(event) => {
                       const file = event.target.files?.[0];
