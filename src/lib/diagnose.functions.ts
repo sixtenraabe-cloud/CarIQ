@@ -192,7 +192,7 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<DiagnosisResult> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("analyze");
-    const { generateText, model } = await gatewayModel();
+    const { generateWithMedia } = await import("./ai-media.server");
 
     const { car } = data;
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
@@ -215,19 +215,11 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       .join("\n");
 
     const runOnce = async (withAudio: boolean) => {
-      const content: Array<Record<string, unknown>> = [{ type: "text", text: brief }];
-      if (data.image) {
-        content.push({ type: "file", data: data.image.base64, mediaType: data.image.mediaType });
-      }
-      if (withAudio && data.audio) {
-        content.push({ type: "file", data: data.audio.base64, mediaType: data.audio.mediaType });
-      }
       return withTimeout(
-        generateText({
-          model,
+        generateWithMedia({
           system: SYSTEM_PROMPT,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          messages: [{ role: "user", content: content as any }],
+          text: brief,
+          media: [data.image, withAudio ? data.audio : null],
         }),
       );
     };
@@ -235,12 +227,12 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
     let audioUsed = Boolean(data.audio);
     let text: string;
     try {
-      text = (await runOnce(audioUsed)).text;
+      text = await runOnce(audioUsed);
     } catch (error) {
       if (!audioUsed || (error instanceof Error && error.message === "TIMEOUT")) throw error;
       console.error("Audio analysis failed, retrying without audio", error);
       audioUsed = false;
-      text = (await runOnce(false)).text;
+      text = await runOnce(false);
     }
 
     const parsed = parseJson(text);
