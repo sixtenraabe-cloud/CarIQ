@@ -38,34 +38,59 @@ export function AudioRecorder({
 
   const stop = () => {
     recorderRef.current?.stop();
-    recorderRef.current?.stream.getTracks().forEach((track) => track.stop());
-    recorderRef.current = null;
     setRecording(false);
   };
 
   const start = async () => {
     setError(null);
     try {
+      if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
+        setError("Inspelning stöds inte i den här webbläsaren. Ladda upp en fil istället.");
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
+      const mimeType = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4",
+        "audio/ogg",
+      ].find((type) => MediaRecorder.isTypeSupported?.(type));
+      const recorder = new MediaRecorder(stream, mimeType ? { mimeType } : undefined);
       const chunks: BlobPart[] = [];
-      recorder.ondataavailable = (event) => chunks.push(event.data);
+      recorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) chunks.push(event.data);
+      };
       recorder.onstop = async () => {
+        stream.getTracks().forEach((track) => track.stop());
+        recorderRef.current = null;
         const blob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
+        if (blob.size === 0) {
+          setError("Ingen ljuddata spelades in — försök igen.");
+          return;
+        }
         const mediaType = (recorder.mimeType || "audio/webm").split(";")[0] ?? "audio/webm";
-        onChange({
-          base64: await toBase64(blob),
-          mediaType,
-          url: URL.createObjectURL(blob),
-          label: "Recorded clip",
-        });
+        try {
+          onChange({
+            base64: await toBase64(blob),
+            mediaType,
+            url: URL.createObjectURL(blob),
+            label: "Recorded clip",
+          });
+        } catch {
+          setError("Kunde inte spara inspelningen — försök igen.");
+        }
       };
       recorderRef.current = recorder;
       setSeconds(0);
-      recorder.start();
+      recorder.start(1000);
       setRecording(true);
-    } catch {
-      setError("Mikrofonen blockerades. Du kan ladda upp en inspelning istället.");
+    } catch (err) {
+      const name = err instanceof Error ? err.name : "";
+      setError(
+        name === "NotAllowedError"
+          ? "Mikrofonen blockerades. Tillåt mikrofon i webbläsaren, eller ladda upp en inspelning istället."
+          : "Kunde inte starta inspelningen. Du kan ladda upp en inspelning istället.",
+      );
     }
   };
 
