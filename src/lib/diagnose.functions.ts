@@ -492,7 +492,7 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<QuickCheck> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("quick");
-    const { generateText, model } = await gatewayModel();
+    const { generateWithMedia } = await import("./ai-media.server");
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
     const car = data.car;
 
@@ -508,20 +508,11 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
       .filter(Boolean)
       .join("\n");
 
-    const content: Array<Record<string, unknown>> = [{ type: "text", text: brief }];
-    if (data.audio) {
-      content.push({ type: "file", data: data.audio.base64, mediaType: data.audio.mediaType });
-    }
-    if (data.image) {
-      content.push({ type: "file", data: data.image.base64, mediaType: data.image.mediaType });
-    }
-
-    const { text } = await withTimeout(
-      generateText({
-        model,
+    const text = await withTimeout(
+      generateWithMedia({
         system: QUICK_PROMPT + UNTRUSTED_NOTE,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        messages: [{ role: "user", content: content as any }],
+        text: brief,
+        media: [data.audio, data.image],
       }),
     );
 
