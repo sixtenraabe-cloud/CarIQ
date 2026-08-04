@@ -422,8 +422,24 @@ function Diagnos() {
             />
           </div>
 
-          <Button size="lg" className="w-full" onClick={() => setStep(3)}>
-            {t.next}
+          <Button
+            size="lg"
+            className="w-full"
+            disabled={loading}
+            onClick={() => {
+              if (image?.mediaType.startsWith("video/")) void run();
+              else setStep(3);
+            }}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> {t.analyzing}
+              </>
+            ) : image?.mediaType.startsWith("video/") ? (
+              t.analyze
+            ) : (
+              t.next
+            )}
           </Button>
         </div>
       ) : null}
