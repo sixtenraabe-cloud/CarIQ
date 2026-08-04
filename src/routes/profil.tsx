@@ -3,6 +3,7 @@ import { LogOut, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { useCar } from "@/lib/car-store";
@@ -51,7 +52,14 @@ function Profil() {
           <div className="min-w-0 flex-1">
             <p className="stencil">{t.savedCarLabel}</p>
             <p className="truncate text-sm">
-              {car ? `${car.make} ${car.model} (${car.year})` : t.noSavedCar}
+              {car ? (
+                <span className="inline-flex items-center gap-2">
+                  <BrandLogo make={car.make} size={22} />
+                  {`${car.make} ${car.model} (${car.year})`}
+                </span>
+              ) : (
+                t.noSavedCar
+              )}
             </p>
           </div>
           {car ? (

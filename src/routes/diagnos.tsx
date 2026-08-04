@@ -10,6 +10,7 @@ import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { DiagnosisReport } from "@/components/diagnosis-report";
 import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
+import { BrandLogo } from "@/components/brand-logo";
 import { CarDiagram, type ZoneKey } from "@/components/car-diagram";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
 import { carSummary, type DiagnosisResult, type SecondOpinion } from "@/lib/diagnosis-types";
@@ -316,8 +317,11 @@ function Diagnos() {
           <CarSilhouette make={car.make} model={car.model} className="w-28 shrink-0" />
           <div className="min-w-0">
             <p className="stencil">{t.myCar}</p>
-            <p className="truncate text-sm">
-              {car.make} {car.model}{car.variant ? ` ${car.variant}` : ""} · {car.year}
+            <p className="flex items-center gap-2 truncate text-sm">
+              <BrandLogo make={car.make} size={20} />
+              <span className="truncate">
+                {car.make} {car.model}{car.variant ? ` ${car.variant}` : ""} · {car.year}
+              </span>
             </p>
           </div>
         </div>

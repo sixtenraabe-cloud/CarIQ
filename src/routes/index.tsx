@@ -6,6 +6,7 @@ import { useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
+import { BrandLogo } from "@/components/brand-logo";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -108,8 +109,11 @@ function Home() {
               ) : null}
               <span className="stencil block">{t.myCar}</span>
             </span>
-            <span className="mt-0.5 block truncate font-display text-2xl font-bold tracking-tight">
-              {car ? `${car.make} ${car.model}` : t.addCar}
+            <span className="mt-0.5 flex items-center gap-2">
+              {car ? <BrandLogo make={car.make} size={32} /> : null}
+              <span className="truncate font-display text-2xl font-bold tracking-tight">
+                {car ? `${car.make} ${car.model}` : t.addCar}
+              </span>
             </span>
             {car?.variant ? (
               <span className="block truncate text-sm font-medium text-primary">{car.variant}</span>

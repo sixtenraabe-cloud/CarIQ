@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { suggestBrands } from "@/lib/car-brands";
+import { BrandLogo } from "@/components/brand-logo";
 import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
@@ -145,11 +146,14 @@ function Garage() {
             ))}
           </span>
         </div>
-        <p className="relative mt-0.5 truncate text-xl font-bold tracking-tight">
-          {form.make.trim() || form.model.trim()
-            ? `${form.make} ${form.model}`.trim()
-            : t.carSub}
-        </p>
+        <div className="relative mt-0.5 flex items-center gap-2">
+          {brand ? <BrandLogo make={brand} size={30} /> : null}
+          <p className="truncate text-xl font-bold tracking-tight">
+            {form.make.trim() || form.model.trim()
+              ? `${form.make} ${form.model}`.trim()
+              : t.carSub}
+          </p>
+        </div>
         <CarSilhouette
           make={form.make}
           model={form.model}
@@ -181,13 +185,14 @@ function Garage() {
                   <li key={brand}>
                     <button
                       type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
+                      className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm hover:bg-secondary"
                       onMouseDown={(e) => e.preventDefault()}
                       onClick={() => {
                         setForm({ ...form, make: brand, model: "", variant: "" });
                         setShowSuggestions(false);
                       }}
                     >
+                      <BrandLogo make={brand} size={22} />
                       {brand}
                     </button>
                   </li>
