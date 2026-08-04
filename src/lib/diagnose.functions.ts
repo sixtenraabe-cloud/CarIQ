@@ -114,7 +114,7 @@ Severity (verdict) — pick exactly one:
 
 Return ONLY JSON matching this shape:
 {"verdict":"safe|caution|soon|urgent","headline":string,"confidence":number,"mechanicNote":string,"causes":[{"part":string,"summary":string,"explanation":string,"likelihood":number}],"checks":[string],"advice":string,"estimatedCost":string,"audioNote":string,"mismatch":string,"lampName":string,"lampMeaning":string}
-mechanicNote: 4-8 sentences of the mechanic talking the owner through the case — what he suspects, why, and how this normally behaves on this exact car.
+mechanicNote: SHORT and easy to read — max 3 sentences (about 45 words total), plain everyday language, no jargon. Say what you suspect, why, and what it means for the owner. Never a wall of text.
 confidence: how CERTAIN you are in this diagnosis, 0-100. High (80-95) when the symptom is textbook and the evidence is strong; medium (50-70) when it fits but could be two or three things; low (15-40) when you are mostly guessing from thin information. Never output a low number when you are sure — the number goes UP with certainty.
 causes[].summary: ONE short plain sentence (max ~15 words) an owner instantly understands. No jargon.
 causes[].explanation: the optional longer version, 2-3 sentences MAX — the mechanism, why it fits this symptom, how common it is on this model/mileage. Keep it tight; never a wall of text.
