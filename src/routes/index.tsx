@@ -10,20 +10,22 @@ import { CarSilhouette } from "@/components/car-silhouette";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CarIQ — Your Digital Pocket Mechanic" },
+      { title: "CarIQ — Din digitala bilmekaniker" },
       {
         name: "description",
         content:
-          "Diagnose car problems using sound, photos, and intelligent AI analysis.",
+          "Diagnostisera bilproblem med ljud, foto och intelligent AI-analys.",
       },
-      { property: "og:title", content: "CarIQ — Your Digital Pocket Mechanic" },
+      { property: "og:title", content: "CarIQ — Din digitala bilmekaniker" },
       {
         property: "og:description",
-        content: "Diagnose car problems using sound, photos, and intelligent AI analysis.",
+        content: "Diagnostisera bilproblem med ljud, foto och intelligent AI-analys.",
       },
+      { property: "og:url", content: "https://cariq-test.lovable.app/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/" }],
   }),
   component: Home,
 });
@@ -62,14 +64,16 @@ function Home() {
         <div className="flex items-center gap-3">
           <img
             src={logoAsset.url}
-            alt="CarIQ logotyp"
+            alt="CarIQ – blå bilikon med diagnostikpuls, appens logotyp"
             className="size-16 shrink-0 rounded-2xl border border-border object-cover"
           />
           <div>
             <h1 className="text-4xl tracking-tight">
               Car<span className="text-primary">IQ</span>
+              <span className="mt-1 block text-sm font-medium text-muted-foreground">
+                {t.tagline}
+              </span>
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t.tagline}</p>
           </div>
         </div>
         <LanguagePicker />
