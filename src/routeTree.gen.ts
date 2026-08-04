@@ -15,6 +15,7 @@ import { Route as DiagnosRouteImport } from './routes/diagnos'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProfilRouteImport } from './routes/profil'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SnabbkollRouteImport } from './routes/snabbkoll'
 
 const IndexRoute = IndexRouteImport.update({
@@ -47,6 +48,11 @@ const ProfilRoute = ProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SnabbkollRoute = SnabbkollRouteImport.update({
   id: '/snabbkoll',
   path: '/snabbkoll',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/sitemap.xml'
     | '/snabbkoll'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/sitemap.xml'
     | '/snabbkoll'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/sitemap.xml'
     | '/snabbkoll'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   GarageRoute: typeof GarageRoute
   HistoryRoute: typeof HistoryRoute
   ProfilRoute: typeof ProfilRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SnabbkollRoute: typeof SnabbkollRoute
 }
 
@@ -165,6 +178,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/snabbkoll': {
       id: '/snabbkoll'
       path: '/snabbkoll'
@@ -182,18 +202,9 @@ const rootRouteChildren: RootRouteChildren = {
   GarageRoute: GarageRoute,
   HistoryRoute: HistoryRoute,
   ProfilRoute: ProfilRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   SnabbkollRoute: SnabbkollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

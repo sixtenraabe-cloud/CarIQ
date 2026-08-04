@@ -26,7 +26,9 @@ export const Route = createFileRoute("/snabbkoll")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cariq-test.lovable.app/snabbkoll" },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/snabbkoll" }],
   }),
   component: QuickCheckPage,
 });
@@ -139,7 +141,7 @@ function QuickCheckPage() {
                   ) : (
                     <img
                       src={image.url}
-                      alt={t.quickPhotoLabel}
+                      alt={t.altQuickMedia}
                       className="max-h-56 w-full rounded-lg object-contain"
                     />
                   )}

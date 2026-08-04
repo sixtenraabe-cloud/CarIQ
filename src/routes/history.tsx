@@ -23,7 +23,9 @@ export const Route = createFileRoute("/history")({
       { property: "og:description", content: "Se tidigare diagnoser och följ hur problemet utvecklats." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cariq-test.lovable.app/history" },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/history" }],
   }),
   component: HistoryPage,
 });

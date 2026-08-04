@@ -22,8 +22,10 @@ export const Route = createFileRoute("/garage")({
       { property: "og:title", content: "Mitt garage — CarIQ" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cariq-test.lovable.app/garage" },
       { property: "og:description", content: "Lägg till din bil för bättre diagnoser." },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/garage" }],
   }),
   component: Garage,
 });
