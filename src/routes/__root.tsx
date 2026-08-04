@@ -109,6 +109,28 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "CarIQ",
+          url: "https://cariq-test.lovable.app",
+          inLanguage: "sv-SE",
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "CarIQ",
+          url: "https://cariq-test.lovable.app",
+          logo: "https://storage.googleapis.com/gpt-engineer-file-uploads/lE1hyG4ER5bzDUP6vC0POLDY4GQ2/social-images/social-1785665111356-social-image.webp",
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,
