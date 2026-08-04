@@ -143,7 +143,6 @@ function Home() {
         />
       </Link>
 
-      <p className="stencil mb-2 px-1">{t.tagline}</p>
       <div className="space-y-3">
         <Link
           to="/snabbkoll"
