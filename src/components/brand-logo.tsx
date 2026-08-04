@@ -24,17 +24,17 @@ export function BrandLogo({
 
   return (
     <span
-      className={`inline-grid shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-secondary/70 ${className}`}
+      className={`inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-transparent ${className}`}
       style={{ width: size, height: size }}
     >
       {domain && TOKEN && !failed ? (
         <img
-          src={`https://img.logo.dev/${domain}?token=${TOKEN}&size=${size * 3}&format=png&retina=true`}
+          src={`https://img.logo.dev/${domain}?token=${TOKEN}&size=${size * 3}&format=png&retina=true&theme=dark`}
           alt={`${make} logotyp`}
           width={size}
           height={size}
           loading="lazy"
-          className="size-full object-contain p-[2px]"
+          className="size-full object-contain"
           onError={() => setFailed(true)}
         />
       ) : (
