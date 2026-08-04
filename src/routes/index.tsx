@@ -60,7 +60,7 @@ function Home() {
   const { t } = useI18n();
   return (
     <main className="px-4 pt-8">
-      <header className="rise mb-6 flex items-start justify-between gap-3">
+      <header className="rise relative z-50 mb-6 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <span className="relative shrink-0">
             <span
