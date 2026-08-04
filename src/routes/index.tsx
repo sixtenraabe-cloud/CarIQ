@@ -74,10 +74,10 @@ function Home() {
             />
           </span>
           <div>
-            <h1 className="text-4xl tracking-tight">
+            <h1 className="font-display text-4xl tracking-tight">
               <span className="brand-text">Car</span>
               <span className="text-primary">IQ</span>
-              <span className="mt-1 block text-sm font-medium text-muted-foreground">
+              <span className="mt-1 block font-body text-sm font-medium text-muted-foreground">
                 {t.tagline}
               </span>
             </h1>
@@ -108,7 +108,7 @@ function Home() {
               ) : null}
               <span className="stencil block">{t.myCar}</span>
             </span>
-            <span className="mt-0.5 block truncate text-2xl font-bold tracking-tight">
+            <span className="mt-0.5 block truncate font-display text-2xl font-bold tracking-tight">
               {car ? `${car.make} ${car.model}` : t.addCar}
             </span>
             {car?.variant ? (
