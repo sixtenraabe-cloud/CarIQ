@@ -272,7 +272,18 @@ export function DiagnosisReport({
 
       {result.mechanicNote ? (
         <SectionCard icon={Wrench} title={t.mechanicSays}>
-          <p className="text-sm leading-relaxed whitespace-pre-line">{result.mechanicNote}</p>
+          <div className="space-y-2">
+            {result.mechanicNote
+              .split(/(?<=[.!?])\s+/)
+              .map((s) => s.trim())
+              .filter(Boolean)
+              .slice(0, 3)
+              .map((s) => (
+                <p key={s} className="text-[15px] leading-relaxed text-foreground/90">
+                  {s}
+                </p>
+              ))}
+          </div>
         </SectionCard>
       ) : null}
 
