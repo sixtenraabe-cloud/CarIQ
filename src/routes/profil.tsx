@@ -51,7 +51,14 @@ function Profil() {
           <div className="min-w-0 flex-1">
             <p className="stencil">{t.savedCarLabel}</p>
             <p className="truncate text-sm">
-              {car ? `${car.make} ${car.model} (${car.year})` : t.noSavedCar}
+              {car ? (
+                <span className="inline-flex items-center gap-2">
+                  <BrandLogo make={car.make} size={22} />
+                  {`${car.make} ${car.model} (${car.year})`}
+                </span>
+              ) : (
+                t.noSavedCar
+              )}
             </p>
           </div>
           {car ? (
