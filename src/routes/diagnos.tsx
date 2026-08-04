@@ -10,6 +10,7 @@ import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { DiagnosisReport } from "@/components/diagnosis-report";
 import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
+import { BrandLogo } from "@/components/brand-logo";
 import { CarDiagram, type ZoneKey } from "@/components/car-diagram";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
 import { carSummary, type DiagnosisResult, type SecondOpinion } from "@/lib/diagnosis-types";
