@@ -34,7 +34,9 @@ export const Route = createFileRoute("/diagnos")({
       { property: "og:description", content: "Fyra snabba steg till en bedömning av bilen." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cariq-test.lovable.app/diagnos" },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/diagnos" }],
   }),
   component: Diagnos,
 });

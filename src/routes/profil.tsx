@@ -18,7 +18,9 @@ export const Route = createFileRoute("/profil")({
       { property: "og:description", content: "Konto, sparad bil och inställningar." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://cariq-test.lovable.app/profil" },
     ],
+    links: [{ rel: "canonical", href: "https://cariq-test.lovable.app/profil" }],
   }),
   component: Profil,
 });
