@@ -139,7 +139,7 @@ function QuickCheckPage() {
                   ) : (
                     <img
                       src={image.url}
-                      alt={t.quickPhotoLabel}
+                      alt={t.altQuickMedia}
                       className="max-h-56 w-full rounded-lg object-contain"
                     />
                   )}

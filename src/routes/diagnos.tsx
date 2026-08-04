@@ -352,7 +352,7 @@ function Diagnos() {
                     ) : (
                       <img
                         src={image.url}
-                        alt={t.lampPhoto}
+                        alt={t.altLampPhoto}
                         className="max-h-56 w-full rounded-lg object-contain"
                       />
                     )}
