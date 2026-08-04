@@ -119,19 +119,45 @@ function Garage() {
 
   return (
     <main className="px-4 pt-8">
-      <h1 className="text-2xl">{t.garageTitle}</h1>
-      <p className="mt-1 text-sm text-muted-foreground">{t.garageSub}</p>
+      <div className="rise">
+        <h1 className="text-2xl">{t.garageTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t.garageSub}</p>
+      </div>
 
-      {form.make.trim() || form.model.trim() ? (
-        <div className="panel mt-5 flex flex-col items-center p-4">
-          <CarSilhouette make={form.make} model={form.model} className="w-64" />
-          <p className="stencil mt-1">
-            {form.make} {form.model}
-          </p>
+      <div
+        className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
+        style={{ animationDelay: "60ms" }}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
+        />
+        <div className="relative flex items-center gap-2">
+          <span className="stencil">{t.myCar}</span>
+          <span className="ml-auto flex items-center gap-1" aria-hidden="true">
+            {[Boolean(brand), knownCar, valid].map((done, i) => (
+              <span
+                key={i}
+                className={`h-1.5 w-6 rounded-full transition-colors ${
+                  done ? "bg-primary" : "bg-secondary"
+                }`}
+              />
+            ))}
+          </span>
         </div>
-      ) : null}
+        <p className="relative mt-0.5 truncate text-xl font-bold tracking-tight">
+          {form.make.trim() || form.model.trim()
+            ? `${form.make} ${form.model}`.trim()
+            : t.carSub}
+        </p>
+        <CarSilhouette
+          make={form.make}
+          model={form.model}
+          className="relative mx-auto w-60 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+        />
+      </div>
 
-      <div className="panel mt-5 space-y-4 p-5">
+      <div className="surface rise mt-5 space-y-4 p-5" style={{ animationDelay: "120ms" }}>
         <div className="grid grid-cols-2 gap-3">
           <div className="relative space-y-2">
             <Label htmlFor="make">{t.make}</Label>
@@ -308,7 +334,12 @@ function Garage() {
         </div>
       </div>
 
-      <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
+      <Button
+        size="lg"
+        className="mt-5 w-full shadow-[0_18px_36px_-20px] shadow-primary/80 transition-transform active:scale-[0.99]"
+        disabled={!valid}
+        onClick={submit}
+      >
         {t.saveCar}
       </Button>
       {makeError || modelError ? (
@@ -357,8 +388,8 @@ function Pick({
       onClick={onClick}
       className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border text-muted-foreground"
+          ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_22px_-14px] shadow-primary"
+          : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
       }`}
     >
       {children}

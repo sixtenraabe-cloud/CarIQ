@@ -60,16 +60,23 @@ function Home() {
   const { t } = useI18n();
   return (
     <main className="px-4 pt-8">
-      <header className="mb-6 flex items-start justify-between gap-3">
+      <header className="rise mb-6 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <img
-            src={logoAsset.url}
-            alt="CarIQ – blå bilikon med diagnostikpuls, appens logotyp"
-            className="size-16 shrink-0 rounded-2xl border border-border object-cover"
-          />
+          <span className="relative shrink-0">
+            <span
+              aria-hidden="true"
+              className="absolute -inset-1.5 rounded-3xl bg-primary/25 blur-lg"
+            />
+            <img
+              src={logoAsset.url}
+              alt="CarIQ – blå bilikon med diagnostikpuls, appens logotyp"
+              className="relative size-16 rounded-2xl border border-white/10 object-cover shadow-lg"
+            />
+          </span>
           <div>
             <h1 className="text-4xl tracking-tight">
-              Car<span className="text-primary">IQ</span>
+              <span className="brand-text">Car</span>
+              <span className="text-primary">IQ</span>
               <span className="mt-1 block text-sm font-medium text-muted-foreground">
                 {t.tagline}
               </span>
@@ -81,15 +88,23 @@ function Home() {
 
       <Link
         to="/garage"
-        className={`tile mb-6 block overflow-hidden active:scale-[0.99] hover:border-primary/60 ${
-          car ? "border-primary/50 bg-primary/5" : ""
+        className={`surface lift rise relative mb-6 block overflow-hidden ${
+          car ? "border-primary/45" : ""
         }`}
+        style={{ animationDelay: "60ms" }}
       >
-        <div className="flex items-center gap-3 px-4 pt-4">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/20 blur-3xl"
+        />
+        <div className="relative flex items-center gap-3 px-4 pt-4">
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-2">
               {car ? (
-                <span className="inline-flex size-1.5 rounded-full bg-primary" aria-hidden="true" />
+                <span
+                  className="glow-dot inline-flex size-1.5 rounded-full bg-signal-safe"
+                  aria-hidden="true"
+                />
               ) : null}
               <span className="stencil block">{t.myCar}</span>
             </span>
@@ -103,10 +118,12 @@ function Home() {
               <span className="block truncate text-sm text-muted-foreground">{t.carSub}</span>
             ) : null}
           </span>
-          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-secondary/60 text-muted-foreground">
+            <ChevronRight className="size-4" />
+          </span>
         </div>
         {car ? (
-          <div className="mt-2 flex flex-wrap gap-1.5 px-4">
+          <div className="relative mt-2 flex flex-wrap gap-1.5 px-4">
             {carLine(car)
               .split(" · ")
               .map((chip) => (
@@ -119,15 +136,20 @@ function Home() {
               ))}
           </div>
         ) : null}
-        <CarSilhouette make={car?.make ?? ""} model={car?.model ?? ""} className="mx-auto -mt-1 w-64" />
+        <CarSilhouette
+          make={car?.make ?? ""}
+          model={car?.model ?? ""}
+          className="relative mx-auto -mt-1 w-64 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+        />
       </Link>
 
       <div className="space-y-3">
         <Link
           to="/snabbkoll"
-          className="tile flex items-center gap-4 border-primary/50 bg-primary/5 p-4 hover:border-primary active:scale-[0.99]"
+          className="tile lift rise flex items-center gap-4 border-primary/50 bg-primary/10 p-4"
+          style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
+          <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/30">
             <Ear className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
@@ -136,14 +158,17 @@ function Home() {
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </Link>
-        {ACTIONS.map((action) => (
+        {ACTIONS.map((action, i) => (
           <Link
             key={action.tag}
             to="/diagnos"
             search={{ tag: action.tag }}
-            className="tile flex items-center gap-4 p-4 hover:border-primary/60 active:scale-[0.99]"
+            className="tile lift rise flex items-center gap-4 p-4"
+            style={{ animationDelay: `${170 + i * 55}ms` }}
           >
-            <span className={`grid size-10 shrink-0 place-items-center rounded-lg ${action.tone}`}>
+            <span
+              className={`grid size-11 shrink-0 place-items-center rounded-xl ring-1 ring-inset ring-white/5 ${action.tone}`}
+            >
               <action.icon className="size-5" />
             </span>
             <span className="min-w-0 flex-1">
