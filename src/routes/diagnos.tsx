@@ -316,8 +316,11 @@ function Diagnos() {
           <CarSilhouette make={car.make} model={car.model} className="w-28 shrink-0" />
           <div className="min-w-0">
             <p className="stencil">{t.myCar}</p>
-            <p className="truncate text-sm">
-              {car.make} {car.model}{car.variant ? ` ${car.variant}` : ""} · {car.year}
+            <p className="flex items-center gap-2 truncate text-sm">
+              <BrandLogo make={car.make} size={20} />
+              <span className="truncate">
+                {car.make} {car.model}{car.variant ? ` ${car.variant}` : ""} · {car.year}
+              </span>
             </p>
           </div>
         </div>
