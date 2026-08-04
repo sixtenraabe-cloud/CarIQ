@@ -334,7 +334,12 @@ function Garage() {
         </div>
       </div>
 
-      <Button size="lg" className="mt-5 w-full" disabled={!valid} onClick={submit}>
+      <Button
+        size="lg"
+        className="mt-5 w-full shadow-[0_18px_36px_-20px] shadow-primary/80 transition-transform active:scale-[0.99]"
+        disabled={!valid}
+        onClick={submit}
+      >
         {t.saveCar}
       </Button>
       {makeError || modelError ? (
@@ -383,8 +388,8 @@ function Pick({
       onClick={onClick}
       className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
         active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border text-muted-foreground"
+          ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_22px_-14px] shadow-primary"
+          : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
       }`}
     >
       {children}
