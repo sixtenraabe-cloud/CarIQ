@@ -148,7 +148,7 @@ function Garage() {
         <p className="relative mt-0.5 truncate text-xl font-bold tracking-tight">
           {form.make.trim() || form.model.trim()
             ? `${form.make} ${form.model}`.trim()
-            : t.addCar}
+            : t.carSub}
         </p>
         <CarSilhouette
           make={form.make}
