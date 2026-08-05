@@ -452,16 +452,24 @@ function Diagnos() {
                     <Button variant="ghost" onClick={() => setImage(null)}>
                       <Trash2 className="size-4" /> {t.removeImage}
                     </Button>
+                    {mediaNote ? (
+                      <p className="text-xs text-muted-foreground">{mediaNote}</p>
+                    ) : null}
                   </div>
                 ) : (
                   <>
                     <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
-                      <ImagePlus className="size-4" />
-                      {t.uploadMedia}
+                      {mediaBusy ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        <ImagePlus className="size-4" />
+                      )}
+                      {mediaBusy ? t.videoReading : t.uploadMedia}
                       <input
                         type="file"
                         accept="image/*,video/*"
                         className="hidden"
+                        disabled={mediaBusy}
                         onChange={(event) => {
                           const file = event.target.files?.[0];
                           if (file) void pickImage(file);
@@ -473,6 +481,38 @@ function Diagnos() {
                 )}
               </div>
           </div>
+
+          {car && (issuesLoading || issues.length) ? (
+            <div>
+              <p className="stencil mb-2">{t.knownTitle}</p>
+              <p className="mb-2 text-xs text-muted-foreground">
+                {issuesLoading ? t.knownLoading : t.knownHint}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {issues.map((issue) => {
+                  const active = pickedIssues.includes(issue);
+                  return (
+                    <button
+                      key={issue}
+                      type="button"
+                      onClick={() =>
+                        setPickedIssues((list) =>
+                          active ? list.filter((i) => i !== issue) : [...list, issue],
+                        )
+                      }
+                      className={`rounded-full border px-3 py-2 text-left text-sm transition-colors ${
+                        active
+                          ? "border-primary bg-primary/15 text-foreground"
+                          : "border-border text-muted-foreground"
+                      }`}
+                    >
+                      {issue}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
 
           {showWhere ? (
             <div>
