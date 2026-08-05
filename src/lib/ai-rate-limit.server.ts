@@ -50,10 +50,10 @@ const DAY = 24 * HOUR;
  * cap how many AI calls a single client (IP) can trigger per hour and per day,
  * plus a global ceiling so the AI spend can never run away.
  */
-export function guardAiUsage(scope: "analyze" | "second" | "chat" | "quick") {
+export function guardAiUsage(scope: "analyze" | "second" | "chat" | "quick" | "issues" | "plate") {
   const caller = callerKey();
-  const perHour = scope === "chat" ? 40 : 12;
-  const perDay = scope === "chat" ? 200 : 60;
+  const perHour = scope === "chat" ? 40 : scope === "issues" || scope === "plate" ? 30 : 12;
+  const perDay = scope === "chat" ? 200 : scope === "issues" || scope === "plate" ? 150 : 60;
 
   hit(`h:${scope}:${caller}`, perHour, HOUR);
   hit(`d:${caller}`, perDay, DAY);
