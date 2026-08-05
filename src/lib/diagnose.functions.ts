@@ -46,6 +46,7 @@ const AnalyzeSchema = z.object({
   symptom: z.string().trim().min(3).max(2000),
   audio: MediaSchema,
   image: MediaSchema,
+  fromVideo: z.boolean().default(false),
   language: z.enum(["sv", "en", "da", "de"]).default("sv"),
   currency: z.string().max(40).default("SEK (svenska kronor)"),
 });
@@ -206,6 +207,9 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       `Owner's description: ${data.symptom}`,
       data.image
         ? "A photo or video (for example of the dashboard warning light) is attached — study it and identify any warning lamp in it."
+        : "",
+      data.fromVideo
+        ? "The owner filmed a video of the problem. The attached image is a still frame from that video and the attached audio is the video's own soundtrack. Judge whether the sound is NORMAL for exactly this engine/powertrain and this mileage, or abnormal, and say so plainly. Also study the frame for anything visibly wrong: smoke and its colour (blue = oil, white = coolant, black = fuel), steam, fluid leaks, damaged belts or hoses, glowing brakes, warning lamps."
         : "",
       `Write every field of your answer in ${languageName}.`,
       `Give estimatedCost as a range in ${data.currency}, formatted for that market.`,
