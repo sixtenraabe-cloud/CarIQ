@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ImagePlus, Loader2, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -13,6 +13,8 @@ import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
 import { CarDiagram, type ZoneKey } from "@/components/car-diagram";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
+import { knownIssues } from "@/lib/issues.functions";
+import { extractFromVideo } from "@/lib/media-extract";
 import { carSummary, type DiagnosisResult, type SecondOpinion } from "@/lib/diagnosis-types";
 import { useCar } from "@/lib/car-store";
 import { useAuth } from "@/hooks/use-auth";
@@ -65,6 +67,7 @@ function Diagnos() {
   const analyze = useServerFn(analyzeSymptoms);
   const save = useServerFn(saveDiagnosis);
   const askSecond = useServerFn(secondOpinion);
+  const fetchIssues = useServerFn(knownIssues);
 
   const PROBLEMS: { key: string; label: string }[] = [
     { key: "noise", label: t.aNoise },
@@ -89,11 +92,51 @@ function Diagnos() {
   const [result, setResult] = useState<DiagnosisResult | null>(null);
   const [second, setSecond] = useState<SecondOpinion | null>(null);
   const [secondLoading, setSecondLoading] = useState(false);
+  const [issues, setIssues] = useState<string[]>([]);
+  const [issuesLoading, setIssuesLoading] = useState(false);
+  const [pickedIssues, setPickedIssues] = useState<string[]>([]);
+  const [mediaBusy, setMediaBusy] = useState(false);
+  const [mediaNote, setMediaNote] = useState("");
 
   const isLamp = problemKey === "warning";
   const isPerf = problemKey === "performance";
   const showWhere = !isLamp && !isPerf;
   const problem = PROBLEMS.find((p) => p.key === problemKey)?.label ?? "";
+
+  // Known faults for exactly this make/model, offered as one-tap choices.
+  useEffect(() => {
+    if (step !== 2 || !car || issues.length || issuesLoading) return;
+    let active = true;
+    setIssuesLoading(true);
+    void fetchIssues({
+      data: {
+        make: car.make,
+        model: car.model,
+        variant: car.variant ?? "",
+        year: car.year,
+        fuel: car.fuel,
+        mileageKm: car.mileageKm,
+        category: problem,
+        language: lang,
+      },
+    })
+      .then((output) => {
+        if (active) setIssues(output.issues);
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (active) setIssuesLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, car?.make, car?.model, problemKey, lang]);
+
+  // Always land at the top of the report so the verdict is the first thing seen.
+  useEffect(() => {
+    if (step === 4 && result) window.scrollTo({ top: 0, behavior: "auto" });
+  }, [step, result]);
 
   const zoneLabel =
     zone === "front"
@@ -114,10 +157,11 @@ function Diagnos() {
     when ? `${t.whenNoticed} ${when}` : "",
     isLamp && image ? t.lampPhoto : "",
     clip ? t.recordSound : "",
+    ...pickedIssues,
   ].filter(Boolean) as string[];
 
   const tags = chips;
-  const description = symptom.trim() || tags.join(", ");
+  const description = [symptom.trim(), ...pickedIssues].filter(Boolean).join(". ") || tags.join(", ");
 
   const back = () => {
     if (step === 1) void navigate({ to: "/" });
@@ -144,6 +188,7 @@ function Diagnos() {
           symptom: description,
           audio: clip ? { base64: clip.base64, mediaType: clip.mediaType } : null,
           image: image ? { base64: image.base64, mediaType: image.mediaType } : null,
+          fromVideo,
           language: lang,
           currency: currencyFor(lang).currencyName,
         },
@@ -239,21 +284,62 @@ function Diagnos() {
     setSymptom("");
     setClip(null);
     setImage(null);
+    setFromVideo(false);
+    setMediaNote("");
+    setPickedIssues([]);
+    setIssues([]);
     setSaved(false);
   };
 
   const titles = [t.step1, t.step2, t.step3, t.step4];
 
   const pickImage = async (file: File) => {
-    if (file.size > 6_000_000) {
+    const isVideo = (file.type || "").startsWith("video/");
+    if (!isVideo && file.size > 6_000_000) {
       toast.error("Max 6 MB");
       return;
     }
-    setImage({
-      base64: await toBase64(file),
-      mediaType: file.type || "image/jpeg",
-      url: URL.createObjectURL(file),
-    });
+    if (!isVideo) {
+      setFromVideo(false);
+      setMediaNote("");
+      setImage({
+        base64: await toBase64(file),
+        mediaType: file.type || "image/jpeg",
+        url: URL.createObjectURL(file),
+      });
+      return;
+    }
+
+    // Video: pull out a still frame (smoke, leaks, lamps) and the real audio
+    // track so the mechanic can judge how the car actually sounds.
+    setMediaBusy(true);
+    setMediaNote(t.videoReading);
+    try {
+      const { frame, audio } = await extractFromVideo(file);
+      const url = URL.createObjectURL(file);
+      if (frame) {
+        setImage({ base64: frame.base64, mediaType: "image/jpeg", url });
+      } else {
+        setImage(null);
+      }
+      if (audio) {
+        setClip({
+          base64: audio.base64,
+          mediaType: audio.mediaType,
+          url,
+          label: "video",
+        });
+      }
+      if (!frame && !audio) {
+        setMediaNote("");
+        toast.error(t.errGeneric);
+        return;
+      }
+      setFromVideo(true);
+      setMediaNote(audio ? t.videoAudioOk : t.videoNoAudio);
+    } finally {
+      setMediaBusy(false);
+    }
   };
 
   return (
