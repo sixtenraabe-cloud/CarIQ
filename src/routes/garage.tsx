@@ -108,7 +108,6 @@ function Garage() {
   }, [form.make, form.model, knownCar]);
 
   const submit = () => {
-    void 0;
     if (!isKnownCar(form.make, form.model)) {
       toast.error(t.unknownCar);
       return;
