@@ -556,9 +556,9 @@ function Diagnos() {
           <Button
             size="lg"
             className="w-full"
-            disabled={loading}
+            disabled={loading || mediaBusy}
             onClick={() => {
-              if (image?.mediaType.startsWith("video/")) void run();
+              if (fromVideo) void run();
               else setStep(3);
             }}
           >
@@ -566,7 +566,7 @@ function Diagnos() {
               <>
                 <Loader2 className="size-4 animate-spin" /> {t.analyzing}
               </>
-            ) : image?.mediaType.startsWith("video/") ? (
+            ) : fromVideo ? (
               t.analyze
             ) : (
               t.next
