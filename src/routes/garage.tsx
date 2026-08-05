@@ -1,12 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Loader2, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
+import { lookupPlate } from "@/lib/plate.functions";
 import { suggestBrands } from "@/lib/car-brands";
 import { BrandLogo } from "@/components/brand-logo";
 import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
@@ -33,8 +36,12 @@ export const Route = createFileRoute("/garage")({
 
 function Garage() {
   const { car, ready, saveCar } = useCar();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const navigate = useNavigate();
+  const findPlate = useServerFn(lookupPlate);
+  const [plate, setPlate] = useState("");
+  const [plateLoading, setPlateLoading] = useState(false);
+  const [plateNote, setPlateNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
   const [showVariantSuggestions, setShowVariantSuggestions] = useState(false);
@@ -101,6 +108,7 @@ function Garage() {
   }, [form.make, form.model, knownCar]);
 
   const submit = () => {
+    void 0;
     if (!isKnownCar(form.make, form.model)) {
       toast.error(t.unknownCar);
       return;
@@ -118,12 +126,88 @@ function Garage() {
     void navigate({ to: "/" });
   };
 
+  const runPlateLookup = async () => {
+    if (plate.trim().length < 2) return;
+    setPlateLoading(true);
+    setPlateNote(null);
+    try {
+      const found = await findPlate({ data: { plate } });
+      if (!found.found) {
+        setPlateNote({ ok: false, text: t.plateNotFound });
+        return;
+      }
+      setForm((f) => ({
+        ...f,
+        make: found.make,
+        model: found.model,
+        variant: found.variant || f.variant,
+        year: found.year ? String(found.year) : f.year,
+        fuel: found.fuel || f.fuel,
+        transmission: found.transmission || f.transmission,
+      }));
+      setPlateNote({ ok: true, text: t.plateFound });
+    } catch {
+      setPlateNote({ ok: false, text: t.plateError });
+    } finally {
+      setPlateLoading(false);
+    }
+  };
+
   return (
     <main className="px-4 pt-8">
       <div className="rise">
         <h1 className="text-2xl">{t.garageTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">{t.garageSub}</p>
       </div>
+
+      {lang === "sv" ? (
+        <div className="surface rise mt-5 space-y-3 p-5" style={{ animationDelay: "40ms" }}>
+          <div>
+            <p className="stencil">{t.plateSection}</p>
+            <p className="mt-1 text-xs text-muted-foreground">{t.plateHint}</p>
+          </div>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="plate">{t.plateLabel}</Label>
+              <Input
+                id="plate"
+                autoComplete="off"
+                inputMode="text"
+                maxLength={10}
+                placeholder={t.platePlaceholder}
+                value={plate}
+                className="uppercase tracking-[0.25em]"
+                onChange={(e) => setPlate(e.target.value.toUpperCase())}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") void runPlateLookup();
+                }}
+              />
+            </div>
+            <Button
+              type="button"
+              disabled={plateLoading || plate.trim().length < 2}
+              onClick={() => void runPlateLookup()}
+            >
+              {plateLoading ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" /> {t.plateFetching}
+                </>
+              ) : (
+                <>
+                  <Search className="size-4" /> {t.plateFetch}
+                </>
+              )}
+            </Button>
+          </div>
+          {plateNote ? (
+            <p
+              className={`text-xs ${plateNote.ok ? "text-signal-safe" : "text-muted-foreground"}`}
+            >
+              {plateNote.text}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <div
         className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
