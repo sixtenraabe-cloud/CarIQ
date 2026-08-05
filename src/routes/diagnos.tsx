@@ -86,6 +86,7 @@ function Diagnos() {
   const [symptom, setSymptom] = useState("");
   const [clip, setClip] = useState<AudioClip | null>(null);
   const [image, setImage] = useState<ImageFile | null>(null);
+  const [fromVideo, setFromVideo] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
