@@ -283,12 +283,13 @@
     100deg,
     oklch(1 0 0) 0%,
     oklch(1 0 0) 55%,
-    oklch(0.9 0.06 260) 100%
+    oklch(0.97 0.03 260) 100%
   );
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 2px 8px oklch(0 0 0 / 0.55));
+  text-shadow: none;
+  filter: drop-shadow(0 2px 6px oklch(0 0 0 / 0.45));
 }
 
 @utility rise {
