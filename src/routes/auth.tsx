@@ -38,6 +38,7 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) void navigate({ to: "/history" });
@@ -51,16 +52,38 @@ function AuthPage() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
         if (error) throw error;
-        if (data.session) toast.success(t.welcomeBack);
-        else toast.success(t.checkEmail);
+        if (data.session) {
+          toast.success(t.welcomeBack);
+        } else {
+          setPendingEmail(email);
+          toast.success(t.checkEmail);
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success(t.welcomeBack);
       }
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t.authFailed);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const resend = async () => {
+    if (!pendingEmail) return;
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: "signup",
+        email: pendingEmail,
+        options: { emailRedirectTo: `${window.location.origin}/auth` },
+      });
+      if (error) throw error;
+      toast.success(t.resendSent);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t.authFailed);
     } finally {
@@ -91,6 +114,27 @@ function AuthPage() {
         <LanguagePicker />
       </div>
 
+      {pendingEmail ? (
+        <div className="panel space-y-4 p-5">
+          <h2 className="text-xl">{t.confirmTitle}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t.confirmBody.replace("{email}", pendingEmail)}
+          </p>
+          <Button className="w-full" onClick={() => void resend()} disabled={busy}>
+            {t.resendEmail}
+          </Button>
+          <button
+            type="button"
+            onClick={() => {
+              setPendingEmail(null);
+              setMode("signin");
+            }}
+            className="w-full text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t.backToSignIn}
+          </button>
+        </div>
+      ) : (
       <form onSubmit={submit} className="panel space-y-4 p-5">
         <div className="space-y-2">
           <Label htmlFor="email">{t.emailLabel}</Label>
@@ -129,6 +173,7 @@ function AuthPage() {
           {mode === "signin" ? t.toSignUp : t.toSignIn}
         </button>
       </form>
+      )}
     </main>
   );
 }
