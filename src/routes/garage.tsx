@@ -155,47 +155,77 @@ function Garage() {
       </div>
 
       {lang === "sv" ? (
-        <div className="surface rise mt-5 space-y-3 p-5" style={{ animationDelay: "40ms" }}>
-          <div>
+        <div
+          className="surface rise relative mt-5 overflow-hidden p-5"
+          style={{ animationDelay: "40ms" }}
+        >
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
+          />
+          <div className="relative">
             <p className="stencil">{t.plateSection}</p>
             <p className="mt-1 text-xs text-muted-foreground">{t.plateHint}</p>
           </div>
-          <div className="flex items-end gap-2">
-            <div className="flex-1 space-y-2">
-              <Label htmlFor="plate">{t.plateLabel}</Label>
-              <Input
-                id="plate"
-                autoComplete="off"
-                inputMode="text"
-                maxLength={10}
-                placeholder={t.platePlaceholder}
-                value={plate}
-                className="uppercase tracking-[0.25em]"
-                onChange={(e) => setPlate(e.target.value.toUpperCase())}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") void runPlateLookup();
-                }}
-              />
+
+          <Label htmlFor="plate" className="sr-only">
+            {t.plateLabel}
+          </Label>
+          <div className="plate-frame relative mt-4 flex h-16 items-stretch overflow-hidden">
+            <div className="flex w-10 shrink-0 flex-col items-center justify-center gap-1 bg-plate-eu">
+              <span
+                aria-hidden="true"
+                className="text-[9px] leading-none tracking-tighter text-plate-eu-star"
+              >
+                ★★★
+              </span>
+              <span
+                aria-hidden="true"
+                className="text-[8px] leading-none tracking-tighter text-plate-eu-star"
+              >
+                ★ ★
+              </span>
+              <span className="text-[11px] font-bold leading-none text-plate-surface">S</span>
             </div>
-            <Button
-              type="button"
-              disabled={plateLoading || plate.trim().length < 2}
-              onClick={() => void runPlateLookup()}
-            >
-              {plateLoading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> {t.plateFetching}
-                </>
-              ) : (
-                <>
-                  <Search className="size-4" /> {t.plateFetch}
-                </>
-              )}
-            </Button>
+            <input
+              id="plate"
+              autoComplete="off"
+              inputMode="text"
+              maxLength={10}
+              placeholder={t.platePlaceholder}
+              value={plate}
+              onChange={(e) => setPlate(e.target.value.toUpperCase())}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void runPlateLookup();
+              }}
+              className="w-full flex-1 bg-transparent px-3 text-center font-display text-2xl font-bold uppercase tracking-[0.18em] text-plate-ink outline-none placeholder:text-plate-ink/30"
+            />
           </div>
+
+          <Button
+            type="button"
+            className="mt-3 w-full"
+            disabled={plateLoading || plate.trim().length < 2}
+            onClick={() => void runPlateLookup()}
+          >
+            {plateLoading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" /> {t.plateFetching}
+              </>
+            ) : (
+              <>
+                <Search className="size-4" /> {t.plateFetch}
+              </>
+            )}
+          </Button>
+
           {plateNote ? (
             <p
-              className={`text-xs ${plateNote.ok ? "text-signal-safe" : "text-muted-foreground"}`}
+              className={`mt-3 rounded-lg border px-3 py-2 text-xs ${
+                plateNote.ok
+                  ? "border-signal-safe/40 bg-signal-safe/10 text-signal-safe"
+                  : "border-border bg-muted/30 text-muted-foreground"
+              }`}
             >
               {plateNote.text}
             </p>
