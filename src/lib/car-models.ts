@@ -196,6 +196,17 @@ const EV_MODELS = new Set(
     "Jaguar|I-Pace",
     "Mini|Electric",
     "Opel|Ampera",
+    "Lotus|Eletre",
+    "Lotus|Emeya",
+    "Lotus|Evija",
+    "Maserati|Grecale Folgore",
+    "Rolls-Royce|Spectre",
+    "Cadillac|Lyriq",
+    "Cadillac|Optiq",
+    "Cadillac|Vistiq",
+    "Cadillac|Escalade IQ",
+    "Alpine|A290",
+    "Maybach|EQS SUV",
   ].map((s) => s.toLowerCase()),
 );
 
