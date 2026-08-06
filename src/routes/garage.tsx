@@ -326,34 +326,10 @@ function Garage() {
               id="variant"
               autoComplete="off"
               disabled={!knownCar}
-              placeholder={knownCar ? variantExamples || t.variant : t.variantPickModel}
+              placeholder={knownCar ? t.variant : t.variantPickModel}
               value={form.variant}
-              onFocus={() => setShowVariantSuggestions(true)}
-              onBlur={() => window.setTimeout(() => setShowVariantSuggestions(false), 150)}
-              onChange={(e) => {
-                setForm({ ...form, variant: e.target.value });
-                setShowVariantSuggestions(true);
-              }}
+              onChange={(e) => setForm({ ...form, variant: e.target.value })}
             />
-            {knownCar && showVariantSuggestions && variantSuggestions.length ? (
-              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
-                {variantSuggestions.map((v) => (
-                  <li key={v}>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setForm({ ...form, variant: v });
-                        setShowVariantSuggestions(false);
-                      }}
-                    >
-                      {v}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
             {knownCar ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
           </div>
           <div className="space-y-2">
