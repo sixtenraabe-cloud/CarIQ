@@ -281,13 +281,14 @@
 @utility brand-text {
   background-image: linear-gradient(
     100deg,
-    var(--foreground) 0%,
-    var(--foreground) 45%,
-    oklch(0.75 0.13 260) 100%
+    oklch(1 0 0) 0%,
+    oklch(1 0 0) 55%,
+    oklch(0.9 0.06 260) 100%
   );
   background-clip: text;
   -webkit-background-clip: text;
   color: transparent;
+  filter: drop-shadow(0 2px 8px oklch(0 0 0 / 0.55));
 }
 
 @utility rise {
