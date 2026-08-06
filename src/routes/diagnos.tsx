@@ -137,7 +137,18 @@ function Diagnos() {
 
   // Always land at the top of the report so the verdict is the first thing seen.
   useEffect(() => {
-    if (step === 4 && result) window.scrollTo({ top: 0, behavior: "auto" });
+    if (step !== 4 || !result) return;
+    let frames = 0;
+    let raf = 0;
+    const toTop = () => {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      if (++frames < 20) raf = requestAnimationFrame(toTop);
+    };
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    toTop();
+    return () => cancelAnimationFrame(raf);
   }, [step, result]);
 
   const zoneLabel =
@@ -197,7 +208,7 @@ function Diagnos() {
       });
       setResult(output);
       setStep(4);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: "auto" });
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       toast.error(
