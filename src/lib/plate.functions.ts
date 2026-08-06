@@ -19,6 +19,8 @@ export type PlateLookup = {
   year: number | null;
   fuel: "" | "petrol" | "diesel" | "hybrid" | "electric";
   transmission: "" | "manual" | "automatic";
+  inspectionKm: number | null;
+  inspectionDate: string;
 };
 
 const EMPTY: PlateLookup = {
@@ -29,6 +31,8 @@ const EMPTY: PlateLookup = {
   year: null,
   fuel: "",
   transmission: "",
+  inspectionKm: null,
+  inspectionDate: "",
 };
 
 function decode(text: string) {
@@ -37,6 +41,26 @@ function decode(text: string) {
     .replace(/&amp;/g, "&")
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
     .trim();
+}
+
+/** Reads the odometer reading (in km) reported at the most recent vehicle inspection. */
+function readInspection(html: string): { km: number | null; date: string } {
+  const start = html.indexOf("mileage_history");
+  if (start < 0) return { km: null, date: "" };
+  const text = decode(
+    html
+      .slice(start, start + 20000)
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " "),
+  );
+  const match = text.match(
+    /(?:Kontrollbesiktning|Efterkontroll-?besiktning|Registreringsbesiktning)\s+([\d\s\u00a0]+)\s*(mil|km)\s+(\d{4}-\d{2}-\d{2})/i,
+  );
+  if (!match) return { km: null, date: "" };
+  const value = Number(match[1]!.replace(/[\s\u00a0]/g, ""));
+  if (!value) return { km: null, date: "" };
+  const km = match[2]!.toLowerCase() === "mil" ? value * 10 : value;
+  return { km, date: match[3]! };
 }
 
 /**
@@ -103,5 +127,17 @@ export const lookupPlate = createServerFn({ method: "POST" })
 
     if (!make || !model) return EMPTY;
 
-    return { found: true, make, model, variant, year, fuel, transmission };
+    const inspection = readInspection(html);
+
+    return {
+      found: true,
+      make,
+      model,
+      variant,
+      year,
+      fuel,
+      transmission,
+      inspectionKm: inspection.km,
+      inspectionDate: inspection.date,
+    };
   });
