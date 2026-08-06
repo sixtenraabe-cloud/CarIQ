@@ -12,7 +12,7 @@ import { useI18n } from "@/lib/i18n";
 import { lookupPlate } from "@/lib/plate.functions";
 import { suggestBrands } from "@/lib/car-brands";
 import { BrandLogo } from "@/components/brand-logo";
-import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
+import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -44,7 +44,6 @@ function Garage() {
   const [plateNote, setPlateNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
-  const [showVariantSuggestions, setShowVariantSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -85,10 +84,6 @@ function Garage() {
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
   const brand = normalizeBrand(form.make);
   const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
-  const variantSuggestions = suggestVariants(form.make, form.model, form.variant).filter(
-    (v) => v !== form.variant,
-  );
-  const variantExamples = suggestVariants(form.make, form.model, "", 3).join(" / ");
   const knownCar = isKnownCar(form.make, form.model);
   const makeError = form.make.trim() !== "" && !brand;
   const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
@@ -326,34 +321,10 @@ function Garage() {
               id="variant"
               autoComplete="off"
               disabled={!knownCar}
-              placeholder={knownCar ? variantExamples || t.variant : t.variantPickModel}
+              placeholder={knownCar ? t.variant : t.variantPickModel}
               value={form.variant}
-              onFocus={() => setShowVariantSuggestions(true)}
-              onBlur={() => window.setTimeout(() => setShowVariantSuggestions(false), 150)}
-              onChange={(e) => {
-                setForm({ ...form, variant: e.target.value });
-                setShowVariantSuggestions(true);
-              }}
+              onChange={(e) => setForm({ ...form, variant: e.target.value })}
             />
-            {knownCar && showVariantSuggestions && variantSuggestions.length ? (
-              <ul className="absolute z-20 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg">
-                {variantSuggestions.map((v) => (
-                  <li key={v}>
-                    <button
-                      type="button"
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-secondary"
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => {
-                        setForm({ ...form, variant: v });
-                        setShowVariantSuggestions(false);
-                      }}
-                    >
-                      {v}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
             {knownCar ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
           </div>
           <div className="space-y-2">
