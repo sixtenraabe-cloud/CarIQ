@@ -95,6 +95,7 @@ function Diagnos() {
   const [secondLoading, setSecondLoading] = useState(false);
   const [issues, setIssues] = useState<string[]>([]);
   const [issuesLoading, setIssuesLoading] = useState(false);
+  const [issuesDismissed, setIssuesDismissed] = useState(false);
   const [pickedIssues, setPickedIssues] = useState<string[]>([]);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [mediaNote, setMediaNote] = useState("");
