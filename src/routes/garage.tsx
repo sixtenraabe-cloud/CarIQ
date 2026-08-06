@@ -198,7 +198,7 @@ function Garage() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") void runPlateLookup();
               }}
-              className="w-full flex-1 bg-transparent px-3 text-center font-display text-2xl font-bold uppercase tracking-[0.18em] text-plate-ink outline-none placeholder:text-plate-ink/30"
+              className="w-full flex-1 bg-transparent px-3 text-center font-display text-2xl font-bold uppercase tracking-[0.18em] text-plate-ink [text-shadow:none] outline-none placeholder:text-plate-ink/30"
             />
           </div>
 

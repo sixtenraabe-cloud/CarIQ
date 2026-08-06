@@ -64,17 +64,17 @@
 :root {
   --radius: 0.9rem;
   --background: oklch(0.16 0.022 264);
-  --foreground: oklch(0.97 0.005 250);
+  --foreground: oklch(0.995 0.002 250);
   --card: oklch(0.213 0.026 264);
-  --card-foreground: oklch(0.97 0.005 250);
+  --card-foreground: oklch(0.995 0.002 250);
   --popover: oklch(0.213 0.026 264);
-  --popover-foreground: oklch(0.97 0.005 250);
+  --popover-foreground: oklch(0.995 0.002 250);
   --primary: oklch(0.58 0.19 260);
   --primary-foreground: oklch(0.99 0.003 250);
   --secondary: oklch(0.26 0.028 264);
   --secondary-foreground: oklch(0.97 0.005 250);
   --muted: oklch(0.25 0.026 264);
-  --muted-foreground: oklch(0.72 0.02 258);
+  --muted-foreground: oklch(0.86 0.015 258);
   --accent: oklch(0.3 0.04 262);
   --accent-foreground: oklch(0.97 0.005 250);
   --destructive: oklch(0.58 0.21 25);
@@ -153,6 +153,8 @@
     color: var(--color-foreground);
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
+    font-weight: 500;
+    text-shadow: 0 1px 2px oklch(0 0 0 / 0.55);
   }
 
   body::before {
@@ -184,8 +186,19 @@
   h3,
   .display {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    text-shadow:
+      0 1px 1px oklch(0 0 0 / 0.7),
+      0 6px 22px oklch(0 0 0 / 0.45);
+  }
+
+  p,
+  span,
+  label,
+  li,
+  button {
+    letter-spacing: 0.005em;
   }
 }
 
@@ -219,11 +232,12 @@
 }
 
 @utility stencil {
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-weight: 600;
-  color: var(--muted-foreground);
+  font-weight: 700;
+  color: color-mix(in oklab, var(--foreground) 82%, transparent);
+  text-shadow: 0 1px 2px oklch(0 0 0 / 0.6);
 }
 
 @utility tile {
