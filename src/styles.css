@@ -86,6 +86,10 @@
   --signal-caution: oklch(0.8 0.15 80);
   --signal-soon: oklch(0.72 0.18 55);
   --signal-urgent: oklch(0.62 0.21 25);
+  --plate-surface: oklch(0.98 0.004 250);
+  --plate-ink: oklch(0.16 0.02 264);
+  --plate-eu: oklch(0.35 0.17 265);
+  --plate-eu-star: oklch(0.88 0.15 95);
   --grid-line: oklch(0.2 0.024 264);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
