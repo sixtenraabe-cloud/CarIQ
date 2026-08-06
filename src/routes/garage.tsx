@@ -12,7 +12,7 @@ import { useI18n } from "@/lib/i18n";
 import { lookupPlate } from "@/lib/plate.functions";
 import { suggestBrands } from "@/lib/car-brands";
 import { BrandLogo } from "@/components/brand-logo";
-import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
+import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
 export const Route = createFileRoute("/garage")({
@@ -44,7 +44,6 @@ function Garage() {
   const [plateNote, setPlateNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
-  const [showVariantSuggestions, setShowVariantSuggestions] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -85,10 +84,6 @@ function Garage() {
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
   const brand = normalizeBrand(form.make);
   const modelSuggestions = suggestModels(form.make, form.model).filter((m) => m !== form.model);
-  const variantSuggestions = suggestVariants(form.make, form.model, form.variant).filter(
-    (v) => v !== form.variant,
-  );
-  const variantExamples = suggestVariants(form.make, form.model, "", 3).join(" / ");
   const knownCar = isKnownCar(form.make, form.model);
   const makeError = form.make.trim() !== "" && !brand;
   const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
