@@ -138,8 +138,16 @@ function Garage() {
         year: found.year ? String(found.year) : f.year,
         fuel: found.fuel || f.fuel,
         transmission: found.transmission || f.transmission,
+        mileageKm: found.inspectionKm ? String(found.inspectionKm) : f.mileageKm,
       }));
-      setPlateNote({ ok: true, text: t.plateFound });
+      setPlateNote({
+        ok: true,
+        text: found.inspectionKm
+          ? `${t.plateFound} ${t.plateInspection
+              .replace("{km}", found.inspectionKm.toLocaleString("sv-SE"))
+              .replace("{date}", found.inspectionDate)}`
+          : t.plateFound,
+      });
     } catch {
       setPlateNote({ ok: false, text: t.plateError });
     } finally {
