@@ -95,6 +95,7 @@ function Diagnos() {
   const [secondLoading, setSecondLoading] = useState(false);
   const [issues, setIssues] = useState<string[]>([]);
   const [issuesLoading, setIssuesLoading] = useState(false);
+  const [issuesDismissed, setIssuesDismissed] = useState(false);
   const [pickedIssues, setPickedIssues] = useState<string[]>([]);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [mediaNote, setMediaNote] = useState("");
@@ -482,13 +483,17 @@ function Diagnos() {
               </div>
           </div>
 
-          {car && (issuesLoading || issues.length) ? (
-            <div>
-              <p className="stencil mb-2">{t.knownTitle}</p>
-              <p className="mb-2 text-xs text-muted-foreground">
+          {car && !issuesDismissed && (issuesLoading || issues.length) ? (
+            <div className="surface relative overflow-hidden p-4">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
+              />
+              <p className="stencil relative mb-1">{t.knownTitle}</p>
+              <p className="relative mb-3 text-xs text-muted-foreground">
                 {issuesLoading ? t.knownLoading : t.knownHint}
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="relative flex flex-wrap gap-2">
                 {issues.map((issue) => {
                   const active = pickedIssues.includes(issue);
                   return (
@@ -500,16 +505,28 @@ function Diagnos() {
                           active ? list.filter((i) => i !== issue) : [...list, issue],
                         )
                       }
-                      className={`rounded-full border px-3 py-2 text-left text-sm transition-colors ${
+                      className={`rounded-full border px-3 py-2 text-left text-sm transition-all duration-200 ${
                         active
-                          ? "border-primary bg-primary/15 text-foreground"
-                          : "border-border text-muted-foreground"
+                          ? "border-primary bg-primary/20 text-foreground shadow-[0_0_18px_-4px_var(--primary)]"
+                          : "border-border bg-card/60 text-foreground/90 shadow-[0_0_12px_-6px_var(--primary)] hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_16px_-4px_var(--primary)]"
                       }`}
                     >
                       {issue}
                     </button>
                   );
                 })}
+                {issues.length ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPickedIssues([]);
+                      setIssuesDismissed(true);
+                    }}
+                    className="rounded-full border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+                  >
+                    {t.knownNone}
+                  </button>
+                ) : null}
               </div>
             </div>
           ) : null}
