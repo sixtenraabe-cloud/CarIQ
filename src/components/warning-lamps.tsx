@@ -55,12 +55,8 @@ export function LampGlyph({ lamp, className }: { lamp: LampKey; className?: stri
       // Classic check-engine block: cooling fins left, cam cover top, bolt right.
       return (
         <svg {...p}>
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M12 6h7v2.5h2.5V11H24l4 3.5V17h1.5v4H28v3.5a1.5 1.5 0 0 1-1.5 1.5H12v-2.5H9.5V26H7v-2.5H4.5V26H2v-9h2.5v-2.5H7V12h2.5V9.5H12V6Zm0 5.5v11h13.5v-6.2l-2.7-2.3h-4.3v-2.5H12Z"
-          />
-          <path d="M14.5 14h6.5v2.2h-6.5V14Zm0 4h4.5v2.2h-4.5V18Z" />
+          <path d="M11 7h6v3h4v3h4l4 4v3h2v3h-2v2.5a1.5 1.5 0 0 1-1.5 1.5H11v-2H8.5v2h-2v-2H4v2H2V13h2v-2h2.5V9H9V7h2Zm0 6v11h14v-6.6L22.2 15H17v-2h-6Z" />
+          <path d="M13.5 15.5h6v2h-6v-2Zm0 4h4v2h-4v-2Z" fill="var(--card)" />
         </svg>
       );
     case "oil":
