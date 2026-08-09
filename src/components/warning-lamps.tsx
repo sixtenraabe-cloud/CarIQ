@@ -52,11 +52,15 @@ export function LampGlyph({ lamp, className }: { lamp: LampKey; className?: stri
   const p = { viewBox: "0 0 32 32", className, "aria-hidden": true as const, fill: "currentColor" };
   switch (lamp) {
     case "engine":
-      // Engine block with fins — classic check-engine outline.
+      // Classic check-engine block: cooling fins left, cam cover top, bolt right.
       return (
         <svg {...p}>
-          <path d="M4 21v-7h2v-3h4V9h3v2h5l4 3h3v3h2v3h-2v3h-9l-3-2H9v2H4Zm4-9v7h2v-7H8Z" />
-          <path d="M14 12h2v2h-2z" fill="none" />
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M12 6h7v2.5h2.5V11H24l4 3.5V17h1.5v4H28v3.5a1.5 1.5 0 0 1-1.5 1.5H12v-2.5H9.5V26H7v-2.5H4.5V26H2v-9h2.5v-2.5H7V12h2.5V9.5H12V6Zm0 5.5v11h13.5v-6.2l-2.7-2.3h-4.3v-2.5H12Z"
+          />
+          <path d="M14.5 14h6.5v2.2h-6.5V14Zm0 4h4.5v2.2h-4.5V18Z" />
         </svg>
       );
     case "oil":
