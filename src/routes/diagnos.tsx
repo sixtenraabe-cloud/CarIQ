@@ -539,7 +539,13 @@ function Diagnos() {
                       >
                         <LampGlyph
                           lamp={key}
-                          className={`size-8 ${RED_LAMPS.includes(key) ? "text-destructive" : "text-primary"}`}
+                          className={`size-8 ${
+                            key === "coolant"
+                              ? "text-primary"
+                              : RED_LAMPS.includes(key)
+                                ? "text-signal-urgent"
+                                : "text-signal-caution"
+                          }`}
                         />
                         <span className="text-[10px] leading-tight text-foreground/90">{t.lamps[key]}</span>
                       </button>
