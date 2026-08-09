@@ -48,134 +48,135 @@ export const COMBUSTION_ONLY: LampKey[] = ["oil", "coolant", "glow", "dpf", "adb
 /** Red-level lamps (stop the car) vs amber (caution). */
 export const RED_LAMPS: LampKey[] = ["oil", "brake", "coolant", "battery", "airbag", "steering", "ev"];
 
-const s = { fill: "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinecap: "round", strokeLinejoin: "round" } as const;
-
 export function LampGlyph({ lamp, className }: { lamp: LampKey; className?: string }) {
-  const common = { viewBox: "0 0 32 32", className, "aria-hidden": true as const };
+  const p = { viewBox: "0 0 32 32", className, "aria-hidden": true as const, fill: "currentColor" };
   switch (lamp) {
     case "engine":
+      // Engine block with fins — classic check-engine outline.
       return (
-        <svg {...common}>
-          <path {...s} d="M5 20v-6h3v-3h5V9h6v2h3l3 3h2v3h-2v3h-3l-2 3H9l-2-3H5Z" />
+        <svg {...p}>
+          <path d="M4 21v-7h2v-3h4V9h3v2h5l4 3h3v3h2v3h-2v3h-9l-3-2H9v2H4Zm4-9v7h2v-7H8Z" />
+          <path d="M14 12h2v2h-2z" fill="none" />
         </svg>
       );
     case "oil":
+      // Oil can with a falling drop.
       return (
-        <svg {...common}>
-          <path {...s} d="M6 19c0-3 3-5 7-5h4l4-4v4c3 0 5 2 5 5H6Z" />
-          <path {...s} d="M13 22l-2 3M18 22l-2 3" />
+        <svg {...p}>
+          <path d="M4 20c0-3.3 2.7-6 6-6h5l5-4v4h1.5c3 0 5.5 2.4 5.6 5.4l.1 1.6H4v-1Z" />
+          <path d="M25 12c1.4 1.9 2 2.9 2 3.8a2 2 0 1 1-4 0c0-.9.6-1.9 2-3.8Z" />
+          <path d="M11 23.5c.8 1.1 1.2 1.7 1.2 2.2a1.2 1.2 0 1 1-2.4 0c0-.5.4-1.1 1.2-2.2ZM17 23.5c.8 1.1 1.2 1.7 1.2 2.2a1.2 1.2 0 1 1-2.4 0c0-.5.4-1.1 1.2-2.2Z" />
         </svg>
       );
     case "battery":
       return (
-        <svg {...common}>
-          <rect {...s} x="5" y="10" width="22" height="13" rx="2" />
-          <path {...s} d="M9 8v2M23 8v2M10 16h5M12.5 13.5v5M18 16h4" />
+        <svg {...p}>
+          <path d="M9 7h4v2h6V7h4v2h1.5A2.5 2.5 0 0 1 27 11.5v10A2.5 2.5 0 0 1 24.5 24h-17A2.5 2.5 0 0 1 5 21.5v-10A2.5 2.5 0 0 1 7.5 9H9V7Zm1.5 8.2h5v1.6h-5v-1.6Zm7.5 0h5v1.6h-5v-1.6Zm1.7-2.6h1.6v2.6h-1.6v-2.6Zm0 4.2h1.6v2.6h-1.6v-2.6Z" />
         </svg>
       );
     case "brake":
       return (
-        <svg {...common}>
-          <circle {...s} cx="16" cy="16" r="7" />
-          <path {...s} d="M4 11c1.5 3 1.5 7 0 10M28 11c-1.5 3-1.5 7 0 10M13 13v6M16 13v6M19 13v6" />
+        <svg {...p}>
+          <path d="M16 7a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm-.9 4v7h1.8v-7h-1.8Zm0 8.4v1.8h1.8v-1.8h-1.8Z" fillRule="evenodd" />
+          <path d="M5.2 9.6 6.8 10a13 13 0 0 0 0 12l-1.6.4a14.6 14.6 0 0 1 0-12.8Zm21.6 0a14.6 14.6 0 0 1 0 12.8l-1.6-.4a13 13 0 0 0 0-12l1.6-.4Z" />
         </svg>
       );
     case "coolant":
       return (
-        <svg {...common}>
-          <path {...s} d="M16 8v12" />
-          <circle {...s} cx="16" cy="22" r="3" />
-          <path {...s} d="M5 12h5M5 17h5M22 12h5M22 17h5M8 10l2 2-2 2M24 10l-2 2 2 2" />
+        <svg {...p}>
+          <path d="M16 5a2.6 2.6 0 0 1 2.6 2.6v9.1a4.6 4.6 0 1 1-5.2 0V7.6A2.6 2.6 0 0 1 16 5Zm-.8 4v9.4a2.9 2.9 0 1 0 1.6 0V9h-1.6Z" />
+          <path d="M4 11.5c1.2-1.4 2.4-1.4 3.6 0s2.4 1.4 3.6 0l-1-1.4c-.6.7-1 .7-1.6 0-1.2-1.4-2.4-1.4-3.6 0l-1 1.4Zm0 5c1.2-1.4 2.4-1.4 3.6 0s2.4 1.4 3.6 0l-1-1.4c-.6.7-1 .7-1.6 0-1.2-1.4-2.4-1.4-3.6 0l-1 1.4Zm17 -5c1.2-1.4 2.4-1.4 3.6 0s2.4 1.4 3.6 0l-1-1.4c-.6.7-1 .7-1.6 0-1.2-1.4-2.4-1.4-3.6 0l-1 1.4Zm0 5c1.2-1.4 2.4-1.4 3.6 0s2.4 1.4 3.6 0l-1-1.4c-.6.7-1 .7-1.6 0-1.2-1.4-2.4-1.4-3.6 0l-1 1.4Z" />
         </svg>
       );
     case "abs":
       return (
-        <svg {...common}>
-          <circle {...s} cx="16" cy="16" r="9" />
-          <path {...s} d="M4 11c1.5 3 1.5 7 0 10M28 11c-1.5 3-1.5 7 0 10" />
-          <text x="16" y="19" textAnchor="middle" fontSize="8" fill="currentColor" stroke="none">ABS</text>
+        <svg {...p}>
+          <path d="M16 7a9 9 0 1 1 0 18 9 9 0 0 1 0-18Zm0 1.8a7.2 7.2 0 1 0 0 14.4 7.2 7.2 0 0 0 0-14.4Z" />
+          <path d="M5.2 9.6 6.8 10a13 13 0 0 0 0 12l-1.6.4a14.6 14.6 0 0 1 0-12.8Zm21.6 0a14.6 14.6 0 0 1 0 12.8l-1.6-.4a13 13 0 0 0 0-12l1.6-.4Z" />
+          <text x="16" y="18.6" textAnchor="middle" fontSize="7.5" fontWeight="700">ABS</text>
         </svg>
       );
     case "tpms":
       return (
-        <svg {...common}>
-          <path {...s} d="M7 21V13c0-2 2-4 4-4h10c2 0 4 2 4 4v8" />
-          <path {...s} d="M5 21h22M13 15v3M16 14v4M19 15v3" />
+        <svg {...p}>
+          <path d="M7 22V14c0-3.9 4-7 9-7s9 3.1 9 7v8h-2.2l-.9-2h-2l-.9 2h-6l-.9-2h-2l-.9 2H7Zm7.9-11v6h2.2v-6h-2.2Zm0 7.4V20h2.2v-1.6h-2.2Z" />
+          <path d="M4 23h24v2H4z" />
         </svg>
       );
     case "airbag":
       return (
-        <svg {...common}>
-          <circle {...s} cx="21" cy="12" r="5" />
-          <path {...s} d="M11 8a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM8 24v-4c0-2 2-3 4-3M6 24h12" />
+        <svg {...p}>
+          <circle cx="22" cy="14" r="6" />
+          <path d="M10 6.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM6 25v-4.5c0-2.2 1.8-4 4-4h3.4a9.9 9.9 0 0 0 2.4 4.2L14 22.6V25H6Z" />
         </svg>
       );
     case "esp":
       return (
-        <svg {...common}>
-          <path {...s} d="M9 22c-3-4 1-6 4-8s4-5 1-7" />
-          <path {...s} d="M13 21h10M15 24h6" />
+        <svg {...p}>
+          <path d="M6 22c1.6-1.4 3.4-2 5.4-2h9.2c2 0 3.8.6 5.4 2v2H6v-2Z" />
+          <path d="M9.5 6.5c3.4 1 4.6 3 3.6 6-.9 2.6-.3 4.2 1.9 5.5l-1 1.6c-3.2-1.8-4.1-4.4-2.8-8 .6-1.7.2-2.7-1.7-3.3l.1-1.8Zm9 0c3.4 1 4.6 3 3.6 6-.9 2.6-.3 4.2 1.9 5.5l-1 1.6c-3.2-1.8-4.1-4.4-2.8-8 .6-1.7.2-2.7-1.7-3.3l.1-1.8Z" />
         </svg>
       );
     case "steering":
       return (
-        <svg {...common}>
-          <circle {...s} cx="16" cy="16" r="8" />
-          <circle {...s} cx="16" cy="16" r="3" />
-          <path {...s} d="M8.5 15h4.5M19 15h4.5M16 19v5" />
+        <svg {...p}>
+          <path d="M16 6a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm0 2a8 8 0 0 0-7.9 6.8c2.2-.7 4.8-1.1 7.9-1.1s5.7.4 7.9 1.1A8 8 0 0 0 16 8Zm-2.4 8c-1.9.2-3.6.5-5.2 1A8 8 0 0 0 14 23.8V19a3 3 0 0 0-.4-3Zm4.8 0a3 3 0 0 0-.4 3v4.8a8 8 0 0 0 5.6-6.8c-1.6-.5-3.3-.8-5.2-1Z" />
         </svg>
       );
     case "glow":
       return (
-        <svg {...common}>
-          <path {...s} d="M11 9c2 2 2 4 0 6s-2 4 0 6M19 9c2 2 2 4 0 6s-2 4 0 6" />
+        <svg {...p}>
+          <path d="M11.6 6.6c2.5 2 2.5 4.4 0 6.4-1.4 1.1-1.4 1.9 0 3 2.5 2 2.5 4.4 0 6.4l-1.2-1.6c1.4-1.1 1.4-1.9 0-3-2.5-2-2.5-4.4 0-6.4 1.4-1.1 1.4-1.9 0-3l1.2-1.8Zm10 0c2.5 2 2.5 4.4 0 6.4-1.4 1.1-1.4 1.9 0 3 2.5 2 2.5 4.4 0 6.4l-1.2-1.6c1.4-1.1 1.4-1.9 0-3-2.5-2-2.5-4.4 0-6.4 1.4-1.1 1.4-1.9 0-3l1.2-1.8Z" />
         </svg>
       );
     case "dpf":
       return (
-        <svg {...common}>
-          <rect {...s} x="7" y="11" width="18" height="10" rx="3" />
-          <path {...s} d="M11 14v4M16 14v4M21 14v4" />
+        <svg {...p}>
+          <path d="M8 10h13a4 4 0 0 1 0 8h-3l-3 4H8a4 4 0 0 1 0-8h2l-2-4Z" />
+          <path d="M23 9c1 1.4 1.5 2.2 1.5 2.9a1.5 1.5 0 1 1-3 0c0-.7.5-1.5 1.5-2.9Zm4 3c1 1.4 1.5 2.2 1.5 2.9a1.5 1.5 0 1 1-3 0c0-.7.5-1.5 1.5-2.9Z" />
         </svg>
       );
     case "adblue":
       return (
-        <svg {...common}>
-          <path {...s} d="M16 7c4 5 6 7 6 10a6 6 0 0 1-12 0c0-3 2-5 6-10Z" />
+        <svg {...p}>
+          <path d="M16 5c4.7 6 7 8.7 7 11.6a7 7 0 1 1-14 0C9 13.7 11.3 11 16 5Zm0 3.6c-3.2 4.2-5 6.3-5 8a5 5 0 1 0 10 0c0-1.7-1.8-3.8-5-8Z" />
+          <text x="16" y="20" textAnchor="middle" fontSize="7" fontWeight="700">AD</text>
         </svg>
       );
     case "transmission":
       return (
-        <svg {...common}>
-          <path {...s} d="M10 9v14M22 9v14M10 9h12M10 16h12M16 9v14" />
+        <svg {...p}>
+          <path d="M16 5a11 11 0 1 1 0 22 11 11 0 0 1 0-22Zm0 2a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z" />
+          <path d="M10 10h1.8v5.1H15V10h2v5.1h3.2V10H22v11h-1.8v-4.1H17V22h-2v-5.1h-3.2V21H10V10Z" />
         </svg>
       );
     case "fuel":
       return (
-        <svg {...common}>
-          <rect {...s} x="8" y="8" width="11" height="16" rx="2" />
-          <path {...s} d="M19 13h3v7a2 2 0 0 0 2 2M11 12h5" />
+        <svg {...p}>
+          <path d="M6 7h11a2 2 0 0 1 2 2v16H4V9a2 2 0 0 1 2-2Zm2 3v4h7v-4H8Z" />
+          <path d="M20 11h2.6l2.4 2.6V21a2 2 0 0 0 2 2v2a4 4 0 0 1-4-4v-6.4l-1-1.1H20V11Z" />
         </svg>
       );
     case "lights":
       return (
-        <svg {...common}>
-          <path {...s} d="M16 9c5 0 8 3 8 7s-3 7-8 7Z" />
-          <path {...s} d="M12 11H5M12 16H4M12 21H5" />
+        <svg {...p}>
+          <path d="M15 8c5 0 9 3.6 9 8s-4 8-9 8V8Z" />
+          <path d="M12 10H3v1.8h9V10Zm0 5.1H2v1.8h10v-1.8Zm0 5.1H3V22h9v-1.8Z" />
         </svg>
       );
     case "seatbelt":
       return (
-        <svg {...common}>
-          <circle {...s} cx="16" cy="9" r="3" />
-          <path {...s} d="M11 24c0-6 2-9 5-11M21 24c0-6-2-9-5-11" />
+        <svg {...p}>
+          <circle cx="14" cy="8" r="3.2" />
+          <path d="M9.6 25c0-6.2 2.1-9.8 6.2-12.3l1.6 2.4c-3.1 2-4.6 4.8-4.6 9.9H9.6Zm7.2 0c0-3.9-1-6.4-3-8.2l1.8-2.2c2.7 2.4 4 5.6 4 10.4h-2.8Z" />
+          <path d="M22 12h2.6L27 14.6V25h-2v-9.6l-1-1.1H22V12Z" opacity="0" />
         </svg>
       );
     case "ev":
       return (
-        <svg {...common}>
-          <rect {...s} x="6" y="11" width="17" height="11" rx="2" />
-          <path {...s} d="M23 15h3v4h-3M14 13l-3 5h4l-2 4" />
+        <svg {...p}>
+          <path d="M5 12h15a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2Zm19 3h3v4h-3v-4Z" />
+          <path d="M13.6 12.4 9 19h3.4l-1.2 4.6L16 17h-3.4l1-4.6Z" fill="var(--background)" />
         </svg>
       );
   }
