@@ -60,18 +60,19 @@ export function LampGlyph({ lamp, className }: { lamp: LampKey; className?: stri
         </svg>
       );
     case "oil":
-      // Oil can with a falling drop.
+      // Oil can with spout and a falling drop.
       return (
         <svg {...p}>
-          <path d="M4 20c0-3.3 2.7-6 6-6h5l5-4v4h1.5c3 0 5.5 2.4 5.6 5.4l.1 1.6H4v-1Z" />
-          <path d="M25 12c1.4 1.9 2 2.9 2 3.8a2 2 0 1 1-4 0c0-.9.6-1.9 2-3.8Z" />
-          <path d="M11 23.5c.8 1.1 1.2 1.7 1.2 2.2a1.2 1.2 0 1 1-2.4 0c0-.5.4-1.1 1.2-2.2ZM17 23.5c.8 1.1 1.2 1.7 1.2 2.2a1.2 1.2 0 1 1-2.4 0c0-.5.4-1.1 1.2-2.2Z" />
+          <path d="M6 18.5C6 16 8 14 10.5 14H18c2.8 0 5 2.2 5 5v2H6v-2.5Z" />
+          <path d="M17.5 13.6 25 9.4l1 1.7-7.5 4.3-1-1.8ZM10 10h6v2h-6z" />
+          <path d="M12 23.4c1 1.5 1.5 2.3 1.5 3a1.5 1.5 0 1 1-3 0c0-.7.5-1.5 1.5-3Zm6 0c1 1.5 1.5 2.3 1.5 3a1.5 1.5 0 1 1-3 0c0-.7.5-1.5 1.5-3Z" />
         </svg>
       );
     case "battery":
       return (
         <svg {...p}>
-          <path d="M9 7h4v2h6V7h4v2h1.5A2.5 2.5 0 0 1 27 11.5v10A2.5 2.5 0 0 1 24.5 24h-17A2.5 2.5 0 0 1 5 21.5v-10A2.5 2.5 0 0 1 7.5 9H9V7Zm1.5 8.2h5v1.6h-5v-1.6Zm7.5 0h5v1.6h-5v-1.6Zm1.7-2.6h1.6v2.6h-1.6v-2.6Zm0 4.2h1.6v2.6h-1.6v-2.6Z" />
+          <path d="M9 7h3.5v2.5H9V7Zm10.5 0H23v2.5h-3.5V7ZM6.5 10h19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-19a2 2 0 0 1-2-2V12a2 2 0 0 1 2-2Z" />
+          <path d="M8.5 16.2h5v1.7h-5v-1.7Zm10 0h5v1.7h-5v-1.7Zm1.7-3.4h1.7v3.4h-1.7v-3.4Z" fill="var(--card)" />
         </svg>
       );
     case "brake":
@@ -106,8 +107,9 @@ export function LampGlyph({ lamp, className }: { lamp: LampKey; className?: stri
     case "airbag":
       return (
         <svg {...p}>
-          <circle cx="22" cy="14" r="6" />
-          <path d="M10 6.5a3 3 0 1 1 0 6 3 3 0 0 1 0-6ZM6 25v-4.5c0-2.2 1.8-4 4-4h3.4a9.9 9.9 0 0 0 2.4 4.2L14 22.6V25H6Z" />
+          <circle cx="22" cy="15" r="6.5" />
+          <circle cx="9.5" cy="8" r="3.2" />
+          <path d="M6 24v-6.2c0-2 1.5-3.6 3.5-3.6s3.5 1.6 3.5 3.6v1.6l4 2.2-1.2 2.4H6Z" />
         </svg>
       );
     case "esp":
