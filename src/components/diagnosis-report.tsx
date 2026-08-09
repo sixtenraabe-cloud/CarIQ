@@ -17,14 +17,16 @@ import type { Cause } from "@/lib/diagnosis-types";
 import { VERDICTS, VERDICT_DOT } from "@/lib/diagnosis-types";
 import { useI18n, type Dict } from "@/lib/i18n";
 
-const VERDICT_KEY: Record<Verdict, keyof Dict> = {
+type TextKey = { [K in keyof Dict]: Dict[K] extends string ? K : never }[keyof Dict];
+
+const VERDICT_KEY: Record<Verdict, TextKey> = {
   safe: "sevSafe",
   caution: "sevCaution",
   soon: "sevSoon",
   urgent: "sevUrgent",
 };
 
-const VERDICT_SUB: Record<Verdict, keyof Dict> = {
+const VERDICT_SUB: Record<Verdict, TextKey> = {
   safe: "sevSafeSub",
   caution: "sevCautionSub",
   soon: "sevSoonSub",
