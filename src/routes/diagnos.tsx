@@ -12,6 +12,14 @@ import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
 import { CarDiagram, type ZoneKey } from "@/components/car-diagram";
+import {
+  COMBUSTION_ONLY,
+  COMMON_LAMPS,
+  LampGlyph,
+  MORE_LAMPS,
+  RED_LAMPS,
+  type LampKey,
+} from "@/components/warning-lamps";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
 import { knownIssues } from "@/lib/issues.functions";
 import { extractFromVideo } from "@/lib/media-extract";
@@ -97,6 +105,8 @@ function Diagnos() {
   const [issuesLoading, setIssuesLoading] = useState(false);
   const [issuesDismissed, setIssuesDismissed] = useState(false);
   const [pickedIssues, setPickedIssues] = useState<string[]>([]);
+  const [lamp, setLamp] = useState<LampKey | "">("");
+  const [lampMore, setLampMore] = useState(false);
   const [mediaBusy, setMediaBusy] = useState(false);
   const [mediaNote, setMediaNote] = useState("");
 
@@ -104,10 +114,13 @@ function Diagnos() {
   const isPerf = problemKey === "performance";
   const showWhere = !isLamp && !isPerf;
   const problem = PROBLEMS.find((p) => p.key === problemKey)?.label ?? "";
+  const isEv = /^(el|electric|elektro|elbil)/i.test(car?.fuel ?? "");
+  const lampAllowed = (key: LampKey) => !(isEv && COMBUSTION_ONLY.includes(key));
+  const lampLabel = lamp ? t.lamps[lamp] : "";
 
   // Known faults for exactly this make/model, offered as one-tap choices.
   useEffect(() => {
-    if (step !== 2 || !car || issues.length || issuesLoading) return;
+    if (step !== 2 || isLamp || !car || issues.length || issuesLoading) return;
     let active = true;
     setIssuesLoading(true);
     void fetchIssues({
@@ -166,6 +179,7 @@ function Diagnos() {
 
   const chips = [
     problem,
+    lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "",
     showWhere && zoneLabel ? `${t.whereFrom} ${zoneLabel}` : "",
     when ? `${t.whenNoticed} ${when}` : "",
     isLamp && image ? t.lampPhoto : "",
@@ -174,7 +188,10 @@ function Diagnos() {
   ].filter(Boolean) as string[];
 
   const tags = chips;
-  const description = [symptom.trim(), ...pickedIssues].filter(Boolean).join(". ") || tags.join(", ");
+  const description =
+    [lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "", symptom.trim(), ...pickedIssues]
+      .filter(Boolean)
+      .join(". ") || tags.join(", ");
 
   const back = () => {
     if (step === 1) void navigate({ to: "/" });
@@ -301,6 +318,8 @@ function Diagnos() {
     setMediaNote("");
     setPickedIssues([]);
     setIssues([]);
+    setLamp("");
+    setLampMore(false);
     setSaved(false);
   };
 
@@ -494,7 +513,58 @@ function Diagnos() {
               </div>
           </div>
 
-          {car && !issuesDismissed && (issuesLoading || issues.length) ? (
+          {isLamp ? (
+            <div className="surface relative overflow-hidden p-4">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
+              />
+              <p className="stencil relative mb-1">{t.lampPickTitle}</p>
+              <p className="relative mb-3 text-xs text-muted-foreground">{t.lampPickHint}</p>
+              <div className="relative grid grid-cols-4 gap-2">
+                {(lampMore ? [...COMMON_LAMPS, ...MORE_LAMPS] : COMMON_LAMPS)
+                  .filter(lampAllowed)
+                  .map((key) => {
+                    const active = lamp === key;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setLamp(active ? "" : key)}
+                        className={`flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition-all duration-200 ${
+                          active
+                            ? "border-primary bg-primary/20 shadow-[0_0_18px_-4px_var(--primary)]"
+                            : "border-border bg-card/60 hover:border-primary/60 hover:bg-primary/10"
+                        }`}
+                      >
+                        <LampGlyph
+                          lamp={key}
+                          className={`size-8 ${RED_LAMPS.includes(key) ? "text-destructive" : "text-primary"}`}
+                        />
+                        <span className="text-[10px] leading-tight text-foreground/90">{t.lamps[key]}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!lampMore) {
+                    setLamp("");
+                    setLampMore(true);
+                  } else {
+                    setLamp("");
+                    setLampMore(false);
+                  }
+                }}
+                className="relative mt-3 rounded-full border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+              >
+                {lampMore ? t.lampPickOther : t.lampPickNone}
+              </button>
+            </div>
+          ) : null}
+
+          {car && !isLamp && !issuesDismissed && (issuesLoading || issues.length) ? (
             <div className="surface relative overflow-hidden p-4">
               <span
                 aria-hidden="true"
