@@ -15,6 +15,7 @@ import { Route as DiagnosRouteImport } from './routes/diagnos'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ProfilRouteImport } from './routes/profil'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SnabbkollRouteImport } from './routes/snabbkoll'
 
@@ -48,6 +49,11 @@ const ProfilRoute = ProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
   '/profil': typeof ProfilRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/snabbkoll': typeof SnabbkollRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/snabbkoll'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/snabbkoll'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/garage'
     | '/history'
     | '/profil'
+    | '/reset-password'
     | '/sitemap.xml'
     | '/snabbkoll'
   fileRoutesById: FileRoutesById
@@ -130,6 +142,7 @@ export interface RootRouteChildren {
   GarageRoute: typeof GarageRoute
   HistoryRoute: typeof HistoryRoute
   ProfilRoute: typeof ProfilRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   SnabbkollRoute: typeof SnabbkollRoute
 }
@@ -178,6 +191,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap.xml': {
       id: '/sitemap.xml'
       path: '/sitemap.xml'
@@ -202,19 +222,10 @@ const rootRouteChildren: RootRouteChildren = {
   GarageRoute: GarageRoute,
   HistoryRoute: HistoryRoute,
   ProfilRoute: ProfilRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   SnabbkollRoute: SnabbkollRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
