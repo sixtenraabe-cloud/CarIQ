@@ -39,10 +39,23 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
+  const [existingEmail, setExistingEmail] = useState<string | null>(null);
+  const [resetSentTo, setResetSentTo] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) void navigate({ to: "/history" });
   }, [user, navigate]);
+
+  const friendlyError = (error: unknown) => {
+    const raw = error instanceof Error ? error.message : "";
+    const msg = raw.toLowerCase();
+    if (msg.includes("pwned") || msg.includes("weak") || msg.includes("password should be")) {
+      return t.weakPassword;
+    }
+    if (msg.includes("invalid login credentials")) return t.invalidCredentials;
+    if (msg.includes("email not confirmed")) return t.emailNotConfirmed;
+    return raw || t.authFailed;
+  };
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -54,7 +67,19 @@ function AuthPage() {
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth` },
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.toLowerCase().includes("already registered")) {
+            setExistingEmail(email);
+            return;
+          }
+          throw error;
+        }
+        // Supabase returns a user with an empty identities array when the
+        // email already belongs to a confirmed account.
+        if (data.user && (data.user.identities?.length ?? 0) === 0) {
+          setExistingEmail(email);
+          return;
+        }
         if (data.session) {
           toast.success(t.welcomeBack);
         } else {
@@ -67,7 +92,26 @@ function AuthPage() {
         toast.success(t.welcomeBack);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : t.authFailed);
+      toast.error(friendlyError(error));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const forgotPassword = async () => {
+    if (!email) {
+      toast.error(t.emailLabel);
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      setResetSentTo(email);
+    } catch (error) {
+      toast.error(friendlyError(error));
     } finally {
       setBusy(false);
     }
@@ -85,7 +129,7 @@ function AuthPage() {
       if (error) throw error;
       toast.success(t.resendSent);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : t.authFailed);
+      toast.error(friendlyError(error));
     } finally {
       setBusy(false);
     }
@@ -114,7 +158,46 @@ function AuthPage() {
         <LanguagePicker />
       </div>
 
-      {pendingEmail ? (
+      {existingEmail ? (
+        <div className="panel space-y-4 p-5">
+          <h2 className="text-xl">{t.accountExists}</h2>
+          <p className="text-sm text-muted-foreground">{existingEmail}</p>
+          <Button
+            className="w-full"
+            onClick={() => {
+              setExistingEmail(null);
+              setMode("signin");
+            }}
+          >
+            {t.goToSignIn}
+          </Button>
+          <button
+            type="button"
+            onClick={() => void forgotPassword()}
+            disabled={busy}
+            className="w-full text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t.forgotPassword}
+          </button>
+        </div>
+      ) : resetSentTo ? (
+        <div className="panel space-y-4 p-5">
+          <h2 className="text-xl">{t.resetSentTitle}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t.resetSentBody.replace("{email}", resetSentTo)}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setResetSentTo(null);
+              setMode("signin");
+            }}
+            className="w-full text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t.backToSignIn}
+          </button>
+        </div>
+      ) : pendingEmail ? (
         <div className="panel space-y-4 p-5">
           <h2 className="text-xl">{t.confirmTitle}</h2>
           <p className="text-sm text-muted-foreground">
@@ -165,6 +248,16 @@ function AuthPage() {
         <Button type="button" variant="outline" className="w-full" onClick={() => void google()}>
           {t.continueGoogle}
         </Button>
+        {mode === "signin" ? (
+          <button
+            type="button"
+            onClick={() => void forgotPassword()}
+            disabled={busy}
+            className="w-full text-sm text-muted-foreground hover:text-foreground"
+          >
+            {t.forgotPassword}
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
