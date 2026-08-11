@@ -116,7 +116,15 @@ function QuickCheckPage() {
       setResult(output);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
-      toast.error(message.includes("TIMEOUT") ? t.errTimeout : t.quickError);
+      toast.error(
+        message.includes("TIMEOUT")
+          ? t.errTimeout
+          : message.includes("429") || message.includes("RATE_LIMITED")
+            ? t.errRate
+            : message.includes("402") || message.includes("AI_CREDITS")
+              ? t.errCredits
+              : t.quickError,
+      );
     } finally {
       setLoading(false);
     }
