@@ -231,9 +231,9 @@ function Diagnos() {
       toast.error(
         message.includes("TIMEOUT")
           ? t.errTimeout
-          : message.includes("429")
+          : message.includes("429") || message.includes("RATE_LIMITED")
             ? t.errRate
-            : message.includes("402")
+            : message.includes("402") || message.includes("AI_CREDITS")
               ? t.errCredits
               : t.errGeneric,
       );
