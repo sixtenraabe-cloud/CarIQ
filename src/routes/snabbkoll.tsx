@@ -9,6 +9,7 @@ import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
 import { quickSoundCheck, type QuickCheck } from "@/lib/diagnose.functions";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
+import { extractFromVideo } from "@/lib/media-extract";
 
 export const Route = createFileRoute("/snabbkoll")({
   head: () => ({
@@ -76,8 +77,18 @@ function QuickCheckPage() {
         : t.quickWorkshop;
 
   const pickImage = async (file: File) => {
-    if (file.size > 6_000_000) {
+    const isVideo = (file.type || "").startsWith("video/");
+    if (!isVideo && file.size > 6_000_000) {
       toast.error("Max 6 MB");
+      return;
+    }
+    if (isVideo) {
+      const { frame, audio } = await extractFromVideo(file);
+      const url = URL.createObjectURL(file);
+      if (frame) setImage({ base64: frame.base64, mediaType: "image/jpeg", url });
+      if (audio)
+        setClip({ base64: audio.base64, mediaType: audio.mediaType, url, label: "video" });
+      if (!frame && !audio) toast.error(t.quickError);
       return;
     }
     setImage({
@@ -150,19 +161,37 @@ function QuickCheckPage() {
                   </Button>
                 </div>
               ) : (
-                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
-                  <ImagePlus className="size-4" />
-                  {t.uploadMedia}
-                  <input
-                    type="file"
-                    accept="image/*,video/*"
-                    className="hidden"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      if (file) void pickImage(file);
-                    }}
-                  />
-                </label>
+                <div className="flex flex-wrap gap-2">
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
+                    <ImagePlus className="size-4" />
+                    {t.openCamera}
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      capture="environment"
+                      className="hidden"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void pickImage(file);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                  <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
+                    <ImagePlus className="size-4" />
+                    {t.chooseFile}
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      className="hidden"
+                      onChange={(event) => {
+                        const file = event.target.files?.[0];
+                        if (file) void pickImage(file);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                </div>
               )}
             </div>
           </div>
