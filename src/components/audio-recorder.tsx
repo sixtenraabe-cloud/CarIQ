@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Mic, Square, Trash2 } from "lucide-react";
+import { Mic, Square, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
+import { extractAudio } from "@/lib/media-extract";
 
 export type AudioClip = { base64: string; mediaType: string; url: string; label: string };
 
@@ -29,6 +30,30 @@ export function AudioRecorder({
   const [seconds, setSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
+
+  const pickFile = async (file: File) => {
+    setError(null);
+    try {
+      const converted = await extractAudio(file);
+      if (converted) {
+        onChange({
+          base64: converted.base64,
+          mediaType: converted.mediaType,
+          url: URL.createObjectURL(file),
+          label: file.name,
+        });
+        return;
+      }
+      onChange({
+        base64: await toBase64(file),
+        mediaType: file.type || "audio/mpeg",
+        url: URL.createObjectURL(file),
+        label: file.name,
+      });
+    } catch {
+      setError("Kunde inte läsa ljudfilen — testa en annan.");
+    }
+  };
 
   useEffect(() => {
     if (!recording) return;
@@ -102,9 +127,25 @@ export function AudioRecorder({
             <Square className="size-4" /> {t.stopRecording} ({seconds}s)
           </Button>
         ) : (
-          <Button type="button" variant="secondary" onClick={start}>
-            <Mic className="size-4" /> {t.recordSound}
-          </Button>
+          <>
+            <Button type="button" variant="secondary" onClick={() => void start()}>
+              <Mic className="size-4" /> {t.recordSound}
+            </Button>
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
+              <Upload className="size-4" />
+              {t.uploadAudio}
+              <input
+                type="file"
+                accept="audio/*,video/*"
+                className="hidden"
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (file) void pickFile(file);
+                  event.target.value = "";
+                }}
+              />
+            </label>
+          </>
         )}
 
         {clip ? (
