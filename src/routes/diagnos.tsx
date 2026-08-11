@@ -495,7 +495,23 @@ function Diagnos() {
                       ) : (
                         <ImagePlus className="size-4" />
                       )}
-                      {mediaBusy ? t.videoReading : t.uploadMedia}
+                      {mediaBusy ? t.videoReading : t.openCamera}
+                      <input
+                        type="file"
+                        accept="image/*,video/*"
+                        capture="environment"
+                        className="hidden"
+                        disabled={mediaBusy}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          if (file) void pickImage(file);
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <label className="ml-2 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-secondary px-4 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:text-foreground">
+                      <ImagePlus className="size-4" />
+                      {t.chooseFile}
                       <input
                         type="file"
                         accept="image/*,video/*"
@@ -504,6 +520,7 @@ function Diagnos() {
                         onChange={(event) => {
                           const file = event.target.files?.[0];
                           if (file) void pickImage(file);
+                          event.target.value = "";
                         }}
                       />
                     </label>
