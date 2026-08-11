@@ -70,7 +70,7 @@ export function AudioRecorder({
     setError(null);
     try {
       if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
-        setError("Inspelning stöds inte i den här webbläsaren. Ladda upp en fil istället.");
+        setError(t.micBlocked);
         return;
       }
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -110,12 +110,7 @@ export function AudioRecorder({
       recorder.start(1000);
       setRecording(true);
     } catch (err) {
-      const name = err instanceof Error ? err.name : "";
-      setError(
-        name === "NotAllowedError"
-          ? "Mikrofonen blockerades. Tillåt mikrofon i webbläsaren, eller ladda upp en inspelning istället."
-          : "Kunde inte starta inspelningen. Du kan ladda upp en inspelning istället.",
-      );
+      setError(t.micBlocked);
     }
   };
 
