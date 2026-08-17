@@ -87,9 +87,8 @@ function Home() {
         <LanguagePicker />
       </header>
 
-      <Link
-        to="/garage"
-        className={`surface lift rise relative mb-6 block overflow-hidden ${
+      <div
+        className={`surface rise relative mb-6 block overflow-hidden ${
           car ? "border-primary/45" : ""
         }`}
         style={{ animationDelay: "60ms" }}
@@ -98,7 +97,7 @@ function Home() {
           aria-hidden="true"
           className="pointer-events-none absolute -right-16 -top-20 size-56 rounded-full bg-primary/20 blur-3xl"
         />
-        <div className="relative flex items-center gap-3 px-4 pt-4">
+        <Link to="/garage" className="relative flex items-center gap-3 px-4 pt-4">
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-2">
               {car ? (
@@ -125,7 +124,7 @@ function Home() {
           <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-secondary/60 text-muted-foreground">
             <ChevronRight className="size-4" />
           </span>
-        </div>
+        </Link>
         {car ? (
           <div className="relative mt-2 flex flex-wrap gap-1.5 px-4">
             {carLine(car)
@@ -145,7 +144,32 @@ function Home() {
           model={car?.model ?? ""}
           className="relative mx-auto -mt-1 w-64 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
         />
-      </Link>
+        <div className="relative flex gap-2 px-4 pb-4">
+          {car ? (
+            <>
+              <Link
+                to="/garage"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50"
+              >
+                <Pencil className="size-4" /> {t.editCar}
+              </Link>
+              <Link
+                to="/garage"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/50 bg-primary/15 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/25"
+              >
+                <RefreshCw className="size-4" /> {t.changeCar}
+              </Link>
+            </>
+          ) : (
+            <Link
+              to="/garage"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/50 bg-primary/15 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/25"
+            >
+              <Plus className="size-4" /> {t.addCarPlus}
+            </Link>
+          )}
+        </div>
+      </div>
 
       <div className="space-y-3">
         <Link
