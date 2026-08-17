@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AlertTriangle, ChevronRight, Ear, Gauge, Volume2, Wrench } from "lucide-react";
+import {
+  AlertTriangle,
+  ChevronRight,
+  Ear,
+  Gauge,
+  Pencil,
+  Plus,
+  RefreshCw,
+  Volume2,
+  Wrench,
+} from "lucide-react";
 
 import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
