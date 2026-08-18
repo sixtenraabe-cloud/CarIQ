@@ -173,6 +173,95 @@ function Garage() {
     }
   };
 
+  const clearForm = () =>
+    setForm({
+      make: "",
+      model: "",
+      variant: "",
+      year: "",
+      mileageKm: "",
+      transmission: "manual",
+      fuel: "petrol",
+      lastInspection: "",
+      oilChangeDate: "",
+      oilChangeKm: "",
+    });
+
+  if (ready && car) {
+    const next = car.lastInspection ? nextInspectionFrom(car.lastInspection) : "";
+    const sinceOil =
+      car.oilChangeKm && car.mileageKm > car.oilChangeKm ? car.mileageKm - car.oilChangeKm : null;
+    return (
+      <main className="px-4 pt-8">
+        <div className="rise">
+          <h1 className="text-2xl">{t.savedCarTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t.savedCarLocked}</p>
+        </div>
+
+        <div className="surface rise relative mt-5 overflow-hidden p-5" aria-disabled="true">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
+          />
+          <div className="relative flex items-center gap-2">
+            <BrandLogo make={car.make} size={34} />
+            <div className="min-w-0">
+              <p className="truncate font-display text-2xl font-bold tracking-tight">
+                {car.make} {car.model}
+              </p>
+              {car.variant ? (
+                <p className="truncate text-sm font-medium text-primary">{car.variant}</p>
+              ) : null}
+            </div>
+          </div>
+          <CarSilhouette
+            make={car.make}
+            model={car.model}
+            className="relative mx-auto w-60 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+          />
+          <dl className="relative grid grid-cols-2 gap-2 text-sm">
+            <Fact label={t.year} value={String(car.year)} />
+            <Fact label={t.mileage} value={`${car.mileageKm.toLocaleString("sv-SE")} km`} />
+            <Fact label={t.transmission} value={car.transmission} />
+            <Fact label={t.fuel} value={car.fuel} />
+          </dl>
+        </div>
+
+        <div className="surface rise mt-5 p-5" style={{ animationDelay: "80ms" }}>
+          <p className="stencil">{t.serviceSection}</p>
+          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <Fact label={t.lastInspectionLabel} value={car.lastInspection || t.notSet} />
+            <Fact label={t.nextInspectionLabel} value={next || t.notSet} />
+            <Fact label={t.oilDateLabel} value={car.oilChangeDate || t.notSet} />
+            <Fact
+              label={t.oilKmLabel}
+              value={
+                car.oilChangeKm ? `${car.oilChangeKm.toLocaleString("sv-SE")} km` : t.notSet
+              }
+            />
+          </dl>
+          {sinceOil ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t.sinceOilChange.replace("{km}", sinceOil.toLocaleString("sv-SE"))}
+            </p>
+          ) : null}
+        </div>
+
+        <Button
+          variant="outline"
+          className="mt-5 w-full"
+          onClick={() => {
+            saveCar(null);
+            clearForm();
+            toast.success(t.carRemoved);
+          }}
+        >
+          {t.removeCar}
+        </Button>
+      </main>
+    );
+  }
+
   return (
     <main className="px-4 pt-8">
       <div className="rise">
