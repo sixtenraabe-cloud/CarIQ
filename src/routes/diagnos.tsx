@@ -107,6 +107,7 @@ function Diagnos() {
   const [pickedIssues, setPickedIssues] = useState<string[]>([]);
   const [lamp, setLamp] = useState<LampKey | "">("");
   const [lampMore, setLampMore] = useState(false);
+  const [lampDescription, setLampDescription] = useState("");
   const [mediaBusy, setMediaBusy] = useState(false);
   const [mediaNote, setMediaNote] = useState("");
 
