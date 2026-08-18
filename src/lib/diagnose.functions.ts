@@ -205,6 +205,9 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       `Odometer: ${car.mileageKm} km`,
       data.tags.length ? `Reported symptom categories: ${data.tags.join(", ")}` : "",
       `Owner's description: ${data.symptom}`,
+      data.symptom.includes("lampan") || data.symptom.includes("lamp")
+        ? "The owner's description includes how long the warning light has been on and when it appears — use that timing as an important clue."
+        : "",
       data.image
         ? "A photo or video (for example of the dashboard warning light) is attached — study it and identify any warning lamp in it."
         : "",
