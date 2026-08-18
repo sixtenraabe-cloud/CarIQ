@@ -15,6 +15,14 @@ import { BrandLogo } from "@/components/brand-logo";
 import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
+/** Swedish inspections run yearly (14 months after the previous one). */
+function nextInspectionFrom(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setMonth(d.getMonth() + 14);
+  return d.toISOString().slice(0, 10);
+}
+
 export const Route = createFileRoute("/garage")({
   head: () => ({
     meta: [
@@ -52,6 +60,9 @@ function Garage() {
     mileageKm: "",
     transmission: "manual",
     fuel: "petrol",
+    lastInspection: "",
+    oilChangeDate: "",
+    oilChangeKm: "",
   });
 
   const TRANSMISSIONS = [
@@ -77,6 +88,9 @@ function Garage() {
         mileageKm: String(car.mileageKm),
         transmission: car.transmission,
         fuel: car.fuel,
+        lastInspection: car.lastInspection ?? "",
+        oilChangeDate: car.oilChangeDate ?? "",
+        oilChangeKm: car.oilChangeKm ? String(car.oilChangeKm) : "",
       });
     }
   }, [car]);
@@ -115,6 +129,9 @@ function Garage() {
       transmission: label(TRANSMISSIONS, form.transmission),
       fuel: label(FUELS, form.fuel),
       mileageKm: Number(form.mileageKm),
+      ...(form.lastInspection ? { lastInspection: form.lastInspection } : {}),
+      ...(form.oilChangeDate ? { oilChangeDate: form.oilChangeDate } : {}),
+      ...(form.oilChangeKm ? { oilChangeKm: Number(form.oilChangeKm) } : {}),
     });
     toast.success(t.carSaved);
     void navigate({ to: "/" });
@@ -139,6 +156,7 @@ function Garage() {
         fuel: found.fuel || f.fuel,
         transmission: found.transmission || f.transmission,
         mileageKm: found.inspectionKm ? String(found.inspectionKm) : f.mileageKm,
+        lastInspection: found.inspectionDate || f.lastInspection,
       }));
       setPlateNote({
         ok: true,
@@ -154,6 +172,95 @@ function Garage() {
       setPlateLoading(false);
     }
   };
+
+  const clearForm = () =>
+    setForm({
+      make: "",
+      model: "",
+      variant: "",
+      year: "",
+      mileageKm: "",
+      transmission: "manual",
+      fuel: "petrol",
+      lastInspection: "",
+      oilChangeDate: "",
+      oilChangeKm: "",
+    });
+
+  if (ready && car) {
+    const next = car.lastInspection ? nextInspectionFrom(car.lastInspection) : "";
+    const sinceOil =
+      car.oilChangeKm && car.mileageKm > car.oilChangeKm ? car.mileageKm - car.oilChangeKm : null;
+    return (
+      <main className="px-4 pt-8">
+        <div className="rise">
+          <h1 className="text-2xl">{t.savedCarTitle}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t.savedCarLocked}</p>
+        </div>
+
+        <div className="surface rise relative mt-5 overflow-hidden p-5" aria-disabled="true">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
+          />
+          <div className="relative flex items-center gap-2">
+            <BrandLogo make={car.make} size={34} />
+            <div className="min-w-0">
+              <p className="truncate font-display text-2xl font-bold tracking-tight">
+                {car.make} {car.model}
+              </p>
+              {car.variant ? (
+                <p className="truncate text-sm font-medium text-primary">{car.variant}</p>
+              ) : null}
+            </div>
+          </div>
+          <CarSilhouette
+            make={car.make}
+            model={car.model}
+            className="relative mx-auto w-60 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+          />
+          <dl className="relative grid grid-cols-2 gap-2 text-sm">
+            <Fact label={t.year} value={String(car.year)} />
+            <Fact label={t.mileage} value={`${car.mileageKm.toLocaleString("sv-SE")} km`} />
+            <Fact label={t.transmission} value={car.transmission} />
+            <Fact label={t.fuel} value={car.fuel} />
+          </dl>
+        </div>
+
+        <div className="surface rise mt-5 p-5" style={{ animationDelay: "80ms" }}>
+          <p className="stencil">{t.serviceSection}</p>
+          <dl className="mt-3 grid grid-cols-2 gap-2 text-sm">
+            <Fact label={t.lastInspectionLabel} value={car.lastInspection || t.notSet} />
+            <Fact label={t.nextInspectionLabel} value={next || t.notSet} />
+            <Fact label={t.oilDateLabel} value={car.oilChangeDate || t.notSet} />
+            <Fact
+              label={t.oilKmLabel}
+              value={
+                car.oilChangeKm ? `${car.oilChangeKm.toLocaleString("sv-SE")} km` : t.notSet
+              }
+            />
+          </dl>
+          {sinceOil ? (
+            <p className="mt-3 text-xs text-muted-foreground">
+              {t.sinceOilChange.replace("{km}", sinceOil.toLocaleString("sv-SE"))}
+            </p>
+          ) : null}
+        </div>
+
+        <Button
+          variant="outline"
+          className="mt-5 w-full"
+          onClick={() => {
+            saveCar(null);
+            clearForm();
+            toast.success(t.carRemoved);
+          }}
+        >
+          {t.removeCar}
+        </Button>
+      </main>
+    );
+  }
 
   return (
     <main className="px-4 pt-8">
@@ -429,6 +536,43 @@ function Garage() {
             </>
           )}
         </div>
+
+        <div className="space-y-3 border-t border-border pt-4">
+          <div>
+            <Label>{t.serviceSection}</Label>
+            <p className="text-xs text-muted-foreground">{t.serviceHint}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="lastInspection">{t.lastInspectionLabel}</Label>
+              <Input
+                id="lastInspection"
+                type="date"
+                value={form.lastInspection}
+                onChange={(e) => setForm({ ...form, lastInspection: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="oilChangeDate">{t.oilDateLabel}</Label>
+              <Input
+                id="oilChangeDate"
+                type="date"
+                value={form.oilChangeDate}
+                onChange={(e) => setForm({ ...form, oilChangeDate: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="oilChangeKm">{t.oilKmLabel}</Label>
+              <Input
+                id="oilChangeKm"
+                type="number"
+                placeholder="176000"
+                value={form.oilChangeKm}
+                onChange={(e) => setForm({ ...form, oilChangeKm: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <Button
@@ -445,28 +589,16 @@ function Garage() {
         <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
       ) : null}
 
-      {ready && car ? (
-        <Button
-          variant="ghost"
-          className="mt-2 w-full text-muted-foreground"
-          onClick={() => {
-            saveCar(null);
-            setForm({
-              make: "",
-              model: "",
-              variant: "",
-              year: "",
-              mileageKm: "",
-              transmission: "manual",
-              fuel: "petrol",
-            });
-            toast.success(t.carRemoved);
-          }}
-        >
-          {t.removeCar}
-        </Button>
-      ) : null}
     </main>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="truncate font-semibold">{value}</dd>
+    </div>
   );
 }
 
