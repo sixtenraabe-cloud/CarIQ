@@ -382,9 +382,9 @@ function Diagnos() {
         <h1 className="text-xl">{titles[step - 1]}</h1>
       </header>
 
-      {step < 4 ? (
+      {step < 3 ? (
         <div className="mb-5 flex items-center gap-2">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3].map((n) => (
             <div key={n} className="flex flex-1 items-center gap-2">
               <span
                 className={`grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold ${
@@ -393,7 +393,7 @@ function Diagnos() {
               >
                 {n}
               </span>
-              {n < 4 ? (
+              {n < 3 ? (
                 <span className={`h-0.5 flex-1 rounded-full ${n < step ? "bg-primary" : "bg-secondary"}`} />
               ) : null}
             </div>
