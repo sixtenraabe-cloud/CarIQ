@@ -305,10 +305,72 @@ export const CAR_VARIANTS: Record<string, string[]> = {
 export function suggestVariants(brandInput: string, modelInput: string, query: string, limit = 8): string[] {
   const brand = normalizeBrand(brandInput);
   if (!brand) return [];
-  const list = CAR_VARIANTS[`${brand}|${modelInput.trim()}`] ?? [];
+  let list = CAR_VARIANTS[`${brand}|${modelInput.trim()}`] ?? [];
+  if (brand === "BMW") list = bmwVariantPool(modelInput, query);
   const q = query.trim().toLowerCase();
   if (!q) return list.slice(0, limit);
   const starts = list.filter((v) => v.toLowerCase().startsWith(q));
   const contains = list.filter((v) => !v.toLowerCase().startsWith(q) && v.toLowerCase().includes(q));
   return [...starts, ...contains].slice(0, limit);
+}
+
+/** BMW engine/series designations grouped by series key (1-8, X, Z, i, M). */
+export const BMW_SERIES_VARIANTS: Record<string, string[]> = {
+  "1": ["114i", "116i", "116d", "118i", "118d", "120i", "120d", "123d", "125i", "125d", "128ti", "130i", "135i", "M135i", "M140i"],
+  "2": ["216i", "216d", "218i", "218d", "220i", "220d", "223i", "225xe", "228i", "230i", "M235i", "M240i"],
+  "3": ["316i", "316d", "318i", "318d", "320i", "320d", "323i", "325i", "325d", "328i", "330i", "330d", "330e", "335i", "335d", "340i", "M340i", "M340d"],
+  "4": ["418i", "418d", "420i", "420d", "425d", "428i", "430i", "430d", "435i", "435d", "440i", "M440i", "M440d"],
+  "5": ["518d", "520i", "520d", "523i", "525i", "525d", "528i", "530i", "530d", "530e", "535i", "535d", "540i", "540d", "545e", "550i", "M550i", "M550d"],
+  "6": ["620d", "630i", "630d", "635d", "640i", "640d", "645i", "650i", "M650i"],
+  "7": ["725d", "728i", "730i", "730d", "735i", "740i", "740d", "740e", "745e", "750i", "750d", "760i"],
+  "8": ["840i", "840d", "850i", "M850i"],
+  X: ["sDrive18i", "sDrive18d", "sDrive20i", "xDrive20i", "xDrive20d", "xDrive25d", "xDrive28i", "xDrive30i", "xDrive30d", "xDrive30e", "xDrive35i", "xDrive35d", "xDrive40i", "xDrive40d", "xDrive45e", "xDrive48i", "xDrive50i", "M40i", "M40d", "M50i", "M50d", "M60i"],
+  Z: ["sDrive18i", "sDrive20i", "sDrive23i", "sDrive28i", "sDrive30i", "sDrive35i", "sDrive35is", "M40i", "3.0i", "3.0si"],
+  I: ["eDrive35", "eDrive40", "xDrive40", "eDrive50", "xDrive50", "xDrive60", "M50", "M60", "M70", "xDrive45"],
+  M: ["Competition", "CS", "CSL", "Touring", "Gran Coupe", "xDrive", "Competition xDrive"],
+};
+
+const BMW_CHASSIS_SERIES: Record<string, string> = (() => {
+  const groups: Record<string, string[]> = {
+    "1": ["E81", "E82", "E87", "E88", "F20", "F21", "F40", "F52", "F70"],
+    "2": ["F22", "F23", "F44", "F45", "F46", "F87", "G42", "G87"],
+    "3": ["E21", "E30", "E36", "E46", "E90", "E91", "E92", "E93", "F30", "F31", "F34", "F80", "G20", "G21", "G28", "G80", "G81"],
+    "4": ["F32", "F33", "F36", "F82", "F83", "G22", "G23", "G26", "G82", "G83"],
+    "5": ["E12", "E28", "E34", "E39", "E60", "E61", "F07", "F10", "F11", "F90", "G30", "G31", "G60", "G61", "G90"],
+    "6": ["E24", "E63", "E64", "F06", "F12", "F13", "G32"],
+    "7": ["E23", "E32", "E38", "E65", "E66", "F01", "F02", "G11", "G12", "G70"],
+    "8": ["E31", "G14", "G15", "G16", "F91", "F92", "F93"],
+    X: ["E53", "E70", "E71", "E72", "E83", "E84", "F15", "F16", "F25", "F26", "F39", "F48", "F49", "F85", "F86", "F95", "F96", "F97", "F98", "G01", "G02", "G05", "G06", "G07", "G09", "G45"],
+    Z: ["E85", "E86", "E89", "G29"],
+    I: ["i3", "i4", "i5", "i7", "i8", "iX", "iX1", "iX2", "iX3"],
+  };
+  const map: Record<string, string> = {};
+  for (const [series, codes] of Object.entries(groups)) {
+    for (const code of codes) map[code.toUpperCase()] = series;
+  }
+  return map;
+})();
+
+/** Series key implied by what the user typed in the variant field (e.g. "3" -> 3-series, "x" -> X models). */
+function seriesFromQuery(query: string): string | null {
+  const q = query.trim().toUpperCase();
+  if (!q) return null;
+  const first = q[0]!;
+  if (first >= "1" && first <= "8") return first;
+  if (first === "X" || first === "Z" || first === "I") return first;
+  if (first === "M") return "M";
+  return null;
+}
+
+function bmwVariantPool(modelInput: string, query: string): string[] {
+  const model = modelInput.trim().toUpperCase();
+  const modelSeries = BMW_CHASSIS_SERIES[model] ?? (model.startsWith("M") ? "M" : null);
+  const qSeries = seriesFromQuery(query);
+  const keys: string[] = [];
+  if (qSeries) keys.push(qSeries);
+  if (modelSeries && modelSeries !== qSeries) keys.push(modelSeries);
+  if (!keys.length) keys.push("1", "2", "3", "4", "5", "6", "7", "8", "X", "Z", "I", "M");
+  const out: string[] = [];
+  for (const k of keys) for (const v of BMW_SERIES_VARIANTS[k] ?? []) if (!out.includes(v)) out.push(v);
+  return out;
 }
