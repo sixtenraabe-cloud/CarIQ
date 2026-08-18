@@ -219,7 +219,6 @@ function Diagnos() {
           car,
           tags,
           symptom: description,
-          audio: clip ? { base64: clip.base64, mediaType: clip.mediaType } : null,
           image: image ? { base64: image.base64, mediaType: image.mediaType } : null,
           fromVideo,
           language: lang,
