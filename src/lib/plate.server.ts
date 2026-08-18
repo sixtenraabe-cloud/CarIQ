@@ -1,5 +1,5 @@
 import { CAR_BRANDS } from "./car-brands";
-import { CAR_VARIANTS, suggestModels } from "./car-models";
+import { suggestModels } from "./car-models";
 
 export type PlateLookup = {
   found: boolean;
