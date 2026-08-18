@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
+
 import { DiagnosisReport } from "@/components/diagnosis-report";
 import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
