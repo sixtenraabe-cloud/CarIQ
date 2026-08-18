@@ -423,7 +423,7 @@ function Diagnos() {
         </Link>
       ) : null}
 
-      {car && step < 4 ? (
+      {car && step < 3 ? (
         <div className="panel mb-5 flex items-center gap-4 p-3">
           <CarSilhouette make={car.make} model={car.model} className="w-28 shrink-0" />
           <div className="min-w-0">
