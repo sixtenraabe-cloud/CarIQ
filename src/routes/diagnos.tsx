@@ -87,7 +87,7 @@ function Diagnos() {
   ];
   const WHEN = [t.atStart, t.whileDriving, t.whenBraking, t.whenTurning, t.always, t.other];
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(tag ? 2 : 1);
+  const [step, setStep] = useState<1 | 2 | 3>(tag ? 2 : 1);
   const [problemKey, setProblemKey] = useState(tag ?? "");
   const [zone, setZone] = useState<ZoneKey | "">("");
   const [when, setWhen] = useState("");
