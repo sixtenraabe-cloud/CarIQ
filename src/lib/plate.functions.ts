@@ -39,28 +39,20 @@ function decode(text: string) {
   return text
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
+    .replace(/&#x([0-9a-f]+);/gi, (_, code: string) => String.fromCharCode(parseInt(code, 16)))
     .replace(/&#(\d+);/g, (_, code: string) => String.fromCharCode(Number(code)))
     .trim();
 }
 
-/** Reads the odometer reading (in km) reported at the most recent vehicle inspection. */
-function readInspection(html: string): { km: number | null; date: string } {
-  const start = html.indexOf("mileage_history");
-  if (start < 0) return { km: null, date: "" };
-  const text = decode(
+/** Strips markup so the vehicle facts can be read as plain "Label Value" text. */
+function toPlainText(html: string) {
+  return decode(
     html
-      .slice(start, start + 20000)
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
       .replace(/<[^>]+>/g, " ")
       .replace(/\s+/g, " "),
   );
-  const match = text.match(
-    /(?:Kontrollbesiktning|Efterkontroll-?besiktning|Registreringsbesiktning)\s+([\d\s\u00a0]+)\s*(mil|km)\s+(\d{4}-\d{2}-\d{2})/i,
-  );
-  if (!match) return { km: null, date: "" };
-  const value = Number(match[1]!.replace(/[\s\u00a0]/g, ""));
-  if (!value) return { km: null, date: "" };
-  const km = match[2]!.toLowerCase() === "mil" ? value * 10 : value;
-  return { km, date: match[3]! };
 }
 
 /**
@@ -70,70 +62,80 @@ function readInspection(html: string): { km: number | null; date: string } {
 export const lookupPlate = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => PlateSchema.parse(input))
   .handler(async ({ data }): Promise<PlateLookup> => {
-    const { guardAiUsage } = await import("./ai-rate-limit.server");
-    try {
-      guardAiUsage("plate");
-    } catch {
-      // Too many lookups from this client: degrade to "not found" so the user
-      // can fill the form in manually instead of hitting an error screen.
-      return EMPTY;
-    }
+    // Plate lookups are a plain public web fetch, not paid AI usage, so they use
+    // their own generous abuse guard instead of the AI budget.
+    const { guardPlateUsage } = await import("./ai-rate-limit.server");
+    if (!guardPlateUsage()) return EMPTY;
 
     const response = await fetch(
-      `https://www.car.info/sv-se/license-plate/S/${encodeURIComponent(data.plate)}`,
+      `https://biluppgifter.se/fordon/${encodeURIComponent(data.plate)}/`,
       {
+        redirect: "follow",
         headers: {
+          // Full browser-like header set: the source rejects bare fetch clients with 403.
           "User-Agent":
-            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
-          "Accept-Language": "sv-SE,sv;q=0.9",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+          "Accept-Language": "sv-SE,sv;q=0.9,en;q=0.8",
+          "Accept-Encoding": "gzip, deflate, br",
+          "Upgrade-Insecure-Requests": "1",
+          "Sec-Fetch-Dest": "document",
+          "Sec-Fetch-Mode": "navigate",
+          "Sec-Fetch-Site": "none",
+          "Sec-Fetch-User": "?1",
+          "Cache-Control": "no-cache",
+          Pragma: "no-cache",
         },
       },
     );
+    console.log("[plate] status", response.status, response.url);
     if (!response.ok) return EMPTY;
     const html = await response.text();
+    const text = toPlainText(html);
 
-    const title = decode(html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "");
-    const body = decode(html.slice(0, 400000));
-
-    const after = title.split(" - ").slice(1).join(" - ");
-    if (!after) return EMPTY;
-
-    const year = Number(after.match(/(\d{4})\s*$/)?.[1] ?? "") || null;
-    let head = after.replace(/,\s*[\d\s]+hk.*$/i, "").replace(/,\s*\d{4}\s*$/, "").trim();
-
-    let transmission: PlateLookup["transmission"] = "";
-    if (/\bautomatisk\b|\bautomat\b/i.test(head) || /automatisk växellåda|automatlåda/i.test(body)) {
-      transmission = "automatic";
-    }
-    if (/\bmanuell\b/i.test(head) || /manuell växellåda/i.test(body)) transmission = "manual";
-    head = head.replace(/\b(automatisk|automat|manuell)\b/gi, "").trim();
-
-    const { CAR_BRANDS } = await import("./car-brands");
-    const make =
-      CAR_BRANDS.filter((brand) => head.toLowerCase().startsWith(brand.toLowerCase())).sort(
-        (a, b) => b.length - a.length,
-      )[0] ?? head.split(" ")[0] ?? "";
-
-    const rest = head.slice(make.length).trim();
-    const { suggestModels } = await import("./car-models");
-    const known = suggestModels(make, "", 400);
-    const model =
-      known
-        .filter((option) => rest.toLowerCase().startsWith(option.toLowerCase()))
-        .sort((a, b) => b.length - a.length)[0] ??
-      rest.split(" ")[0] ??
-      "";
-    const variant = rest.slice(model.length).trim().slice(0, 40);
-
-    let fuel: PlateLookup["fuel"] = "";
-    if (/laddhybrid|plug-?in hybrid|\bhybrid\b/i.test(body)) fuel = "hybrid";
-    else if (/dieselmotor|\bdiesel\b/i.test(body)) fuel = "diesel";
-    else if (/elmotor|\bhelelektrisk\b|\beldriven\b/i.test(body)) fuel = "electric";
-    else if (/bensinmotor|\bbensin\b/i.test(body)) fuel = "petrol";
-
+    const facts = text.match(/Fabrikat\s+(.+?)\s+Modell\s+(.+?)\s+Variant\s+(.+?)\s+(?:Originalnamn|Registreringsnummer)\b/i);
+    const make = facts?.[1]?.trim() ?? "";
+    const model = facts?.[2]?.trim() ?? "";
+    const variant = (facts?.[3]?.trim() ?? "").slice(0, 40);
+    console.log("[plate] parsed", { make, model, variant, len: text.length });
     if (!make || !model) return EMPTY;
 
-    const inspection = readInspection(html);
+    const year =
+      Number(text.match(/Fordonsår\s*\/\s*Modellår\s+(\d{4})/i)?.[1] ?? "") ||
+      Number(text.match(/(\d{4})\s+Modellår/i)?.[1] ?? "") ||
+      null;
+
+    const fuelWord = (
+      text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö/-]+)/i)?.[1] ??
+      text.match(/([A-Za-zÅÄÖåäö/-]+)\s+Bränsle/i)?.[1] ??
+      ""
+    ).toLowerCase();
+    let fuel: PlateLookup["fuel"] = "";
+    if (/hybrid|laddhybrid/.test(fuelWord)) fuel = "hybrid";
+    else if (/diesel/.test(fuelWord)) fuel = "diesel";
+    else if (/^el|elektricitet|eldrift/.test(fuelWord)) fuel = "electric";
+    else if (/bensin/.test(fuelWord)) fuel = "petrol";
+
+    const gearWord = (
+      text.match(/Växellåda\s+([A-Za-zÅÄÖåäö]+)/i)?.[1] ??
+      text.match(/([A-Za-zÅÄÖåäö]+)\s+Växellåda/i)?.[1] ??
+      ""
+    ).toLowerCase();
+    const transmission: PlateLookup["transmission"] = /automat/.test(gearWord)
+      ? "automatic"
+      : /manuell/.test(gearWord)
+        ? "manual"
+        : "";
+
+    const odo = text.match(/Mätarställning\s*\(besiktning\)\s+([\d\s\u00a0]+)\s*(mil|km)/i);
+    const odoValue = odo ? Number(odo[1]!.replace(/[\s\u00a0]/g, "")) : 0;
+    const inspectionKm = odoValue
+      ? odo![2]!.toLowerCase() === "mil"
+        ? odoValue * 10
+        : odoValue
+      : null;
+    const inspectionDate = text.match(/Senast besiktigad\s+(\d{4}-\d{2}-\d{2})/i)?.[1] ?? "";
 
     return {
       found: true,
@@ -143,7 +145,7 @@ export const lookupPlate = createServerFn({ method: "POST" })
       year,
       fuel,
       transmission,
-      inspectionKm: inspection.km,
-      inspectionDate: inspection.date,
+      inspectionKm,
+      inspectionDate,
     };
   });
