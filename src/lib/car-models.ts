@@ -520,20 +520,22 @@ function compactVehicleText(value: string): string {
     .trim();
 }
 
+function vehicleKey(value: string): string {
+  return compactVehicleText(value).replace(/\s+/g, "");
+}
+
 /** Registry feeds sometimes put the real Volvo model in Originalnamn instead of Modell. */
 export function resolveVolvoModel(modelRaw: string, vehicleDescription: string): string {
   const direct = modelsFor("Volvo").find(
-    (model) => compactVehicleText(model) === compactVehicleText(modelRaw),
+    (model) => vehicleKey(model) === vehicleKey(modelRaw),
   );
   if (direct) return direct;
 
-  const haystack = ` ${compactVehicleText(`${modelRaw} ${vehicleDescription}`)} `;
+  const haystack = vehicleKey(`${modelRaw} ${vehicleDescription}`);
   const candidates = [...modelsFor("Volvo")].sort(
-    (left, right) => compactVehicleText(right).length - compactVehicleText(left).length,
+    (left, right) => vehicleKey(right).length - vehicleKey(left).length,
   );
-  return (
-    candidates.find((model) => haystack.includes(` ${compactVehicleText(model)} `)) ?? modelRaw
-  );
+  return candidates.find((model) => haystack.includes(vehicleKey(model))) ?? modelRaw;
 }
 
 /** Maps a registry make/model pair onto a model name the app knows. */
