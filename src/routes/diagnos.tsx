@@ -107,6 +107,7 @@ function Diagnos() {
   const [pickedIssues, setPickedIssues] = useState<string[]>([]);
   const [lamp, setLamp] = useState<LampKey | "">("");
   const [lampMore, setLampMore] = useState(false);
+  const [lampDescription, setLampDescription] = useState("");
   const [mediaBusy, setMediaBusy] = useState(false);
   const [mediaNote, setMediaNote] = useState("");
 
@@ -190,7 +191,7 @@ function Diagnos() {
   const description =
     [
       lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "",
-      !isLamp ? symptom.trim() : "",
+      isLamp ? lampDescription.trim() : symptom.trim(),
       ...pickedIssues,
     ]
       .filter(Boolean)
@@ -524,60 +525,73 @@ function Diagnos() {
           </div>
 
           {isLamp ? (
-            <div className="surface relative overflow-hidden p-4">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
-              />
-              <p className="stencil relative mb-1">{t.lampPickTitle}</p>
-              <p className="relative mb-3 text-xs text-muted-foreground">{t.lampPickHint}</p>
-              <div className="relative grid grid-cols-4 gap-2">
-                {(lampMore ? [...COMMON_LAMPS, ...MORE_LAMPS] : COMMON_LAMPS)
-                  .filter(lampAllowed)
-                  .map((key) => {
-                    const active = lamp === key;
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setLamp(active ? "" : key)}
-                        className={`flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition-all duration-200 ${
-                          active
-                            ? "border-primary bg-primary/20 shadow-[0_0_18px_-4px_var(--primary)]"
-                            : "border-border bg-card/60 hover:border-primary/60 hover:bg-primary/10"
-                        }`}
-                      >
-                        <LampGlyph
-                          lamp={key}
-                          className={`size-8 ${
-                            key === "coolant"
-                              ? "text-primary"
-                              : RED_LAMPS.includes(key)
-                                ? "text-signal-urgent"
-                                : "text-signal-caution"
+            <>
+              <div className="surface relative overflow-hidden p-4">
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
+                />
+                <p className="stencil relative mb-1">{t.lampPickTitle}</p>
+                <p className="relative mb-3 text-xs text-muted-foreground">{t.lampPickHint}</p>
+                <div className="relative grid grid-cols-4 gap-2">
+                  {(lampMore ? [...COMMON_LAMPS, ...MORE_LAMPS] : COMMON_LAMPS)
+                    .filter(lampAllowed)
+                    .map((key) => {
+                      const active = lamp === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setLamp(active ? "" : key)}
+                          className={`flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition-all duration-200 ${
+                            active
+                              ? "border-primary bg-primary/20 shadow-[0_0_18px_-4px_var(--primary)]"
+                              : "border-border bg-card/60 hover:border-primary/60 hover:bg-primary/10"
                           }`}
-                        />
-                        <span className="text-[10px] leading-tight text-foreground/90">{t.lamps[key]}</span>
-                      </button>
-                    );
-                  })}
+                        >
+                          <LampGlyph
+                            lamp={key}
+                            className={`size-8 ${
+                              key === "coolant"
+                                ? "text-primary"
+                                : RED_LAMPS.includes(key)
+                                  ? "text-signal-urgent"
+                                  : "text-signal-caution"
+                            }`}
+                          />
+                          <span className="text-[10px] leading-tight text-foreground/90">{t.lamps[key]}</span>
+                        </button>
+                      );
+                    })}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!lampMore) {
+                      setLamp("");
+                      setLampMore(true);
+                    } else {
+                      setLamp("");
+                      setLampMore(false);
+                    }
+                  }}
+                  className="relative mt-3 rounded-full border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+                >
+                  {lampMore ? t.lampPickOther : t.lampPickNone}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!lampMore) {
-                    setLamp("");
-                    setLampMore(true);
-                  } else {
-                    setLamp("");
-                    setLampMore(false);
-                  }
-                }}
-                className="relative mt-3 rounded-full border border-dashed border-border px-3 py-2 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
-              >
-                {lampMore ? t.lampPickOther : t.lampPickNone}
-              </button>
-            </div>
+              <div className="surface p-4">
+                <p className="stencil mb-1">{t.lampDescribe}</p>
+                <p className="mb-2 text-xs text-muted-foreground">{t.lampDescribeHint}</p>
+                <Textarea
+                  rows={3}
+                  maxLength={500}
+                  placeholder={t.lampDescribeHint}
+                  value={lampDescription}
+                  onChange={(e) => setLampDescription(e.target.value)}
+                />
+              </div>
+            </>
           ) : null}
 
           {car && !isLamp && !issuesDismissed && (issuesLoading || issues.length) ? (
