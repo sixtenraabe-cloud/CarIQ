@@ -183,7 +183,6 @@ function Diagnos() {
     showWhere && zoneLabel ? `${t.whereFrom} ${zoneLabel}` : "",
     when ? `${t.whenNoticed} ${when}` : "",
     isLamp && image ? t.lampPhoto : "",
-    clip ? t.recordSound : "",
     ...pickedIssues,
   ].filter(Boolean) as string[];
 
