@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { CalendarCheck, CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { CalendarCheck, CheckCircle2, ClipboardCopy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Link } from "@tanstack/react-router";
 
@@ -8,38 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
-import { useI18n } from "@/lib/i18n";
+import { currencyFor, useI18n } from "@/lib/i18n";
 import { createWorkshopLead } from "@/lib/leads.functions";
-import type { DiagnosisResult } from "@/lib/diagnosis-types";
-
-type Partner = "mekonomen" | "mekanum" | "other";
-
-const PARTNERS: { id: Partner; name: string; url: string }[] = [
-  {
-    id: "mekonomen",
-    name: "Mekonomen",
-    url: "https://www.mekonomen.se/boka-tid?utm_source=cariq&utm_medium=referral&utm_campaign=diagnos",
-  },
-  {
-    id: "mekanum",
-    name: "Mekanum",
-    url: "https://www.mekanum.se/?utm_source=cariq&utm_medium=referral&utm_campaign=diagnos",
-  },
-  { id: "other", name: "", url: "" },
-];
+import { workshopMessage } from "@/lib/diagnose.functions";
+import type { CarProfile, DiagnosisResult } from "@/lib/diagnosis-types";
 
 export function BookWorkshop({
   result,
   carLine,
   symptom,
+  car,
+  tags,
 }: {
   result: DiagnosisResult;
   carLine: string;
   symptom: string;
+  car: CarProfile | null;
+  tags: string[];
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const { user } = useAuth();
-  const [partner, setPartner] = useState<Partner>("mekonomen");
+  const [wantsBooking, setWantsBooking] = useState<boolean | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
@@ -47,8 +36,61 @@ export function BookWorkshop({
   const [consent, setConsent] = useState(false);
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageLoading, setMessageLoading] = useState(false);
+  const [messageError, setMessageError] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const chosen = PARTNERS.find((p) => p.id === partner)!;
+  useEffect(() => {
+    if (!car) return;
+    let active = true;
+    setMessageLoading(true);
+    setMessageError(false);
+    workshopMessage({
+      data: {
+        car,
+        tags,
+        symptom,
+        language: lang,
+        currency: currencyFor(lang).currencyName,
+        result: {
+          verdict: result.verdict,
+          headline: result.headline,
+          confidence: result.confidence,
+          mechanicNote: result.mechanicNote,
+          causes: result.causes,
+          checks: result.checks,
+          advice: result.advice,
+          estimatedCost: result.estimatedCost,
+          lampName: result.lampName,
+          lampMeaning: result.lampMeaning,
+        },
+      },
+    })
+      .then((res) => {
+        if (active) setMessage(res.message);
+      })
+      .catch(() => {
+        if (active) setMessageError(true);
+      })
+      .finally(() => {
+        if (active) setMessageLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function copyMessage() {
+    try {
+      await navigator.clipboard.writeText(message);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error(t.bookError);
+    }
+  }
 
   async function submit() {
     if (!name.trim() || !phone.trim() || !consent) {
@@ -59,7 +101,7 @@ export function BookWorkshop({
     try {
       await createWorkshopLead({
         data: {
-          partner,
+          partner: "other",
           carSummary: carLine,
           verdict: result.verdict,
           headline: result.headline,
@@ -69,7 +111,7 @@ export function BookWorkshop({
           contactPhone: phone.trim(),
           contactEmail: user?.email ?? "",
           location: location.trim(),
-          note: note.trim(),
+          note: [note.trim(), message].filter(Boolean).join("\n\n").slice(0, 500),
           consent: true,
         },
       });
@@ -92,6 +134,25 @@ export function BookWorkshop({
       </div>
       <p className="text-sm text-muted-foreground">{t.bookSub}</p>
 
+      <div className="mt-4 space-y-2 rounded-xl border border-border bg-secondary/40 p-3">
+        <p className="text-sm font-semibold">{t.bookMsgTitle}</p>
+        <p className="text-xs text-muted-foreground">{t.bookMsgSub}</p>
+        {messageLoading ? (
+          <p className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="size-3.5 animate-spin" /> {t.bookMsgLoading}
+          </p>
+        ) : messageError ? (
+          <p className="text-xs text-destructive">{t.bookMsgError}</p>
+        ) : message ? (
+          <>
+            <p className="whitespace-pre-line rounded-lg bg-background/60 p-3 text-sm">{message}</p>
+            <Button variant="outline" size="sm" onClick={() => void copyMessage()}>
+              <ClipboardCopy className="size-4" /> {copied ? t.bookCopied : t.bookCopy}
+            </Button>
+          </>
+        ) : null}
+      </div>
+
       {!user ? (
         <Button asChild className="mt-4 w-full">
           <Link to="/auth">{t.bookSignIn}</Link>
@@ -102,33 +163,21 @@ export function BookWorkshop({
             <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-signal-safe" />
             <span>{t.bookSentSub}</span>
           </div>
-          {chosen.url ? (
-            <Button asChild variant="outline" className="w-full">
-              <a href={chosen.url} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="size-4" /> {t.bookOpenPartner} {chosen.name}
-              </a>
+        </div>
+      ) : wantsBooking !== true ? (
+        <div className="mt-4 space-y-3">
+          <p className="text-sm font-semibold">{t.bookAsk}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button onClick={() => setWantsBooking(true)}>
+              <CalendarCheck className="size-4" /> {t.bookYes}
             </Button>
-          ) : null}
+            <Button variant="outline" onClick={() => setWantsBooking(false)}>
+              {t.bookNo}
+            </Button>
+          </div>
         </div>
       ) : (
         <div className="mt-4 space-y-4">
-          <div className="grid grid-cols-3 gap-2">
-            {PARTNERS.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => setPartner(p.id)}
-                className={`rounded-lg border px-2 py-2 text-sm font-semibold transition-colors ${
-                  partner === p.id
-                    ? "border-primary bg-primary/15 text-primary"
-                    : "border-border bg-secondary/50 text-muted-foreground"
-                }`}
-              >
-                {p.id === "other" ? t.bookOther : p.name}
-              </button>
-            ))}
-          </div>
-
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
               <Label htmlFor="lead-name">{t.bookName}</Label>
