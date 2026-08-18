@@ -4,6 +4,7 @@ import {
   ChevronRight,
   Ear,
   Gauge,
+  Lock,
   Pencil,
   Plus,
   RefreshCw,
