@@ -52,7 +52,6 @@ function Garage() {
   const [plateNote, setPlateNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
-  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -188,7 +187,7 @@ function Garage() {
       oilChangeKm: "",
     });
 
-  if (ready && car && !editing) {
+  if (ready && car) {
     const next = car.lastInspection ? nextInspectionFrom(car.lastInspection) : "";
     const sinceOil =
       car.oilChangeKm && car.mileageKm > car.oilChangeKm ? car.mileageKm - car.oilChangeKm : null;
@@ -248,16 +247,12 @@ function Garage() {
           ) : null}
         </div>
 
-        <Button className="mt-5 w-full" onClick={() => setEditing(true)}>
-          {t.editCar}
-        </Button>
         <Button
           variant="outline"
-          className="mt-3 w-full"
+          className="mt-5 w-full"
           onClick={() => {
             saveCar(null);
             clearForm();
-            setEditing(false);
             toast.success(t.carRemoved);
           }}
         >
