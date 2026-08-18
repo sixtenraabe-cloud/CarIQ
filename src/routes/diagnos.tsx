@@ -40,7 +40,7 @@ export const Route = createFileRoute("/diagnos")({
       {
         name: "description",
         content: "Beskriv problemet och få en mekanikers AI-bedömning av din bil.",
-      }
+      },
       { property: "og:title", content: "Ny diagnos — CarIQ" },
       { property: "og:description", content: "Fyra snabba steg till en bedömning av bilen." },
       { property: "og:type", content: "website" },
