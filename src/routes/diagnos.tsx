@@ -579,6 +579,17 @@ function Diagnos() {
                 {lampMore ? t.lampPickOther : t.lampPickNone}
               </button>
             </div>
+            <div className="mt-4">
+              <p className="stencil mb-1">{t.lampDescribe}</p>
+              <p className="mb-2 text-xs text-muted-foreground">{t.lampDescribeHint}</p>
+              <Textarea
+                rows={3}
+                maxLength={500}
+                placeholder={t.lampDescribeHint}
+                value={lampDescription}
+                onChange={(e) => setLampDescription(e.target.value)}
+              />
+            </div>
           ) : null}
 
           {car && !isLamp && !issuesDismissed && (issuesLoading || issues.length) ? (
