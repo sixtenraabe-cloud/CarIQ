@@ -17,6 +17,12 @@ export type CarProfile = {
   transmission: string;
   fuel: string;
   mileageKm: number;
+  /** ISO date (YYYY-MM-DD) of the latest vehicle inspection, if known. */
+  lastInspection?: string;
+  /** ISO date (YYYY-MM-DD) of the latest oil change, if known. */
+  oilChangeDate?: string;
+  /** Odometer reading at the latest oil change. */
+  oilChangeKm?: number;
 };
 
 export type Cause = {
