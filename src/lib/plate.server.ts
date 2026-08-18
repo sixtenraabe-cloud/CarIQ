@@ -82,13 +82,16 @@ export function parseVehiclePage(html: string): PlateLookup {
   // Registry model strings look like "3-serien E90 Variant 335i xDrive Originalnamn TS BMW 335i".
   // We want the full designation ("335i"), not just the series digit.
   const cleanedModel = modelRaw.replace(/\s*Originalnamn\s+TS\b.*$/i, "").trim();
+  // The page splits the string as "Modell <model> Variant <engine/trim> Originalnamn TS ...".
+  const variantRaw = cleanedModel.match(/\sVariant\s+(.+)$/i)?.[1]?.trim() ?? "";
+  const modelPart = cleanedModel.replace(/\sVariant\s+.*$/i, "").trim();
   const known = suggestModels(make, "", 800);
   const norm = (value: string) => value.toLowerCase().replace(/[\s\-_]/g, "");
-  const haystack = norm(`${cleanedModel} ${modelRaw}`);
+  const haystack = norm(`${modelPart} ${variantRaw}`);
   const matches = known.filter((option) => haystack.includes(norm(option)));
   const isDesignation = (value: string) => /^[a-z]{0,2}\d{2,3}[a-z]{0,3}$/i.test(value.replace(/\s/g, ""));
   const designations = matches.filter(isDesignation).sort((a, b) => b.length - a.length);
-  const rawDesignation = cleanedModel.match(/\b([A-Z]{0,2}\d{3}[a-z]{0,3}(?:\s?xDrive)?)\b/i)?.[1];
+  const rawDesignation = `${modelPart} ${variantRaw}`.match(/\b([A-Z]{0,2}\d{3}[a-z]{0,3})\b/i)?.[1];
   const model =
     designations[0] ??
     (rawDesignation && known.some((option) => norm(option) === norm(rawDesignation))
@@ -96,15 +99,14 @@ export function parseVehiclePage(html: string): PlateLookup {
       : undefined) ??
     matches.sort((a, b) => b.length - a.length)[0] ??
     rawDesignation ??
-    cleanedModel.split(" ")[0] ??
+    modelPart.split(" ")[0] ??
     "";
-  const variant = cleanedModel
-    .replace(new RegExp(model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ")
+  // Variant should describe the car type (engine/trim/body), e.g. "2.0 TFSI Quattro" or "335i xDrive".
+  const variant = (variantRaw || modelPart.replace(new RegExp(`^${model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim())
     .replace(/\b\d+-?serien?\b/gi, " ")
-    .replace(/\bvariant\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 40);
+    .slice(0, 60);
 
   const year = Number(text.match(/Fordonsår\s*\/\s*Modellår\s+(\d{4})/i)?.[1] ?? "") || null;
   const fuel = mapFuel(text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö\/\s-]{2,20}?)\s+(?:Växellåda|Fyrhjulsdrift|Motor)/i)?.[1] ?? "");
