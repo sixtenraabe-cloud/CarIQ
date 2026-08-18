@@ -16,6 +16,9 @@ if (typeof window !== "undefined") {
 }
 
 export const getRouter = () => {
+  if (typeof window !== "undefined") {
+    window.sessionStorage.removeItem("cariq:chunk-reload");
+  }
   const queryClient = new QueryClient();
 
   const router = createRouter({
