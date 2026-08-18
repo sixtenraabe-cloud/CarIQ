@@ -191,7 +191,7 @@ function Diagnos() {
   const description =
     [
       lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "",
-      !isLamp ? symptom.trim() : "",
+      isLamp ? lampDescription.trim() : symptom.trim(),
       ...pickedIssues,
     ]
       .filter(Boolean)
