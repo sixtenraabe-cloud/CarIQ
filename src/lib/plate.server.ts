@@ -107,7 +107,7 @@ export function parseVehiclePage(html: string): PlateLookup {
     .filter(([key]) => key.toLowerCase().startsWith(`${make.toLowerCase()}|`))
     .flatMap(([, values]) => values);
   const knownChassis = brandVariants
-    .filter((code) => /^[A-Z]{1,3}\d{2,3}(\.\d)?[A-Z]?$/i.test(code) || /^\d{3}(\.\d)?$/.test(code))
+    .filter((code) => /^[A-Z]{1,3}\d{1,3}(\.\d)?[A-Z]?$/i.test(code) || /^\d{3}(\.\d)?$/.test(code))
     .filter((code) => new RegExp(`\\b${code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(chassisSource))
     .filter((code) => norm(code) !== norm(model))
     .sort((a, b) => b.length - a.length);
