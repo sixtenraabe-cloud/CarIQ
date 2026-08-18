@@ -1,5 +1,5 @@
 import { CAR_BRANDS } from "./car-brands";
-import { CAR_VARIANTS, suggestModels } from "./car-models";
+import { suggestModels } from "./car-models";
 
 export type PlateLookup = {
   found: boolean;
@@ -79,42 +79,8 @@ export function parseVehiclePage(html: string): PlateLookup {
     )[0] ??
     makeRaw;
 
-  // Registry model strings look like "3-serien E90 Variant 335i xDrive Originalnamn TS BMW 335i".
-  // We want the full designation ("335i"), not just the series digit.
   const cleanedModel = modelRaw.replace(/\s*Originalnamn\s+TS\b.*$/i, "").trim();
-  // The page splits the string as "Modell <model> Variant <engine/trim> Originalnamn TS ...".
-  const variantRaw = cleanedModel.match(/\sVariant\s+(.+)$/i)?.[1]?.trim() ?? "";
-  const modelPart = cleanedModel.replace(/\sVariant\s+.*$/i, "").trim();
-  const known = suggestModels(make, "", 800);
-  const norm = (value: string) => value.toLowerCase().replace(/[\s\-_]/g, "");
-  const haystack = norm(`${modelPart} ${variantRaw}`);
-  const matches = known.filter((option) => haystack.includes(norm(option)));
-  const isDesignation = (value: string) => /^[a-z]{0,2}\d{2,3}[a-z]{0,3}$/i.test(value.replace(/\s/g, ""));
-  const designations = matches.filter(isDesignation).sort((a, b) => b.length - a.length);
-  const rawDesignation = `${modelPart} ${variantRaw}`.match(/\b([A-Z]{0,2}\d{3}[a-z]{0,3})\b/i)?.[1];
-  const model =
-    designations[0] ??
-    (rawDesignation && known.some((option) => norm(option) === norm(rawDesignation))
-      ? known.find((option) => norm(option) === norm(rawDesignation))!
-      : undefined) ??
-    matches.sort((a, b) => b.length - a.length)[0] ??
-    rawDesignation ??
-    modelPart.split(" ")[0] ??
-    "";
-  // Variant = chassis/generation code, e.g. E92, F10, G80, W204, B8, 991.2.
-  const chassisSource = `${modelPart} ${variantRaw}`;
-  const brandVariants = Object.entries(CAR_VARIANTS)
-    .filter(([key]) => key.toLowerCase().startsWith(`${make.toLowerCase()}|`))
-    .flatMap(([, values]) => values);
-  const knownChassis = brandVariants
-    .filter((code) => /^[A-Z]{1,3}\d{1,3}(\.\d)?[A-Z]?$/i.test(code) || /^\d{3}(\.\d)?$/.test(code))
-    .filter((code) => new RegExp(`\\b${code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(chassisSource))
-    .filter((code) => norm(code) !== norm(model))
-    .sort((a, b) => b.length - a.length);
-  const genericChassis = (chassisSource.match(/\b([A-Z]{1,3}\d{2,3}(?:\.\d)?[A-Z]?)\b/g) ?? []).filter(
-    (code) => norm(code) !== norm(model) && /[A-Z]/i.test(code[0]!) && /\d{2}/.test(code),
-  );
-  const variant = (knownChassis[0] ?? genericChassis[0] ?? "").trim().slice(0, 40);
+  const { model, variant } = splitModelVariant(make, cleanedModel);
 
   const year = Number(text.match(/Fordonsår\s*\/\s*Modellår\s+(\d{4})/i)?.[1] ?? "") || null;
   const fuel = mapFuel(text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö\/\s-]{2,20}?)\s+(?:Växellåda|Fyrhjulsdrift|Motor)/i)?.[1] ?? "");
@@ -134,8 +100,76 @@ export function parseVehiclePage(html: string): PlateLookup {
   return { found: true, make, model, variant, year, fuel, transmission, inspectionKm, inspectionDate };
 }
 
-/** Fetches the public vehicle record for a Swedish registration number. */
+/** Old car.info-style split: longest known model prefix, remainder is the variant. */
+function splitModelVariant(make: string, rest: string) {
+  const known = suggestModels(make, "", 400);
+  const model =
+    known
+      .filter((option) => rest.toLowerCase().startsWith(option.toLowerCase()))
+      .sort((a, b) => b.length - a.length)[0] ??
+    rest.split(" ")[0] ??
+    "";
+  const variant = rest.slice(model.length).trim().slice(0, 40);
+  return { model, variant };
+}
+
+/** Parses a car.info license-plate page (the original source). */
+export function parseCarInfoPage(html: string): PlateLookup {
+  const title = unescapeHtml(html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? "").trim();
+  const body = unescapeHtml(html.slice(0, 400000));
+  const after = title.split(" - ").slice(1).join(" - ").trim();
+  if (!after) return EMPTY_PLATE;
+
+  const year = Number(after.match(/(\d{4})\s*$/)?.[1] ?? "") || null;
+  let head = after.replace(/,\s*[\d\s]+hk.*$/i, "").replace(/,\s*\d{4}\s*$/, "").trim();
+
+  let transmission: PlateLookup["transmission"] = "";
+  if (/\bautomatisk\b|\bautomat\b/i.test(head) || /automatisk växellåda|automatlåda/i.test(body)) {
+    transmission = "automatic";
+  }
+  if (/\bmanuell\b/i.test(head) || /manuell växellåda/i.test(body)) transmission = "manual";
+  head = head.replace(/\b(automatisk|automat|manuell)\b/gi, "").trim();
+
+  const make =
+    CAR_BRANDS.filter((brand) => head.toLowerCase().startsWith(brand.toLowerCase())).sort(
+      (a, b) => b.length - a.length,
+    )[0] ??
+    head.split(" ")[0] ??
+    "";
+  const { model, variant } = splitModelVariant(make, head.slice(make.length).trim());
+
+  let fuel: PlateLookup["fuel"] = "";
+  if (/laddhybrid|plug-?in hybrid|\bhybrid\b/i.test(body)) fuel = "hybrid";
+  else if (/dieselmotor|\bdiesel\b/i.test(body)) fuel = "diesel";
+  else if (/elmotor|\bhelelektrisk\b|\beldriven\b/i.test(body)) fuel = "electric";
+  else if (/bensinmotor|\bbensin\b/i.test(body)) fuel = "petrol";
+
+  if (!make || !model) return EMPTY_PLATE;
+  return { found: true, make, model, variant, year, fuel, transmission, inspectionKm: null, inspectionDate: "" };
+}
+
+async function fetchFromCarInfo(plate: string): Promise<PlateLookup> {
+  const response = await fetch(`https://www.car.info/sv-se/license-plate/S/${encodeURIComponent(plate)}`, {
+    redirect: "follow",
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36",
+      "Accept-Language": "sv-SE,sv;q=0.9",
+      Accept: "text/html,application/xhtml+xml",
+    },
+  });
+  if (!response.ok) return EMPTY_PLATE;
+  return parseCarInfoPage(await response.text());
+}
+
+/** Fetches the public vehicle record: car.info first, biluppgifter as fallback. */
 export async function fetchVehicleByPlate(plate: string): Promise<PlateLookup> {
+  try {
+    const primary = await fetchFromCarInfo(plate);
+    if (primary.found) return primary;
+  } catch {
+    // fall through to the backup source
+  }
   const response = await fetch(`https://biluppgifter.se/fordon/${encodeURIComponent(plate)}`, {
     redirect: "follow",
     headers: {
