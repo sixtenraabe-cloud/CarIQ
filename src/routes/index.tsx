@@ -11,7 +11,7 @@ import {
   Volume2,
   Wrench,
 } from "lucide-react";
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
