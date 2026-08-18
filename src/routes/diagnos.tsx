@@ -682,43 +682,7 @@ function Diagnos() {
         </div>
       ) : null}
 
-      {step === 3 ? (
-        <div className="space-y-5">
-          <p className="text-sm text-muted-foreground">{t.audioHint}</p>
-          <AudioRecorder clip={clip} onChange={setClip} />
-          {clip ? (
-            <Button size="lg" className="w-full" disabled={loading} onClick={() => void run()}>
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
-                </>
-              ) : (
-                t.analyze
-              )}
-            </Button>
-          ) : (
-            <Button
-              size="lg"
-              className="w-full"
-              disabled={loading}
-              onClick={() => {
-                setClip(null);
-                void run();
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
-                </>
-              ) : (
-                t.noAudio
-              )}
-            </Button>
-          )}
-        </div>
-      ) : null}
-
-      {step === 4 && result ? (
+      {step === 3 && result ? (
         <div className="space-y-5">
           <DiagnosisReport result={result} carLine={car ? carSummary(car) : ""} secondOpinion={second} />
           {car ? <MechanicChat car={car} tags={tags} symptom={description} result={result} /> : null}
