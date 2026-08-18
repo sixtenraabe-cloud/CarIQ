@@ -552,28 +552,16 @@ function Garage() {
         <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
       ) : null}
 
-      {ready && car ? (
-        <Button
-          variant="ghost"
-          className="mt-2 w-full text-muted-foreground"
-          onClick={() => {
-            saveCar(null);
-            setForm({
-              make: "",
-              model: "",
-              variant: "",
-              year: "",
-              mileageKm: "",
-              transmission: "manual",
-              fuel: "petrol",
-            });
-            toast.success(t.carRemoved);
-          }}
-        >
-          {t.removeCar}
-        </Button>
-      ) : null}
     </main>
+  );
+}
+
+function Fact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+      <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
+      <dd className="truncate font-semibold">{value}</dd>
+    </div>
   );
 }
 
