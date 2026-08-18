@@ -364,7 +364,19 @@ function seriesFromQuery(query: string): string | null {
 
 function bmwVariantPool(modelInput: string, query: string): string[] {
   const model = modelInput.trim().toUpperCase();
-  const modelSeries = BMW_CHASSIS_SERIES[model] ?? (model.startsWith("M") ? "M" : null);
+  const modelSeries =
+    BMW_CHASSIS_SERIES[model] ??
+    (/^[1-8]\s*SERIES/.test(model)
+      ? model[0]!
+      : model.startsWith("X")
+        ? "X"
+        : model.startsWith("Z")
+          ? "Z"
+          : model.startsWith("I")
+            ? "I"
+            : /^M[1-8]/.test(model)
+              ? "M"
+              : null);
   const qSeries = seriesFromQuery(query);
   const keys: string[] = [];
   if (qSeries) keys.push(qSeries);
