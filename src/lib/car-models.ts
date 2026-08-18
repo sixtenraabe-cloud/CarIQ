@@ -386,3 +386,148 @@ function bmwVariantPool(modelInput: string, query: string): string[] {
   for (const k of keys) for (const v of BMW_SERIES_VARIANTS[k] ?? []) if (!out.includes(v)) out.push(v);
   return out;
 }
+
+/** BMW generations: series key -> [chassis, from, to, bodyMatcher?] */
+const BMW_GENERATIONS: Record<string, Array<[string, number, number, RegExp?]>> = {
+  "1": [
+    ["E87", 2004, 2011, /5|sedan|hatch|halvkombi/i],
+    ["E81", 2007, 2012, /3|coup/i],
+    ["E82", 2007, 2013, /coup/i],
+    ["E88", 2008, 2013, /cab|conv/i],
+    ["F20", 2011, 2019],
+    ["F21", 2012, 2019, /coup|3-d/i],
+    ["F40", 2019, 2024],
+    ["F70", 2024, 2100],
+  ],
+  "2": [
+    ["F22", 2014, 2021, /coup/i],
+    ["F23", 2015, 2021, /cab|conv/i],
+    ["F45", 2014, 2021, /active|tourer/i],
+    ["F46", 2015, 2022, /gran tourer/i],
+    ["F44", 2020, 2100, /gran ?coup/i],
+    ["G42", 2021, 2100],
+  ],
+  "3": [
+    ["E21", 1975, 1983],
+    ["E30", 1982, 1994],
+    ["E36", 1990, 2000],
+    ["E46", 1998, 2006],
+    ["E91", 2005, 2013, /touring|kombi/i],
+    ["E92", 2006, 2013, /coup/i],
+    ["E93", 2007, 2013, /cab|conv/i],
+    ["E90", 2005, 2012],
+    ["F31", 2012, 2019, /touring|kombi/i],
+    ["F34", 2013, 2020, /gran ?turismo|\bgt\b/i],
+    ["F30", 2011, 2019],
+    ["G21", 2019, 2100, /touring|kombi/i],
+    ["G20", 2018, 2100],
+  ],
+  "4": [
+    ["F33", 2014, 2020, /cab|conv/i],
+    ["F36", 2014, 2020, /gran ?coup/i],
+    ["F32", 2013, 2020],
+    ["G23", 2021, 2100, /cab|conv/i],
+    ["G26", 2021, 2100, /gran ?coup/i],
+    ["G22", 2020, 2100],
+  ],
+  "5": [
+    ["E12", 1972, 1981],
+    ["E28", 1981, 1988],
+    ["E34", 1988, 1996],
+    ["E39", 1995, 2004],
+    ["E61", 2004, 2010, /touring|kombi/i],
+    ["E60", 2003, 2010],
+    ["F11", 2010, 2017, /touring|kombi/i],
+    ["F07", 2009, 2017, /gran ?turismo|\bgt\b/i],
+    ["F10", 2010, 2017],
+    ["G31", 2017, 2024, /touring|kombi/i],
+    ["G30", 2017, 2024],
+    ["G61", 2023, 2100, /touring|kombi/i],
+    ["G60", 2023, 2100],
+  ],
+  "6": [
+    ["E24", 1976, 1989],
+    ["E64", 2004, 2010, /cab|conv/i],
+    ["E63", 2003, 2010],
+    ["F12", 2011, 2018, /cab|conv/i],
+    ["F06", 2012, 2018, /gran ?coup/i],
+    ["F13", 2011, 2018],
+    ["G32", 2017, 2100],
+  ],
+  "7": [
+    ["E23", 1977, 1986],
+    ["E32", 1986, 1994],
+    ["E38", 1994, 2001],
+    ["E65", 2001, 2008],
+    ["F01", 2008, 2015],
+    ["G11", 2015, 2022],
+    ["G70", 2022, 2100],
+  ],
+  "8": [
+    ["E31", 1989, 1999],
+    ["G15", 2018, 2100, /coup/i],
+    ["G14", 2019, 2100, /cab|conv/i],
+    ["G16", 2019, 2100, /gran ?coup/i],
+  ],
+  X1: [["E84", 2009, 2015], ["F48", 2015, 2022], ["U11", 2022, 2100]],
+  X2: [["F39", 2018, 2023], ["U10", 2023, 2100]],
+  X3: [["E83", 2003, 2010], ["F25", 2010, 2017], ["G01", 2017, 2024], ["G45", 2024, 2100]],
+  X4: [["F26", 2014, 2018], ["G02", 2018, 2100]],
+  X5: [["E53", 1999, 2006], ["E70", 2006, 2013], ["F15", 2013, 2018], ["G05", 2018, 2100]],
+  X6: [["E71", 2008, 2014], ["F16", 2014, 2019], ["G06", 2019, 2100]],
+  X7: [["G07", 2019, 2100]],
+  Z4: [["E85", 2002, 2008], ["E86", 2006, 2008, /coup/i], ["E89", 2009, 2016], ["G29", 2018, 2100]],
+  Z3: [["E36", 1995, 2002]],
+};
+
+/**
+ * Registry data returns coarse BMW models like "3". Resolve it to the chassis
+ * code (E92, G20, ...) using variant body text and model year.
+ */
+export function resolveBmwModel(modelRaw: string, variant: string, year: number | null): string {
+  const raw = modelRaw.trim().toUpperCase();
+  if (BMW_CHASSIS_SERIES[raw]) return raw;
+  let key: string | null = null;
+  const seriesDigit = raw.match(/^([1-8])(?:\s*SERIES|-SERIE|ER)?$/);
+  if (seriesDigit) key = seriesDigit[1]!;
+  const x = raw.match(/^X\s?([1-7])/);
+  if (x) key = `X${x[1]}`;
+  const z = raw.match(/^Z\s?([34])/);
+  if (z) key = `Z${z[1]}`;
+  if (!key) {
+    const num = raw.match(/^([1-8])\d{2}/); // e.g. "320", "530D"
+    if (num) key = num[1]!;
+  }
+  if (!key) return modelRaw;
+  const gens = BMW_GENERATIONS[key];
+  if (!gens) return modelRaw;
+  const body = `${modelRaw} ${variant}`;
+  const y = year ?? 0;
+  const inYear = gens.filter(([, from, to]) => (y ? y >= from && y <= to : false));
+  const pool = inYear.length ? inYear : gens;
+  const byBody = pool.find(([, , , matcher]) => matcher && matcher.test(body));
+  if (byBody) return byBody[0];
+  const noBody = pool.find(([, , , matcher]) => !matcher);
+  return (noBody ?? pool[pool.length - 1]!)[0];
+}
+
+/** Maps a registry make/model pair onto a model name the app knows. */
+export function resolveRegistryModel(
+  makeRaw: string,
+  modelRaw: string,
+  variant: string,
+  year: number | null,
+): string {
+  const brand = normalizeBrand(makeRaw);
+  if (!brand) return modelRaw;
+  if (brand === "BMW") return resolveBmwModel(modelRaw, variant, year);
+  if (isKnownCar(brand, modelRaw)) {
+    return modelsFor(brand).find((m) => m.toLowerCase() === modelRaw.trim().toLowerCase())!;
+  }
+  const q = modelRaw.trim().toLowerCase();
+  if (!q) return modelRaw;
+  const hit = modelsFor(brand).find(
+    (m) => m.toLowerCase() === q || m.toLowerCase().replace(/[\s-]/g, "") === q.replace(/[\s-]/g, ""),
+  );
+  return hit ?? modelRaw;
+}
