@@ -118,6 +118,63 @@ export type Database = {
           },
         ]
       }
+      workshop_leads: {
+        Row: {
+          car_summary: string
+          consent: boolean
+          contact_email: string
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          estimated_cost: string
+          headline: string
+          id: string
+          location: string
+          note: string
+          partner: string
+          status: string
+          symptom: string
+          user_id: string
+          verdict: string
+        }
+        Insert: {
+          car_summary?: string
+          consent?: boolean
+          contact_email?: string
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          estimated_cost?: string
+          headline?: string
+          id?: string
+          location?: string
+          note?: string
+          partner: string
+          status?: string
+          symptom?: string
+          user_id: string
+          verdict?: string
+        }
+        Update: {
+          car_summary?: string
+          consent?: boolean
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          estimated_cost?: string
+          headline?: string
+          id?: string
+          location?: string
+          note?: string
+          partner?: string
+          status?: string
+          symptom?: string
+          user_id?: string
+          verdict?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
