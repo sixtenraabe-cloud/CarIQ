@@ -100,6 +100,8 @@ export function parseVehiclePage(html: string): PlateLookup {
     "";
   const variant = cleanedModel
     .replace(new RegExp(model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), " ")
+    .replace(/\b\d+-?serien?\b/gi, " ")
+    .replace(/\bvariant\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 40);
