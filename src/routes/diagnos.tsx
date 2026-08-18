@@ -361,7 +361,7 @@ function Diagnos() {
         return;
       }
       setFromVideo(true);
-      setMediaNote(t.videoFrameOk);
+      setMediaNote(t.videoNoAudio);
     } finally {
       setMediaBusy(false);
     }
