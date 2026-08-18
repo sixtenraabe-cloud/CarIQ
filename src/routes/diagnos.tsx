@@ -198,7 +198,7 @@ function Diagnos() {
 
   const back = () => {
     if (step === 1) void navigate({ to: "/" });
-    else setStep((s) => (s - 1) as 1 | 2 | 3);
+    else setStep((s) => (s - 1) as 1 | 2);
   };
 
   const run = async () => {
