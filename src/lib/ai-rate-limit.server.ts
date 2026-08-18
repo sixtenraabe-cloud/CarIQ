@@ -56,6 +56,8 @@ export function guardAiUsage(scope: "analyze" | "second" | "chat" | "quick" | "i
   const perDay = scope === "chat" ? 200 : scope === "issues" || scope === "plate" ? 150 : 60;
 
   hit(`h:${scope}:${caller}`, perHour, HOUR);
-  hit(`d:${caller}`, perDay, DAY);
+  // Plate lookups are a plain web fetch, not paid AI usage, so they get their
+  // own daily bucket instead of eating the shared AI budget.
+  hit(scope === "plate" ? `d:plate:${caller}` : `d:${caller}`, perDay, DAY);
   hit("global:hour", 3000, HOUR);
 }

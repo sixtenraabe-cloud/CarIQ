@@ -71,7 +71,13 @@ export const lookupPlate = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => PlateSchema.parse(input))
   .handler(async ({ data }): Promise<PlateLookup> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
-    guardAiUsage("plate");
+    try {
+      guardAiUsage("plate");
+    } catch {
+      // Too many lookups from this client: degrade to "not found" so the user
+      // can fill the form in manually instead of hitting an error screen.
+      return EMPTY;
+    }
 
     const response = await fetch(
       `https://www.car.info/sv-se/license-plate/S/${encodeURIComponent(data.plate)}`,
