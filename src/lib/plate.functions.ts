@@ -84,6 +84,75 @@ function toFuel(word: string): PlateLookup["fuel"] {
   return "";
 }
 
+/** Reads a "- LabelValue" line out of the scraped markdown fact list. */
+function field(markdown: string, label: string): string {
+  const match = markdown.match(
+    new RegExp(`^-\\s*${label}\\s*[:]?\\s*(.+)$`, "im"),
+  );
+  return match?.[1] ? decode(match[1]).trim() : "";
+}
+
+/**
+ * Scrapes the public vehicle page through Firecrawl. The source blocks plain
+ * server fetches with bot protection, so this is the reliable path.
+ */
+async function lookupViaFirecrawl(plate: string): Promise<PlateLookup> {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const firecrawlKey = process.env["FIRECRAWL_API_KEY"];
+  if (!lovableKey || !firecrawlKey) return EMPTY;
+
+  const response = await fetch("https://connector-gateway.lovable.dev/firecrawl/v2/scrape", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": firecrawlKey,
+    },
+    body: JSON.stringify({
+      url: `https://biluppgifter.se/fordon/${encodeURIComponent(plate)}`,
+      formats: ["markdown"],
+      onlyMainContent: true,
+    }),
+  });
+  if (!response.ok) {
+    console.error(`Firecrawl plate lookup failed [${response.status}]: ${await response.text()}`);
+    return EMPTY;
+  }
+
+  const payload = (await response.json()) as { data?: { markdown?: string } };
+  const markdown = payload.data?.markdown ?? "";
+  if (!markdown) return EMPTY;
+
+  const make = field(markdown, "Fabrikat");
+  const model = field(markdown, "Modell(?!år)");
+  if (!make || !model) return EMPTY;
+
+  const years = field(markdown, "Fordonsår / Modellår").match(/(\d{4})\D*(\d{4})?/);
+  const year = Number(years?.[2] ?? years?.[1] ?? "") || null;
+
+  const gear = field(markdown, "Växellåda").toLowerCase();
+  const odo = field(markdown, "Mätarställning \\(besiktning\\)").match(
+    /([\d\s\u00a0]+)\s*(mil|km)/i,
+  );
+  const odoValue = odo ? Number(odo[1]!.replace(/[\s\u00a0]/g, "")) : 0;
+
+  return {
+    found: true,
+    make,
+    model,
+    variant: field(markdown, "Variant").slice(0, 40),
+    year,
+    fuel: toFuel(field(markdown, "Drivmedel") || field(markdown, "Bränsle")),
+    transmission: /automat/.test(gear) ? "automatic" : /manuell/.test(gear) ? "manual" : "",
+    inspectionKm: odoValue
+      ? odo![2]!.toLowerCase() === "mil"
+        ? odoValue * 10
+        : odoValue
+      : null,
+    inspectionDate: field(markdown, "Senast besiktigad").match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? "",
+  };
+}
+
 /** Official API path, used when a data provider token is configured. */
 async function lookupViaApi(plate: string, token: string): Promise<PlateLookup> {
   const response = await fetch(
@@ -129,6 +198,13 @@ export const lookupPlate = createServerFn({ method: "POST" })
       } catch {
         // fall through to the public page below
       }
+    }
+
+    try {
+      const viaFirecrawl = await lookupViaFirecrawl(data.plate);
+      if (viaFirecrawl.found) return viaFirecrawl;
+    } catch (error) {
+      console.error("Firecrawl plate lookup error", error);
     }
 
     const response = await fetch(
