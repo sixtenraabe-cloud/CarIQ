@@ -1,16 +1,4 @@
 import { resolveRegistryModel } from "./car-models";
-import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
-
-const PlateSchema = z.object({
-  plate: z
-    .string()
-    .trim()
-    .min(2)
-    .max(10)
-    .transform((value) => value.replace(/[\s-]/g, "").toUpperCase())
-    .refine((value) => /^[A-ZÅÄÖ0-9]{2,8}$/.test(value), "Invalid plate"),
-});
 
 export type PlateLookup = {
   found: boolean;
@@ -138,10 +126,15 @@ async function lookupViaFirecrawl(plate: string): Promise<PlateLookup> {
   const odoValue = odo ? Number(odo[1]!.replace(/[\s\u00a0]/g, "")) : 0;
 
   const fcVariant = field(markdown, "Variant").slice(0, 40);
+  const vehicleDescription = [
+    fcVariant,
+    field(markdown, "Originalnamn"),
+    field(markdown, "Kaross"),
+  ].filter(Boolean).join(" ");
   return {
     found: true,
     make,
-    model: resolveRegistryModel(make, model, fcVariant, year),
+    model: resolveRegistryModel(make, model, vehicleDescription, year),
     variant: fcVariant,
     year,
     fuel: toFuel(field(markdown, "Drivmedel") || field(markdown, "Bränsle")),
@@ -168,11 +161,16 @@ async function lookupViaApi(plate: string, token: string): Promise<PlateLookup> 
   if (!make || !model) return EMPTY;
   const gear = pick(payload, ["gearbox", "transmission", "vaxellada"]).toLowerCase();
   const apiVariant = pick(payload, ["variant", "version"]).slice(0, 40);
+  const vehicleDescription = [
+    apiVariant,
+    pick(payload, ["original_name", "originalname", "originalnamn", "commercial_name"]),
+    pick(payload, ["body", "body_type", "bodytype", "kaross"]),
+  ].filter(Boolean).join(" ");
   const apiYear = Number(pick(payload, ["model_year", "modelyear", "year", "modellar"])) || null;
   return {
     found: true,
     make,
-    model: resolveRegistryModel(make, model, apiVariant, apiYear),
+    model: resolveRegistryModel(make, model, vehicleDescription, apiYear),
     variant: apiVariant,
     year: apiYear,
     fuel: toFuel(pick(payload, ["fuel", "fuel_type", "drivmedel"])),
@@ -186,18 +184,11 @@ async function lookupViaApi(plate: string, token: string): Promise<PlateLookup> 
  * Looks up a Swedish registration number and returns the vehicle basics so the
  * owner does not have to type make, model, year, fuel and gearbox by hand.
  */
-export const lookupPlate = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => PlateSchema.parse(input))
-  .handler(async ({ data }): Promise<PlateLookup> => {
-    // Plate lookups are a plain public web fetch, not paid AI usage, so they use
-    // their own generous abuse guard instead of the AI budget.
-    const { guardPlateUsage } = await import("./ai-rate-limit.server");
-    if (!guardPlateUsage()) return EMPTY;
-
+export async function lookupPlateData(plate: string): Promise<PlateLookup> {
     const token = process.env["BILUPPGIFTER_API_TOKEN"];
     if (token) {
       try {
-        const viaApi = await lookupViaApi(data.plate, token);
+        const viaApi = await lookupViaApi(plate, token);
         if (viaApi.found) return viaApi;
       } catch {
         // fall through to the public page below
@@ -205,14 +196,14 @@ export const lookupPlate = createServerFn({ method: "POST" })
     }
 
     try {
-      const viaFirecrawl = await lookupViaFirecrawl(data.plate);
+      const viaFirecrawl = await lookupViaFirecrawl(plate);
       if (viaFirecrawl.found) return viaFirecrawl;
     } catch (error) {
       console.error("Firecrawl plate lookup error", error);
     }
 
     const response = await fetch(
-      `https://biluppgifter.se/fordon/${encodeURIComponent(data.plate)}/`,
+      `https://biluppgifter.se/fordon/${encodeURIComponent(plate)}/`,
       {
         redirect: "follow",
         headers: {
@@ -273,11 +264,13 @@ export const lookupPlate = createServerFn({ method: "POST" })
         : odoValue
       : null;
     const inspectionDate = text.match(/Senast besiktigad\s+(\d{4}-\d{2}-\d{2})/i)?.[1] ?? "";
+    const originalName = text.match(/Originalnamn\s+(.+?)\s+(?:Registreringsnummer|Chassinr|Fordonsår)\b/i)?.[1]?.trim() ?? "";
+    const body = text.match(/Kaross\s+(.+?)\s+(?:Färg|Antal|Typgodkännandenr)\b/i)?.[1]?.trim() ?? "";
 
     return {
       found: true,
       make,
-      model: resolveRegistryModel(make, model, variant, year),
+      model: resolveRegistryModel(make, model, [variant, originalName, body].filter(Boolean).join(" "), year),
       variant,
       year,
       fuel,
@@ -285,4 +278,4 @@ export const lookupPlate = createServerFn({ method: "POST" })
       inspectionKm,
       inspectionDate,
     };
-  });
+}
