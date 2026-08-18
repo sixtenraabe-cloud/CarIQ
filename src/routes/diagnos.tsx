@@ -669,19 +669,14 @@ function Diagnos() {
             size="lg"
             className="w-full"
             disabled={loading || mediaBusy}
-            onClick={() => {
-              if (fromVideo) void run();
-              else setStep(3);
-            }}
+            onClick={() => void run()}
           >
             {loading ? (
               <>
                 <Loader2 className="size-4 animate-spin" /> {t.analyzing}
               </>
-            ) : fromVideo ? (
-              t.analyze
             ) : (
-              t.next
+              t.analyze
             )}
           </Button>
         </div>
