@@ -9,16 +9,15 @@ if (typeof window !== "undefined") {
   window.addEventListener("vite:preloadError", (event) => {
     event.preventDefault();
     const key = "cariq:chunk-reload";
-    if (window.sessionStorage.getItem(key)) return;
-    window.sessionStorage.setItem(key, "1");
+    const last = Number(window.sessionStorage.getItem(key) ?? 0);
+    // Guard against a reload loop when the chunk is genuinely gone.
+    if (Date.now() - last < 15000) return;
+    window.sessionStorage.setItem(key, String(Date.now()));
     window.location.reload();
   });
 }
 
 export const getRouter = () => {
-  if (typeof window !== "undefined") {
-    window.sessionStorage.removeItem("cariq:chunk-reload");
-  }
   const queryClient = new QueryClient();
 
   const router = createRouter({
