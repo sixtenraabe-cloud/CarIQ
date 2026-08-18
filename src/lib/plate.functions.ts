@@ -1,3 +1,4 @@
+import { resolveRegistryModel } from "./car-models";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
@@ -136,11 +137,12 @@ async function lookupViaFirecrawl(plate: string): Promise<PlateLookup> {
   );
   const odoValue = odo ? Number(odo[1]!.replace(/[\s\u00a0]/g, "")) : 0;
 
+  const fcVariant = field(markdown, "Variant").slice(0, 40);
   return {
     found: true,
     make,
-    model,
-    variant: field(markdown, "Variant").slice(0, 40),
+    model: resolveRegistryModel(make, model, fcVariant, year),
+    variant: fcVariant,
     year,
     fuel: toFuel(field(markdown, "Drivmedel") || field(markdown, "Bränsle")),
     transmission: /automat/.test(gear) ? "automatic" : /manuell/.test(gear) ? "manual" : "",
@@ -165,12 +167,14 @@ async function lookupViaApi(plate: string, token: string): Promise<PlateLookup> 
   const model = pick(payload, ["model", "modell"]);
   if (!make || !model) return EMPTY;
   const gear = pick(payload, ["gearbox", "transmission", "vaxellada"]).toLowerCase();
+  const apiVariant = pick(payload, ["variant", "version"]).slice(0, 40);
+  const apiYear = Number(pick(payload, ["model_year", "modelyear", "year", "modellar"])) || null;
   return {
     found: true,
     make,
-    model,
-    variant: pick(payload, ["variant", "version"]).slice(0, 40),
-    year: Number(pick(payload, ["model_year", "modelyear", "year", "modellar"])) || null,
+    model: resolveRegistryModel(make, model, apiVariant, apiYear),
+    variant: apiVariant,
+    year: apiYear,
     fuel: toFuel(pick(payload, ["fuel", "fuel_type", "drivmedel"])),
     transmission: /automat/.test(gear) ? "automatic" : /manuell|manual/.test(gear) ? "manual" : "",
     inspectionKm: Number(pick(payload, ["odometer", "mileage", "matarstallning"]).replace(/\D/g, "")) || null,
@@ -273,7 +277,7 @@ export const lookupPlate = createServerFn({ method: "POST" })
     return {
       found: true,
       make,
-      model,
+      model: resolveRegistryModel(make, model, variant, year),
       variant,
       year,
       fuel,
