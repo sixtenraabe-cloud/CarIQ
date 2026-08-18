@@ -226,7 +226,7 @@ function Diagnos() {
         },
       });
       setResult(output);
-      setStep(4);
+      setStep(3);
       window.scrollTo({ top: 0, behavior: "auto" });
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
