@@ -511,6 +511,33 @@ export function resolveBmwModel(modelRaw: string, variant: string, year: number 
   return (noBody ?? pool[pool.length - 1]!)[0];
 }
 
+function compactVehicleText(value: string): string {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, " ")
+    .trim();
+}
+
+function vehicleKey(value: string): string {
+  return compactVehicleText(value).replace(/\s+/g, "");
+}
+
+/** Registry feeds sometimes put the real Volvo model in Originalnamn instead of Modell. */
+export function resolveVolvoModel(modelRaw: string, vehicleDescription: string): string {
+  const direct = modelsFor("Volvo").find(
+    (model) => vehicleKey(model) === vehicleKey(modelRaw),
+  );
+  if (direct) return direct;
+
+  const haystack = vehicleKey(`${modelRaw} ${vehicleDescription}`);
+  const candidates = [...modelsFor("Volvo")].sort(
+    (left, right) => vehicleKey(right).length - vehicleKey(left).length,
+  );
+  return candidates.find((model) => haystack.includes(vehicleKey(model))) ?? modelRaw;
+}
+
 /** Maps a registry make/model pair onto a model name the app knows. */
 export function resolveRegistryModel(
   makeRaw: string,
@@ -521,6 +548,7 @@ export function resolveRegistryModel(
   const brand = normalizeBrand(makeRaw);
   if (!brand) return modelRaw;
   if (brand === "BMW") return resolveBmwModel(modelRaw, variant, year);
+  if (brand === "Volvo") return resolveVolvoModel(modelRaw, variant);
   if (isKnownCar(brand, modelRaw)) {
     return modelsFor(brand).find((m) => m.toLowerCase() === modelRaw.trim().toLowerCase())!;
   }
