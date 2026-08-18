@@ -314,7 +314,6 @@ function Diagnos() {
     setZone("");
     setWhen("");
     setSymptom("");
-    setClip(null);
     setImage(null);
     setFromVideo(false);
     setMediaNote("");
