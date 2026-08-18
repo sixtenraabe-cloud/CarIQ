@@ -536,6 +536,43 @@ function Garage() {
             </>
           )}
         </div>
+
+        <div className="space-y-3 border-t border-border pt-4">
+          <div>
+            <Label>{t.serviceSection}</Label>
+            <p className="text-xs text-muted-foreground">{t.serviceHint}</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="lastInspection">{t.lastInspectionLabel}</Label>
+              <Input
+                id="lastInspection"
+                type="date"
+                value={form.lastInspection}
+                onChange={(e) => setForm({ ...form, lastInspection: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="oilChangeDate">{t.oilDateLabel}</Label>
+              <Input
+                id="oilChangeDate"
+                type="date"
+                value={form.oilChangeDate}
+                onChange={(e) => setForm({ ...form, oilChangeDate: e.target.value })}
+              />
+            </div>
+            <div className="col-span-2 space-y-2">
+              <Label htmlFor="oilChangeKm">{t.oilKmLabel}</Label>
+              <Input
+                id="oilChangeKm"
+                type="number"
+                placeholder="176000"
+                value={form.oilChangeKm}
+                onChange={(e) => setForm({ ...form, oilChangeKm: e.target.value })}
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       <Button
