@@ -55,6 +55,60 @@ function toPlainText(html: string) {
   );
 }
 
+/** Pulls a value out of an arbitrarily nested API payload by key name. */
+function pick(source: unknown, keys: string[]): string {
+  const seen: unknown[] = [];
+  const walk = (node: unknown): string => {
+    if (!node || typeof node !== "object" || seen.includes(node)) return "";
+    seen.push(node);
+    for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+      if (keys.includes(key.toLowerCase()) && (typeof value === "string" || typeof value === "number")) {
+        return String(value).trim();
+      }
+    }
+    for (const value of Object.values(node as Record<string, unknown>)) {
+      const found = walk(value);
+      if (found) return found;
+    }
+    return "";
+  };
+  return walk(source);
+}
+
+function toFuel(word: string): PlateLookup["fuel"] {
+  const value = word.toLowerCase();
+  if (/hybrid|laddhybrid/.test(value)) return "hybrid";
+  if (/diesel/.test(value)) return "diesel";
+  if (/^el\b|^el$|elektricitet|eldrift|electric/.test(value)) return "electric";
+  if (/bensin|petrol|gasoline/.test(value)) return "petrol";
+  return "";
+}
+
+/** Official API path, used when a data provider token is configured. */
+async function lookupViaApi(plate: string, token: string): Promise<PlateLookup> {
+  const response = await fetch(
+    `https://api.biluppgifter.se/api/v1/vehicle/regno/${encodeURIComponent(plate)}`,
+    { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } },
+  );
+  if (!response.ok) return EMPTY;
+  const payload: unknown = await response.json();
+  const make = pick(payload, ["make", "brand", "fabrikat"]);
+  const model = pick(payload, ["model", "modell"]);
+  if (!make || !model) return EMPTY;
+  const gear = pick(payload, ["gearbox", "transmission", "vaxellada"]).toLowerCase();
+  return {
+    found: true,
+    make,
+    model,
+    variant: pick(payload, ["variant", "version"]).slice(0, 40),
+    year: Number(pick(payload, ["model_year", "modelyear", "year", "modellar"])) || null,
+    fuel: toFuel(pick(payload, ["fuel", "fuel_type", "drivmedel"])),
+    transmission: /automat/.test(gear) ? "automatic" : /manuell|manual/.test(gear) ? "manual" : "",
+    inspectionKm: Number(pick(payload, ["odometer", "mileage", "matarstallning"]).replace(/\D/g, "")) || null,
+    inspectionDate: pick(payload, ["last_inspection", "inspection_date", "senast_besiktigad"]).slice(0, 10),
+  };
+}
+
 /**
  * Looks up a Swedish registration number and returns the vehicle basics so the
  * owner does not have to type make, model, year, fuel and gearbox by hand.
@@ -66,6 +120,16 @@ export const lookupPlate = createServerFn({ method: "POST" })
     // their own generous abuse guard instead of the AI budget.
     const { guardPlateUsage } = await import("./ai-rate-limit.server");
     if (!guardPlateUsage()) return EMPTY;
+
+    const token = process.env["BILUPPGIFTER_API_TOKEN"];
+    if (token) {
+      try {
+        const viaApi = await lookupViaApi(data.plate, token);
+        if (viaApi.found) return viaApi;
+      } catch {
+        // fall through to the public page below
+      }
+    }
 
     const response = await fetch(
       `https://biluppgifter.se/fordon/${encodeURIComponent(data.plate)}/`,
@@ -89,7 +153,6 @@ export const lookupPlate = createServerFn({ method: "POST" })
         },
       },
     );
-    console.log("[plate] status", response.status, response.url);
     if (!response.ok) return EMPTY;
     const html = await response.text();
     const text = toPlainText(html);
@@ -98,7 +161,6 @@ export const lookupPlate = createServerFn({ method: "POST" })
     const make = facts?.[1]?.trim() ?? "";
     const model = facts?.[2]?.trim() ?? "";
     const variant = (facts?.[3]?.trim() ?? "").slice(0, 40);
-    console.log("[plate] parsed", { make, model, variant, len: text.length });
     if (!make || !model) return EMPTY;
 
     const year =
@@ -106,16 +168,11 @@ export const lookupPlate = createServerFn({ method: "POST" })
       Number(text.match(/(\d{4})\s+Modellår/i)?.[1] ?? "") ||
       null;
 
-    const fuelWord = (
+    const fuel = toFuel(
       text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö/-]+)/i)?.[1] ??
-      text.match(/([A-Za-zÅÄÖåäö/-]+)\s+Bränsle/i)?.[1] ??
-      ""
-    ).toLowerCase();
-    let fuel: PlateLookup["fuel"] = "";
-    if (/hybrid|laddhybrid/.test(fuelWord)) fuel = "hybrid";
-    else if (/diesel/.test(fuelWord)) fuel = "diesel";
-    else if (/^el|elektricitet|eldrift/.test(fuelWord)) fuel = "electric";
-    else if (/bensin/.test(fuelWord)) fuel = "petrol";
+        text.match(/([A-Za-zÅÄÖåäö/-]+)\s+Bränsle/i)?.[1] ??
+        "",
+    );
 
     const gearWord = (
       text.match(/Växellåda\s+([A-Za-zÅÄÖåäö]+)/i)?.[1] ??
