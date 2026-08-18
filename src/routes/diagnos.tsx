@@ -189,7 +189,11 @@ function Diagnos() {
 
   const tags = chips;
   const description =
-    [lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "", symptom.trim(), ...pickedIssues]
+    [
+      lampLabel ? `${t.lampPickTitle.replace("?", "")}: ${lampLabel}` : "",
+      !isLamp ? symptom.trim() : "",
+      ...pickedIssues,
+    ]
       .filter(Boolean)
       .join(". ") || tags.join(", ");
 
