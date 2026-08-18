@@ -424,6 +424,18 @@ function Garage() {
             ) : null}
           </div>
           <div className="relative space-y-2">
+            <Label htmlFor="variant">{t.variant}</Label>
+            <Input
+              id="variant"
+              autoComplete="off"
+              disabled={!brand}
+              placeholder={brand ? t.variant : t.pickMakeFirst}
+              value={form.variant}
+              onChange={(e) => setForm({ ...form, variant: e.target.value })}
+            />
+            {brand ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
+          </div>
+          <div className="relative col-span-2 space-y-2">
             <Label htmlFor="model">{t.model}</Label>
             <Input
               id="model"
@@ -459,18 +471,6 @@ function Garage() {
                 ))}
               </ul>
             ) : null}
-          </div>
-          <div className="relative col-span-2 space-y-2">
-            <Label htmlFor="variant">{t.variant}</Label>
-            <Input
-              id="variant"
-              autoComplete="off"
-              disabled={!knownCar}
-              placeholder={knownCar ? t.variant : t.variantPickModel}
-              value={form.variant}
-              onChange={(e) => setForm({ ...form, variant: e.target.value })}
-            />
-            {knownCar ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
