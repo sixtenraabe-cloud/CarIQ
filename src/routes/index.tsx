@@ -11,6 +11,7 @@ import {
   Volume2,
   Wrench,
 } from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 
 import { useCar, carLine } from "@/lib/car-store";
 import { useI18n, APP_NAME } from "@/lib/i18n";
@@ -182,10 +183,21 @@ function Home() {
         </div>
       </div>
 
+      {!car ? (
+        <div
+          className="rise mb-3 flex items-center gap-2 rounded-lg border border-border bg-secondary/40 px-3 py-2 text-sm text-muted-foreground"
+          style={{ animationDelay: "110ms" }}
+        >
+          <Lock className="size-4" />
+          {t.addCarToUse}
+        </div>
+      ) : null}
+
       <div className="space-y-3">
-        <Link
+        <ActionTile
           to="/snabbkoll"
-          className="tile lift rise flex items-center gap-4 border-primary/50 bg-primary/10 p-4"
+          disabled={!car}
+          className="border-primary/50 bg-primary/10"
           style={{ animationDelay: "120ms" }}
         >
           <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/20 text-primary ring-1 ring-primary/30">
@@ -196,13 +208,13 @@ function Home() {
             <span className="block truncate text-sm text-muted-foreground">{t.quickHomeSub}</span>
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-        </Link>
+        </ActionTile>
         {ACTIONS.map((action, i) => (
-          <Link
+          <ActionTile
             key={action.tag}
             to="/diagnos"
             search={{ tag: action.tag }}
-            className="tile lift rise flex items-center gap-4 p-4"
+            disabled={!car}
             style={{ animationDelay: `${170 + i * 55}ms` }}
           >
             <span
@@ -217,7 +229,7 @@ function Home() {
               </span>
             </span>
             <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
-          </Link>
+          </ActionTile>
         ))}
       </div>
 
@@ -225,5 +237,49 @@ function Home() {
         {APP_NAME} · {t.disclaimer}
       </p>
     </main>
+  );
+}
+
+function ActionTile({
+  to,
+  search,
+  disabled,
+  className,
+  style,
+  children,
+}: {
+  to: string;
+  search?: Record<string, string>;
+  disabled?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  children: ReactNode;
+}) {
+  const { t } = useI18n();
+  const base =
+    "tile rise flex w-full items-center gap-4 p-4 text-left transition-opacity";
+  if (disabled) {
+    return (
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        aria-label={t.addCarToUse}
+        className={`${base} cursor-not-allowed opacity-55 ${className ?? ""}`}
+        style={style}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      search={search}
+      className={`${base} lift ${className ?? ""}`}
+      style={style}
+    >
+      {children}
+    </Link>
   );
 }
