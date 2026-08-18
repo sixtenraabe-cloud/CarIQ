@@ -239,3 +239,47 @@ function Home() {
     </main>
   );
 }
+
+function ActionTile({
+  to,
+  search,
+  disabled,
+  className,
+  style,
+  children,
+}: {
+  to: string;
+  search?: Record<string, string>;
+  disabled?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  children: React.ReactNode;
+}) {
+  const { t } = useI18n();
+  const base =
+    "tile rise flex w-full items-center gap-4 p-4 text-left transition-opacity";
+  if (disabled) {
+    return (
+      <button
+        type="button"
+        disabled
+        aria-disabled="true"
+        aria-label={t.addCarToUse}
+        className={`${base} cursor-not-allowed opacity-55 ${className ?? ""}`}
+        style={style}
+      >
+        {children}
+      </button>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      search={search}
+      className={`${base} lift ${className ?? ""}`}
+      style={style}
+    >
+      {children}
+    </Link>
+  );
+}
