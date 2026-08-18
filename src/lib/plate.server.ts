@@ -1,5 +1,5 @@
 import { CAR_BRANDS } from "./car-brands";
-import { suggestModels } from "./car-models";
+import { CAR_VARIANTS, suggestModels } from "./car-models";
 
 export type PlateLookup = {
   found: boolean;
@@ -101,20 +101,20 @@ export function parseVehiclePage(html: string): PlateLookup {
     rawDesignation ??
     modelPart.split(" ")[0] ??
     "";
-  // Variant should be the chassis/generation code, e.g. E92, F10, G80, W204, B8, 991.
-  const chassisPattern = /\b([A-Z]{1,2}\d{2,3}[A-Z]?|9\d{2}(?:\.\d)?)\b/g;
+  // Variant = chassis/generation code, e.g. E92, F10, G80, W204, B8, 991.2.
   const chassisSource = `${modelPart} ${variantRaw}`;
-  const chassisCandidates = (chassisSource.match(chassisPattern) ?? []).filter(
-    (code) => norm(code) !== norm(model) && !/^\d{3}[a-z]{0,3}$/i.test(code),
+  const brandVariants = Object.entries(CAR_VARIANTS)
+    .filter(([key]) => key.toLowerCase().startsWith(`${make.toLowerCase()}|`))
+    .flatMap(([, values]) => values);
+  const knownChassis = brandVariants
+    .filter((code) => /^[A-Z]{1,3}\d{2,3}(\.\d)?[A-Z]?$/i.test(code) || /^\d{3}(\.\d)?$/.test(code))
+    .filter((code) => new RegExp(`\\b${code.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(chassisSource))
+    .filter((code) => norm(code) !== norm(model))
+    .sort((a, b) => b.length - a.length);
+  const genericChassis = (chassisSource.match(/\b([A-Z]{1,3}\d{2,3}(?:\.\d)?[A-Z]?)\b/g) ?? []).filter(
+    (code) => norm(code) !== norm(model) && /[A-Z]/i.test(code[0]!) && /\d{2}/.test(code),
   );
-  const variant = (
-    chassisCandidates[0] ??
-    modelPart.replace(new RegExp(`^${model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim()
-  )
-    .replace(/\b\d+-?serien?\b/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 40);
+  const variant = (knownChassis[0] ?? genericChassis[0] ?? "").trim().slice(0, 40);
 
   const year = Number(text.match(/Fordonsår\s*\/\s*Modellår\s+(\d{4})/i)?.[1] ?? "") || null;
   const fuel = mapFuel(text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö\/\s-]{2,20}?)\s+(?:Växellåda|Fyrhjulsdrift|Motor)/i)?.[1] ?? "");
