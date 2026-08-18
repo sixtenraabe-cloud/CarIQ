@@ -150,7 +150,7 @@ function Diagnos() {
 
   // Always land at the top of the report so the verdict is the first thing seen.
   useEffect(() => {
-    if (step !== 4 || !result) return;
+    if (step !== 3 || !result) return;
     let frames = 0;
     let raf = 0;
     const toTop = () => {
