@@ -101,12 +101,20 @@ export function parseVehiclePage(html: string): PlateLookup {
     rawDesignation ??
     modelPart.split(" ")[0] ??
     "";
-  // Variant should describe the car type (engine/trim/body), e.g. "2.0 TFSI Quattro" or "335i xDrive".
-  const variant = (variantRaw || modelPart.replace(new RegExp(`^${model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim())
+  // Variant should be the chassis/generation code, e.g. E92, F10, G80, W204, B8, 991.
+  const chassisPattern = /\b([A-Z]{1,2}\d{2,3}[A-Z]?|9\d{2}(?:\.\d)?)\b/g;
+  const chassisSource = `${modelPart} ${variantRaw}`;
+  const chassisCandidates = (chassisSource.match(chassisPattern) ?? []).filter(
+    (code) => norm(code) !== norm(model) && !/^\d{3}[a-z]{0,3}$/i.test(code),
+  );
+  const variant = (
+    chassisCandidates[0] ??
+    modelPart.replace(new RegExp(`^${model.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i"), "").trim()
+  )
     .replace(/\b\d+-?serien?\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim()
-    .slice(0, 60);
+    .slice(0, 40);
 
   const year = Number(text.match(/Fordonsår\s*\/\s*Modellår\s+(\d{4})/i)?.[1] ?? "") || null;
   const fuel = mapFuel(text.match(/Drivmedel\s+([A-Za-zÅÄÖåäö\/\s-]{2,20}?)\s+(?:Växellåda|Fyrhjulsdrift|Motor)/i)?.[1] ?? "");
