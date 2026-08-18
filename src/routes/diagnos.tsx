@@ -704,6 +704,8 @@ function Diagnos() {
             result={result}
             carLine={car ? carSummary(car) : ""}
             symptom={description}
+            car={car}
+            tags={tags}
           />
           {car ? <MechanicChat car={car} tags={tags} symptom={description} result={result} /> : null}
           <div className="grid gap-3">
