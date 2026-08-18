@@ -423,18 +423,6 @@ function Garage() {
               </ul>
             ) : null}
           </div>
-          <div className="relative space-y-2">
-            <Label htmlFor="variant">{t.variant}</Label>
-            <Input
-              id="variant"
-              autoComplete="off"
-              disabled={!brand}
-              placeholder={brand ? t.variant : t.pickMakeFirst}
-              value={form.variant}
-              onChange={(e) => setForm({ ...form, variant: e.target.value })}
-            />
-            {brand ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
-          </div>
           <div className="relative col-span-2 space-y-2">
             <Label htmlFor="model">{t.model}</Label>
             <Input
@@ -443,7 +431,7 @@ function Garage() {
               disabled={!brand}
               aria-invalid={modelError}
               className={modelError ? "border-destructive focus-visible:ring-destructive" : ""}
-              placeholder={brand ? "V70" : t.pickMakeFirst}
+              placeholder={brand ? (brand === "BMW" ? "E92" : "V70") : t.pickMakeFirst}
               value={form.model}
               onFocus={() => setShowModelSuggestions(true)}
               onBlur={() => window.setTimeout(() => setShowModelSuggestions(false), 150)}
@@ -471,6 +459,18 @@ function Garage() {
                 ))}
               </ul>
             ) : null}
+          </div>
+          <div className="relative col-span-2 space-y-2">
+            <Label htmlFor="variant">{t.variant}</Label>
+            <Input
+              id="variant"
+              autoComplete="off"
+              disabled={!brand}
+              placeholder={brand ? (brand === "BMW" ? "335i" : t.variant) : t.pickMakeFirst}
+              value={form.variant}
+              onChange={(e) => setForm({ ...form, variant: e.target.value })}
+            />
+            {brand ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
