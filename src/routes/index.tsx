@@ -253,7 +253,7 @@ function ActionTile({
   disabled?: boolean;
   className?: string;
   style?: CSSProperties;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const { t } = useI18n();
   const base =
