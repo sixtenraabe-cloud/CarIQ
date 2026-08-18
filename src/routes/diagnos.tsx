@@ -348,28 +348,20 @@ function Diagnos() {
     setMediaBusy(true);
     setMediaNote(t.videoReading);
     try {
-      const { frame, audio } = await extractFromVideo(file);
+      const { frame } = await extractFromVideo(file);
       const url = URL.createObjectURL(file);
       if (frame) {
         setImage({ base64: frame.base64, mediaType: "image/jpeg", url });
       } else {
         setImage(null);
       }
-      if (audio) {
-        setClip({
-          base64: audio.base64,
-          mediaType: audio.mediaType,
-          url,
-          label: "video",
-        });
-      }
-      if (!frame && !audio) {
+      if (!frame) {
         setMediaNote("");
         toast.error(t.errGeneric);
         return;
       }
       setFromVideo(true);
-      setMediaNote(audio ? t.videoAudioOk : t.videoNoAudio);
+      setMediaNote(t.videoFrameOk);
     } finally {
       setMediaBusy(false);
     }
