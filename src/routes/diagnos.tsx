@@ -401,7 +401,7 @@ function Diagnos() {
         </div>
       ) : null}
 
-      {chips.length && step > 1 && step < 4 ? (
+      {chips.length && step > 1 && step < 3 ? (
         <div className="mb-5">
           <p className="stencil mb-2">{t.yourChoice}</p>
           <div className="flex flex-wrap gap-2">
@@ -417,7 +417,7 @@ function Diagnos() {
         </div>
       ) : null}
 
-      {!car && step < 4 ? (
+      {!car && step < 3 ? (
         <Link to="/garage" className="tile mb-5 block p-4 text-sm">
           {t.noCarYet} <span className="text-primary">{t.addCarLink}</span> {t.noCarYetEnd}
         </Link>
