@@ -52,6 +52,7 @@ function Garage() {
   const [plateNote, setPlateNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -78,21 +79,23 @@ function Garage() {
     { value: "electric", label: t.electric },
   ];
 
+  const loadCarIntoForm = (c: NonNullable<typeof car>) => {
+    setForm({
+      make: c.make,
+      model: c.model,
+      variant: c.variant ?? "",
+      year: String(c.year),
+      mileageKm: String(c.mileageKm),
+      transmission: c.transmission,
+      fuel: c.fuel,
+      lastInspection: c.lastInspection ?? "",
+      oilChangeDate: c.oilChangeDate ?? "",
+      oilChangeKm: c.oilChangeKm ? String(c.oilChangeKm) : "",
+    });
+  };
+
   useEffect(() => {
-    if (car) {
-      setForm({
-        make: car.make,
-        model: car.model,
-        variant: car.variant ?? "",
-        year: String(car.year),
-        mileageKm: String(car.mileageKm),
-        transmission: car.transmission,
-        fuel: car.fuel,
-        lastInspection: car.lastInspection ?? "",
-        oilChangeDate: car.oilChangeDate ?? "",
-        oilChangeKm: car.oilChangeKm ? String(car.oilChangeKm) : "",
-      });
-    }
+    if (car) loadCarIntoForm(car);
   }, [car]);
 
   const suggestions = suggestBrands(form.make).filter((b) => b !== form.make);
@@ -134,7 +137,11 @@ function Garage() {
       ...(form.oilChangeKm ? { oilChangeKm: Number(form.oilChangeKm) } : {}),
     });
     toast.success(t.carSaved);
-    void navigate({ to: "/" });
+    if (car) {
+      setEditing(false);
+    } else {
+      void navigate({ to: "/" });
+    }
   };
 
   const runPlateLookup = async () => {
@@ -173,21 +180,7 @@ function Garage() {
     }
   };
 
-  const clearForm = () =>
-    setForm({
-      make: "",
-      model: "",
-      variant: "",
-      year: "",
-      mileageKm: "",
-      transmission: "manual",
-      fuel: "petrol",
-      lastInspection: "",
-      oilChangeDate: "",
-      oilChangeKm: "",
-    });
-
-  if (ready && car) {
+  if (ready && car && !editing) {
     const next = car.lastInspection ? nextInspectionFrom(car.lastInspection) : "";
     const sinceOil =
       car.oilChangeKm && car.mileageKm > car.oilChangeKm ? car.mileageKm - car.oilChangeKm : null;
@@ -250,13 +243,9 @@ function Garage() {
         <Button
           variant="outline"
           className="mt-5 w-full"
-          onClick={() => {
-            saveCar(null);
-            clearForm();
-            toast.success(t.carRemoved);
-          }}
+          onClick={() => setEditing(true)}
         >
-          {t.removeCar}
+          {t.editCar}
         </Button>
       </main>
     );
@@ -265,11 +254,13 @@ function Garage() {
   return (
     <main className="px-4 pt-8">
       <div className="rise">
-        <h1 className="text-2xl">{t.garageTitle}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">{t.garageSub}</p>
+        <h1 className="text-2xl">{ready && car ? t.editCar : t.garageTitle}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {ready && car ? t.editCarSub : t.garageSub}
+        </p>
       </div>
 
-      {lang === "sv" ? (
+      {lang === "sv" && !car ? (
         <div
           className="surface rise relative mt-5 overflow-hidden p-5"
           style={{ animationDelay: "40ms" }}
@@ -583,6 +574,18 @@ function Garage() {
       >
         {t.saveCar}
       </Button>
+      {car && editing ? (
+        <Button
+          variant="outline"
+          className="mt-3 w-full"
+          onClick={() => {
+            if (car) loadCarIntoForm(car);
+            setEditing(false);
+          }}
+        >
+          {t.cancel}
+        </Button>
+      ) : null}
       {makeError || modelError ? (
         <p className="mt-2 text-center text-xs text-destructive">{t.unknownCar}</p>
       ) : brand ? (
