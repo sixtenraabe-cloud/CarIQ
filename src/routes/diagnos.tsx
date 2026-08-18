@@ -370,7 +370,7 @@ function Diagnos() {
   return (
     <main className="px-4 pt-6">
       <header className="mb-5 flex items-center gap-3">
-        {step < 4 ? (
+        {step < 3 ? (
           <button
             onClick={back}
             aria-label={t.back}
