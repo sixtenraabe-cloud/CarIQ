@@ -61,3 +61,18 @@ export function guardAiUsage(scope: "analyze" | "second" | "chat" | "quick" | "i
   hit(scope === "plate" ? `d:plate:${caller}` : `d:${caller}`, perDay, DAY);
   hit("global:hour", 3000, HOUR);
 }
+
+/**
+ * Abuse guard for the registration-plate lookup. It costs no AI credits, so the
+ * limits are generous; returns false instead of throwing when a caller exceeds them.
+ */
+export function guardPlateUsage(): boolean {
+  const caller = callerKey();
+  try {
+    hit(`plate:h:${caller}`, 120, HOUR);
+    hit(`plate:d:${caller}`, 600, DAY);
+    return true;
+  } catch {
+    return false;
+  }
+}
