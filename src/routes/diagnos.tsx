@@ -658,21 +658,19 @@ function Diagnos() {
             </div>
           </div>
 
-          <div>
-            <p className="stencil mb-2">{isLamp ? t.lampDescribe : t.describeOwnWords}</p>
-            <p className="mb-2 text-xs text-muted-foreground">
-              {isLamp ? t.lampDescribeHint : t.describeHint}
-            </p>
-            <Textarea
-              rows={5}
-              maxLength={2000}
-              placeholder={
-                isLamp ? t.lampPlaceholder : isPerf ? t.perfPlaceholder : t.describePlaceholder
-              }
-              value={symptom}
-              onChange={(e) => setSymptom(e.target.value)}
-            />
-          </div>
+          {!isLamp ? (
+            <div>
+              <p className="stencil mb-2">{t.describeOwnWords}</p>
+              <p className="mb-2 text-xs text-muted-foreground">{t.describeHint}</p>
+              <Textarea
+                rows={5}
+                maxLength={2000}
+                placeholder={isPerf ? t.perfPlaceholder : t.describePlaceholder}
+                value={symptom}
+                onChange={(e) => setSymptom(e.target.value)}
+              />
+            </div>
+          ) : null}
 
           <Button
             size="lg"
