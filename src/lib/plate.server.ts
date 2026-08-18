@@ -162,8 +162,14 @@ async function fetchFromCarInfo(plate: string): Promise<PlateLookup> {
   return parseCarInfoPage(await response.text());
 }
 
-/** Fetches the public vehicle record for a Swedish registration number. */
+/** Fetches the public vehicle record: car.info first, biluppgifter as fallback. */
 export async function fetchVehicleByPlate(plate: string): Promise<PlateLookup> {
+  try {
+    const primary = await fetchFromCarInfo(plate);
+    if (primary.found) return primary;
+  } catch {
+    // fall through to the backup source
+  }
   const response = await fetch(`https://biluppgifter.se/fordon/${encodeURIComponent(plate)}`, {
     redirect: "follow",
     headers: {
