@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { AudioRecorder, type AudioClip } from "@/components/audio-recorder";
+
 import { DiagnosisReport } from "@/components/diagnosis-report";
 import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
@@ -39,7 +39,7 @@ export const Route = createFileRoute("/diagnos")({
       { title: "Ny diagnos — CarIQ" },
       {
         name: "description",
-        content: "Beskriv problemet, spela in ljudet och få en mekanikers AI-bedömning av din bil.",
+        content: "Beskriv problemet och få en mekanikers AI-bedömning av din bil.",
       },
       { property: "og:title", content: "Ny diagnos — CarIQ" },
       { property: "og:description", content: "Fyra snabba steg till en bedömning av bilen." },
@@ -87,12 +87,12 @@ function Diagnos() {
   ];
   const WHEN = [t.atStart, t.whileDriving, t.whenBraking, t.whenTurning, t.always, t.other];
 
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(tag ? 2 : 1);
+  const [step, setStep] = useState<1 | 2 | 3>(tag ? 2 : 1);
   const [problemKey, setProblemKey] = useState(tag ?? "");
   const [zone, setZone] = useState<ZoneKey | "">("");
   const [when, setWhen] = useState("");
   const [symptom, setSymptom] = useState("");
-  const [clip, setClip] = useState<AudioClip | null>(null);
+  
   const [image, setImage] = useState<ImageFile | null>(null);
   const [fromVideo, setFromVideo] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -150,7 +150,7 @@ function Diagnos() {
 
   // Always land at the top of the report so the verdict is the first thing seen.
   useEffect(() => {
-    if (step !== 4 || !result) return;
+    if (step !== 3 || !result) return;
     let frames = 0;
     let raf = 0;
     const toTop = () => {
@@ -183,7 +183,6 @@ function Diagnos() {
     showWhere && zoneLabel ? `${t.whereFrom} ${zoneLabel}` : "",
     when ? `${t.whenNoticed} ${when}` : "",
     isLamp && image ? t.lampPhoto : "",
-    clip ? t.recordSound : "",
     ...pickedIssues,
   ].filter(Boolean) as string[];
 
@@ -199,7 +198,7 @@ function Diagnos() {
 
   const back = () => {
     if (step === 1) void navigate({ to: "/" });
-    else setStep((s) => (s - 1) as 1 | 2 | 3);
+    else setStep((s) => (s - 1) as 1 | 2);
   };
 
   const run = async () => {
@@ -220,7 +219,6 @@ function Diagnos() {
           car,
           tags,
           symptom: description,
-          audio: clip ? { base64: clip.base64, mediaType: clip.mediaType } : null,
           image: image ? { base64: image.base64, mediaType: image.mediaType } : null,
           fromVideo,
           language: lang,
@@ -228,7 +226,7 @@ function Diagnos() {
         },
       });
       setResult(output);
-      setStep(4);
+      setStep(3);
       window.scrollTo({ top: 0, behavior: "auto" });
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
@@ -316,7 +314,6 @@ function Diagnos() {
     setZone("");
     setWhen("");
     setSymptom("");
-    setClip(null);
     setImage(null);
     setFromVideo(false);
     setMediaNote("");
@@ -327,7 +324,7 @@ function Diagnos() {
     setSaved(false);
   };
 
-  const titles = [t.step1, t.step2, t.step3, t.step4];
+  const titles = [t.step1, t.step2, t.step3];
 
   const pickImage = async (file: File) => {
     const isVideo = (file.type || "").startsWith("video/");
@@ -351,28 +348,20 @@ function Diagnos() {
     setMediaBusy(true);
     setMediaNote(t.videoReading);
     try {
-      const { frame, audio } = await extractFromVideo(file);
+      const { frame } = await extractFromVideo(file);
       const url = URL.createObjectURL(file);
       if (frame) {
         setImage({ base64: frame.base64, mediaType: "image/jpeg", url });
       } else {
         setImage(null);
       }
-      if (audio) {
-        setClip({
-          base64: audio.base64,
-          mediaType: audio.mediaType,
-          url,
-          label: "video",
-        });
-      }
-      if (!frame && !audio) {
+      if (!frame) {
         setMediaNote("");
         toast.error(t.errGeneric);
         return;
       }
       setFromVideo(true);
-      setMediaNote(audio ? t.videoAudioOk : t.videoNoAudio);
+      setMediaNote(t.videoNoAudio);
     } finally {
       setMediaBusy(false);
     }
@@ -381,7 +370,7 @@ function Diagnos() {
   return (
     <main className="px-4 pt-6">
       <header className="mb-5 flex items-center gap-3">
-        {step < 4 ? (
+        {step < 3 ? (
           <button
             onClick={back}
             aria-label={t.back}
@@ -393,9 +382,9 @@ function Diagnos() {
         <h1 className="text-xl">{titles[step - 1]}</h1>
       </header>
 
-      {step < 4 ? (
+      {step < 3 ? (
         <div className="mb-5 flex items-center gap-2">
-          {[1, 2, 3, 4].map((n) => (
+          {[1, 2, 3].map((n) => (
             <div key={n} className="flex flex-1 items-center gap-2">
               <span
                 className={`grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold ${
@@ -404,7 +393,7 @@ function Diagnos() {
               >
                 {n}
               </span>
-              {n < 4 ? (
+              {n < 3 ? (
                 <span className={`h-0.5 flex-1 rounded-full ${n < step ? "bg-primary" : "bg-secondary"}`} />
               ) : null}
             </div>
@@ -412,7 +401,7 @@ function Diagnos() {
         </div>
       ) : null}
 
-      {chips.length && step > 1 && step < 4 ? (
+      {chips.length && step > 1 && step < 3 ? (
         <div className="mb-5">
           <p className="stencil mb-2">{t.yourChoice}</p>
           <div className="flex flex-wrap gap-2">
@@ -428,13 +417,13 @@ function Diagnos() {
         </div>
       ) : null}
 
-      {!car && step < 4 ? (
+      {!car && step < 3 ? (
         <Link to="/garage" className="tile mb-5 block p-4 text-sm">
           {t.noCarYet} <span className="text-primary">{t.addCarLink}</span> {t.noCarYetEnd}
         </Link>
       ) : null}
 
-      {car && step < 4 ? (
+      {car && step < 3 ? (
         <div className="panel mb-5 flex items-center gap-4 p-3">
           <CarSilhouette make={car.make} model={car.model} className="w-28 shrink-0" />
           <div className="min-w-0">
@@ -680,61 +669,20 @@ function Diagnos() {
             size="lg"
             className="w-full"
             disabled={loading || mediaBusy}
-            onClick={() => {
-              if (fromVideo) void run();
-              else setStep(3);
-            }}
+            onClick={() => void run()}
           >
             {loading ? (
               <>
                 <Loader2 className="size-4 animate-spin" /> {t.analyzing}
               </>
-            ) : fromVideo ? (
-              t.analyze
             ) : (
-              t.next
+              t.analyze
             )}
           </Button>
         </div>
       ) : null}
 
-      {step === 3 ? (
-        <div className="space-y-5">
-          <p className="text-sm text-muted-foreground">{t.audioHint}</p>
-          <AudioRecorder clip={clip} onChange={setClip} />
-          {clip ? (
-            <Button size="lg" className="w-full" disabled={loading} onClick={() => void run()}>
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
-                </>
-              ) : (
-                t.analyze
-              )}
-            </Button>
-          ) : (
-            <Button
-              size="lg"
-              className="w-full"
-              disabled={loading}
-              onClick={() => {
-                setClip(null);
-                void run();
-              }}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="size-4 animate-spin" /> {t.analyzing}
-                </>
-              ) : (
-                t.noAudio
-              )}
-            </Button>
-          )}
-        </div>
-      ) : null}
-
-      {step === 4 && result ? (
+      {step === 3 && result ? (
         <div className="space-y-5">
           <DiagnosisReport result={result} carLine={car ? carSummary(car) : ""} secondOpinion={second} />
           {car ? <MechanicChat car={car} tags={tags} symptom={description} result={result} /> : null}
