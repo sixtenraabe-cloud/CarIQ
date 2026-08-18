@@ -424,6 +424,57 @@ export const mechanicChat = createServerFn({ method: "POST" })
     return { reply: text.trim().slice(0, 2000) };
   });
 
+const WorkshopMessageSchema = ChatSchema.omit({ messages: true });
+
+const WORKSHOP_MESSAGE_PROMPT = `You are a master mechanic writing a short, professional message that the car owner can send straight to a workshop to book a service appointment.
+
+Rules:
+- Plain text only, no markdown, no JSON, no headings.
+- Max ~140 words, written in first person as the owner.
+- Include: the vehicle (year, make, model, variant, fuel, gearbox, mileage), the symptom in the owner's words, when it happens, any warning lamp by name, the suspected causes as a suggestion (not a certainty), the checks you want the workshop to make, and a request for a time slot and a price estimate.
+- Never claim the fault is confirmed; phrase suspicions as "possibly".
+- Stay physically consistent with the powertrain constraint in the case notes.
+- End with a line for the owner's name placeholder only if no name is known.`;
+
+export const workshopMessage = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => WorkshopMessageSchema.parse(input))
+  .handler(async ({ data }): Promise<{ message: string }> => {
+    const { guardAiUsage } = await import("./ai-rate-limit.server");
+    guardAiUsage("chat");
+    const { generateText, model } = await gatewayModel();
+    const { car, result } = data;
+    const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
+
+    const brief = [
+      "CASE NOTES:",
+      `Vehicle: ${car.year} ${car.make} ${car.model}${car.variant ? ` ${car.variant}` : ""} · ${car.transmission} · ${car.fuel} · ${car.mileageKm} km`,
+      POWERTRAIN_RULES[powertrainOf(car.fuel)] ?? "",
+      data.tags.length ? `What the owner picked in the app: ${data.tags.join(", ")}` : "",
+      data.symptom ? `Owner's own description: ${data.symptom}` : "",
+      result.lampName ? `Warning lamp: ${result.lampName}` : "",
+      result.lampMeaning ? `What that lamp means: ${result.lampMeaning}` : "",
+      `Assessment: ${result.verdict} (${result.confidence}% confidence) — ${result.headline}`,
+      result.mechanicNote ? `Mechanic notes: ${result.mechanicNote}` : "",
+      result.causes.length
+        ? `Likely causes: ${result.causes.map((c) => `${c.part} (${c.likelihood}%)`).join(", ")}`
+        : "",
+      result.checks.length ? `Checks to request: ${result.checks.join("; ")}` : "",
+      `Cost estimate given: ${result.estimatedCost}`,
+      `Write the whole message in ${languageName}. Prices in ${data.currency}.`,
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const { text } = await withTimeout(
+      generateText({
+        model,
+        system: WORKSHOP_MESSAGE_PROMPT + UNTRUSTED_NOTE,
+        messages: [{ role: "user" as const, content: brief }],
+      }),
+    );
+    return { message: text.trim().slice(0, 2000) };
+  });
+
 export const saveDiagnosis = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SaveSchema.parse(input))
