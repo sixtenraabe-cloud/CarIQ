@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
 import { DiagnosisReport } from "@/components/diagnosis-report";
+import { BookWorkshop } from "@/components/book-workshop";
 import { MechanicChat } from "@/components/mechanic-chat";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
@@ -699,6 +700,11 @@ function Diagnos() {
       {step === 3 && result ? (
         <div className="space-y-5">
           <DiagnosisReport result={result} carLine={car ? carSummary(car) : ""} secondOpinion={second} />
+          <BookWorkshop
+            result={result}
+            carLine={car ? carSummary(car) : ""}
+            symptom={description}
+          />
           {car ? <MechanicChat car={car} tags={tags} symptom={description} result={result} /> : null}
           <div className="grid gap-3">
             {!second ? (
