@@ -15,6 +15,14 @@ import { BrandLogo } from "@/components/brand-logo";
 import { fuelsFor, isKnownCar, normalizeBrand, suggestModels } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
 
+/** Swedish inspections run yearly (14 months after the previous one). */
+function nextInspectionFrom(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  d.setMonth(d.getMonth() + 14);
+  return d.toISOString().slice(0, 10);
+}
+
 export const Route = createFileRoute("/garage")({
   head: () => ({
     meta: [
@@ -52,6 +60,9 @@ function Garage() {
     mileageKm: "",
     transmission: "manual",
     fuel: "petrol",
+    lastInspection: "",
+    oilChangeDate: "",
+    oilChangeKm: "",
   });
 
   const TRANSMISSIONS = [
@@ -77,6 +88,9 @@ function Garage() {
         mileageKm: String(car.mileageKm),
         transmission: car.transmission,
         fuel: car.fuel,
+        lastInspection: car.lastInspection ?? "",
+        oilChangeDate: car.oilChangeDate ?? "",
+        oilChangeKm: car.oilChangeKm ? String(car.oilChangeKm) : "",
       });
     }
   }, [car]);
@@ -115,6 +129,9 @@ function Garage() {
       transmission: label(TRANSMISSIONS, form.transmission),
       fuel: label(FUELS, form.fuel),
       mileageKm: Number(form.mileageKm),
+      ...(form.lastInspection ? { lastInspection: form.lastInspection } : {}),
+      ...(form.oilChangeDate ? { oilChangeDate: form.oilChangeDate } : {}),
+      ...(form.oilChangeKm ? { oilChangeKm: Number(form.oilChangeKm) } : {}),
     });
     toast.success(t.carSaved);
     void navigate({ to: "/" });
@@ -139,6 +156,7 @@ function Garage() {
         fuel: found.fuel || f.fuel,
         transmission: found.transmission || f.transmission,
         mileageKm: found.inspectionKm ? String(found.inspectionKm) : f.mileageKm,
+        lastInspection: found.inspectionDate || f.lastInspection,
       }));
       setPlateNote({
         ok: true,
