@@ -158,20 +158,12 @@ function Home() {
         />
         <div className="relative flex gap-2 px-4 pb-4">
           {car ? (
-            <>
-              <Link
-                to="/garage"
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50"
-              >
-                <Pencil className="size-4" /> {t.editCar}
-              </Link>
-              <Link
-                to="/garage"
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-primary/50 bg-primary/15 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/25"
-              >
-                <RefreshCw className="size-4" /> {t.changeCar}
-              </Link>
-            </>
+            <Link
+              to="/garage"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-border bg-secondary/60 px-3 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50"
+            >
+              <Pencil className="size-4" /> {t.editCar}
+            </Link>
           ) : (
             <Link
               to="/garage"
