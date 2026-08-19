@@ -292,6 +292,7 @@ const sv = {
   plateNotFound: "Hittade ingen bil på det numret — fyll i manuellt.",
   plateError: "Kunde inte hämta just nu — fyll i manuellt.",
   plateHint: "Vi fyller i märke, modell, år, drivmedel och växellåda åt dig.",
+  plateManual: "Fyll i bilen manuellt",
   plateInspection: "Mätarställning vid senaste besiktning ({date}): {km} km.",
   knownTitle: "Vanliga problem för din bil",
   knownHint: "Välj det som stämmer bäst — eller tryck vidare om inget passar.",
@@ -603,6 +604,7 @@ const en: Dict = {
   plateNotFound: "No car found for that plate — fill it in manually.",
   plateError: "Lookup failed right now — fill it in manually.",
   plateHint: "We fill in make, model, year, fuel and gearbox for you.",
+  plateManual: "Fill in the car manually",
   plateInspection: "Odometer at last inspection ({date}): {km} km.",
   knownTitle: "Common problems for your car",
   knownHint: "Pick the one that fits — or continue if none of them do.",
@@ -908,6 +910,7 @@ const da: Dict = {
   plateNotFound: "Fandt ingen bil på det nummer — udfyld manuelt.",
   plateError: "Kunne ikke hente lige nu — udfyld manuelt.",
   plateHint: "Vi udfylder mærke, model, år, brændstof og gearkasse for dig.",
+  plateManual: "Udfyld bilen manuelt",
   plateInspection: "Kilometerstand ved seneste syn ({date}): {km} km.",
   knownTitle: "Almindelige problemer for din bil",
   knownHint: "Vælg det, der passer bedst — eller fortsæt, hvis intet passer.",
@@ -1213,6 +1216,7 @@ const de: Dict = {
   plateNotFound: "Kein Auto zu diesem Kennzeichen gefunden — bitte manuell ausfüllen.",
   plateError: "Abfrage gerade nicht möglich — bitte manuell ausfüllen.",
   plateHint: "Wir füllen Marke, Modell, Baujahr, Kraftstoff und Getriebe aus.",
+  plateManual: "Auto manuell eingeben",
   plateInspection: "Kilometerstand bei der letzten Prüfung ({date}): {km} km.",
   knownTitle: "Häufige Probleme bei Ihrem Auto",
   knownHint: "Wählen Sie das Passende — oder weiter, wenn nichts passt.",
@@ -1288,4 +1292,23 @@ export function useI18n() {
 
 export function currencyFor(lang: Lang) {
   return LANGUAGES.find((l) => l.code === lang)!;
+}
+
+/**
+ * Car facts are stored with the label used when the car was saved, so a later
+ * language switch would otherwise leave "Bensin" on an English screen.
+ */
+const CAR_VALUE_SYNONYMS: { key: "petrol" | "diesel" | "hybrid" | "electric" | "manual" | "automatic"; words: string[] }[] = [
+  { key: "petrol", words: ["petrol", "bensin", "benzin", "gasoline"] },
+  { key: "diesel", words: ["diesel"] },
+  { key: "hybrid", words: ["hybrid", "laddhybrid"] },
+  { key: "electric", words: ["electric", "el", "elbil", "elektro", "elektrisch"] },
+  { key: "manual", words: ["manual", "manuell", "manuel", "manuelle"] },
+  { key: "automatic", words: ["automatic", "automat", "automatik", "automatisk"] },
+];
+
+export function carValueLabel(value: string, t: Dict) {
+  const clean = value.trim().toLowerCase();
+  const hit = CAR_VALUE_SYNONYMS.find((entry) => entry.words.includes(clean));
+  return hit ? t[hit.key] : value;
 }

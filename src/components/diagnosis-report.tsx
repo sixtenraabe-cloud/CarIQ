@@ -264,7 +264,6 @@ export function DiagnosisReport({
             </div>
           </div>
           <p className="mt-4 text-lg leading-snug text-foreground">{result.headline}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{t.confidenceHint}</p>
           <div className="mt-5">
             <p className="stencil mb-2">{t.severityScale}</p>
             <SeverityScale active={result.verdict} />

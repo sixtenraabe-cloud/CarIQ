@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCar } from "@/lib/car-store";
-import { useI18n } from "@/lib/i18n";
+import { carValueLabel, useI18n } from "@/lib/i18n";
 import { lookupPlate } from "@/lib/plate.functions";
 import { suggestBrands } from "@/lib/car-brands";
 import { BrandLogo } from "@/components/brand-logo";
@@ -54,6 +54,9 @@ function Garage() {
   const [showModelSuggestions, setShowModelSuggestions] = useState(false);
   const [showVariantSuggestions, setShowVariantSuggestions] = useState(false);
   const [editing, setEditing] = useState(false);
+  // With the plate card on screen the long manual form is noise until the user
+  // either looks a car up or explicitly asks to type it in.
+  const [manualOpen, setManualOpen] = useState(false);
   const [form, setForm] = useState({
     make: "",
     model: "",
@@ -111,6 +114,8 @@ function Garage() {
   const allowedFuels = fuelsFor(form.make, form.model);
   const fuelLocked = knownCar && allowedFuels.length === 1;
   const valid = Boolean(knownCar && Number(form.year) >= 1950 && form.mileageKm !== "");
+  const plateCard = lang === "sv" && !car;
+  const showForm = !plateCard || manualOpen || form.make.trim() !== "";
 
   const label = (list: { value: string; label: string }[], value: string) =>
     list.find((o) => o.value === value)?.label ?? value;
@@ -169,6 +174,7 @@ function Garage() {
         mileageKm: found.inspectionKm ? String(found.inspectionKm) : f.mileageKm,
         lastInspection: found.inspectionDate || f.lastInspection,
       }));
+      setManualOpen(true);
       setPlateNote({
         ok: true,
         text: found.inspectionKm
@@ -219,8 +225,8 @@ function Garage() {
           <dl className="relative grid grid-cols-2 gap-2 text-sm">
             <Fact label={t.year} value={String(car.year)} />
             <Fact label={t.mileage} value={`${car.mileageKm.toLocaleString("sv-SE")} km`} />
-            <Fact label={t.transmission} value={car.transmission} />
-            <Fact label={t.fuel} value={car.fuel} />
+            <Fact label={t.transmission} value={carValueLabel(car.transmission, t)} />
+            <Fact label={t.fuel} value={carValueLabel(car.fuel, t)} />
           </dl>
         </div>
 
@@ -264,7 +270,7 @@ function Garage() {
         </p>
       </div>
 
-      {lang === "sv" && !car ? (
+      {plateCard ? (
         <div
           className="surface rise relative mt-5 overflow-hidden p-5"
           style={{ animationDelay: "40ms" }}
@@ -343,6 +349,8 @@ function Garage() {
         </div>
       ) : null}
 
+      {showForm ? (
+        <>
       <div
         className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
         style={{ animationDelay: "60ms" }}
@@ -644,7 +652,12 @@ function Garage() {
       ) : brand ? (
         <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
       ) : null}
-
+        </>
+      ) : (
+        <Button variant="outline" className="mt-5 w-full" onClick={() => setManualOpen(true)}>
+          {t.plateManual}
+        </Button>
+      )}
     </main>
   );
 }
