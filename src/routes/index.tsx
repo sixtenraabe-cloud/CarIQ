@@ -15,6 +15,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { useCar } from "@/lib/car-store";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useEntitlement } from "@/hooks/use-entitlement";
 import { carValueLabel, useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
@@ -73,6 +74,9 @@ function Home() {
   const { car } = useCar();
   const { t } = useI18n();
   const { user, loading: authLoading } = useAuth();
+  const { entitlement, loading: entLoading, signedIn } = useEntitlement();
+  // Without credits (or signed out) any feature tap goes straight to checkout.
+  const needsPayment = !authLoading && (!signedIn || (!entLoading && (entitlement?.left ?? 0) <= 0));
   return (
     <main className="px-4 pt-8">
       <header className="rise relative z-50 mb-6 flex items-start justify-between gap-3">
@@ -200,6 +204,7 @@ function Home() {
         <ActionTile
           to="/snabbkoll"
           disabled={!car}
+          payFirst={needsPayment}
           className="border-primary/50 bg-primary/10"
           style={{ animationDelay: "120ms" }}
         >
@@ -218,6 +223,7 @@ function Home() {
             to="/diagnos"
             search={{ tag: action.tag }}
             disabled={!car}
+            payFirst={needsPayment}
             style={{ animationDelay: `${170 + i * 55}ms` }}
           >
             <span
@@ -247,6 +253,7 @@ function ActionTile({
   to,
   search,
   disabled,
+  payFirst,
   className,
   style,
   children,
@@ -254,6 +261,7 @@ function ActionTile({
   to: string;
   search?: Record<string, string>;
   disabled?: boolean;
+  payFirst?: boolean;
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -271,6 +279,13 @@ function ActionTile({
         className={`${base} opacity-60 ${className ?? ""}`}
         style={style}
       >
+        {children}
+      </Link>
+    );
+  }
+  if (payFirst) {
+    return (
+      <Link to="/pris" className={`${base} lift ${className ?? ""}`} style={style}>
         {children}
       </Link>
     );
