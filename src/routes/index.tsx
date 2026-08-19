@@ -12,8 +12,8 @@ import {
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
-import { useCar, carLine } from "@/lib/car-store";
-import { useI18n, APP_NAME } from "@/lib/i18n";
+import { useCar } from "@/lib/car-store";
+import { carValueLabel, useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
@@ -138,9 +138,11 @@ function Home() {
         </Link>
         {car ? (
           <div className="relative mt-2 flex flex-wrap gap-1.5 px-4">
-            {carLine(car)
-              .split(" · ")
-              .map((chip) => (
+            {[
+              String(car.year),
+              carValueLabel(car.fuel, t),
+              `${car.mileageKm.toLocaleString("sv-SE")} km`,
+            ].map((chip) => (
                 <span
                   key={chip}
                   className="rounded-md border border-border bg-secondary/60 px-2 py-0.5 text-xs font-medium text-muted-foreground"
@@ -196,7 +198,7 @@ function Home() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block font-semibold">{t.quickHome}</span>
-            <span className="block truncate text-sm text-muted-foreground">{t.quickHomeSub}</span>
+            <span className="block text-sm leading-snug text-muted-foreground">{t.quickHomeSub}</span>
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </ActionTile>
@@ -215,7 +217,7 @@ function Home() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-semibold">{t[action.title]}</span>
-              <span className="block truncate text-sm text-muted-foreground">
+              <span className="block text-sm leading-snug text-muted-foreground">
                 {t[action.subtitle]}
               </span>
             </span>
@@ -251,16 +253,16 @@ function ActionTile({
     "tile rise flex w-full items-center gap-4 p-4 text-left transition-opacity";
   if (disabled) {
     return (
-      <button
-        type="button"
-        disabled
-        aria-disabled="true"
+      // Locked without a car, but tapping should take the user where the lock is
+      // lifted instead of doing nothing.
+      <Link
+        to="/garage"
         aria-label={t.addCarToUse}
-        className={`${base} cursor-not-allowed opacity-55 ${className ?? ""}`}
+        className={`${base} opacity-60 ${className ?? ""}`}
         style={style}
       >
         {children}
-      </button>
+      </Link>
     );
   }
   return (
