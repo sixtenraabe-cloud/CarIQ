@@ -116,6 +116,16 @@ function QuickCheckPage() {
       setResult(output);
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
+      if (message.includes("PAYWALL")) {
+        toast.error(t.payWall);
+        void navigate({ to: "/pris" });
+        return;
+      }
+      if (message.includes("Unauthorized")) {
+        toast.error(t.payNeedLogin);
+        void navigate({ to: "/auth" });
+        return;
+      }
       toast.error(
         message.includes("TIMEOUT")
           ? t.errTimeout

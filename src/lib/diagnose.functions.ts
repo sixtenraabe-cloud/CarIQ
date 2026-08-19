@@ -189,10 +189,13 @@ async function gatewayModel() {
 }
 
 export const analyzeSymptoms = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => AnalyzeSchema.parse(input))
-  .handler(async ({ data }): Promise<DiagnosisResult> => {
+  .handler(async ({ data, context }): Promise<DiagnosisResult> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("analyze");
+    const { readEntitlement, consumeEntitlement } = await import("./entitlements.server");
+    if ((await readEntitlement(context.userId)).left <= 0) throw new Error("PAYWALL");
     const { generateWithMedia } = await import("./ai-media.server");
 
     const { car } = data;
@@ -241,6 +244,8 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       audioUsed = false;
       text = await runOnce(false);
     }
+
+    await consumeEntitlement(context.userId);
 
     const parsed = parseJson(text);
     if (!parsed) {
@@ -546,10 +551,13 @@ headline: max 8 words, the verdict in plain language.
 note: 1-3 short spoken sentences on what you saw/heard and why you landed there. Never name a specific failed part with certainty — say a full analysis would settle it.`;
 
 export const quickSoundCheck = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => QuickSchema.parse(input))
-  .handler(async ({ data }): Promise<QuickCheck> => {
+  .handler(async ({ data, context }): Promise<QuickCheck> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("quick");
+    const { readEntitlement, consumeEntitlement } = await import("./entitlements.server");
+    if ((await readEntitlement(context.userId)).left <= 0) throw new Error("PAYWALL");
     const { generateWithMedia } = await import("./ai-media.server");
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
     const car = data.car;
@@ -573,6 +581,8 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
         media: [data.audio, data.image],
       }),
     );
+
+    await consumeEntitlement(context.userId);
 
     const parsed = parseJson(text);
     const verdict = parsed?.verdict;

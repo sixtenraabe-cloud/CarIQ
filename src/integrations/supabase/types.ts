@@ -118,6 +118,96 @@ export type Database = {
           },
         ]
       }
+      entitlements: {
+        Row: {
+          credits: number
+          period_anchor: string | null
+          period_uses: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          credits?: number
+          period_anchor?: string | null
+          period_uses?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          credits?: number
+          period_anchor?: string | null
+          period_uses?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      payment_events: {
+        Row: {
+          created_at: string
+          event_id: string
+          event_type: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          event_type?: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          event_type?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          environment: string
+          id: string
+          paddle_customer_id: string
+          paddle_subscription_id: string
+          price_id: string
+          product_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          paddle_customer_id?: string
+          paddle_subscription_id: string
+          price_id?: string
+          product_id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          environment?: string
+          id?: string
+          paddle_customer_id?: string
+          paddle_subscription_id?: string
+          price_id?: string
+          product_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       workshop_leads: {
         Row: {
           car_summary: string
@@ -180,7 +270,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      consume_entitlement: { Args: { _user_id: string }; Returns: Json }
+      entitlement_state: { Args: { _user_id: string }; Returns: Json }
+      grant_credits: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

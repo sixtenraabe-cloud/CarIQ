@@ -13,6 +13,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 
 import { useCar } from "@/lib/car-store";
+import { useEntitlement } from "@/hooks/use-entitlement";
 import { carValueLabel, useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
@@ -70,6 +71,7 @@ const ACTIONS = [
 function Home() {
   const { car } = useCar();
   const { t } = useI18n();
+  const { entitlement, signedIn } = useEntitlement();
   return (
     <main className="px-4 pt-8">
       <header className="rise relative z-50 mb-6 flex items-start justify-between gap-3">
@@ -187,6 +189,22 @@ function Home() {
       ) : null}
 
       <div className="space-y-3">
+        <Link
+          to="/pris"
+          className="rise flex items-center justify-between gap-2 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
+          style={{ animationDelay: "100ms" }}
+        >
+          <span>
+            {!signedIn
+              ? t.payNeedLogin
+              : entitlement?.plan === "pro"
+                ? t.payLeftPro.replace("{n}", String(entitlement.monthlyLeft))
+                : (entitlement?.left ?? 0) > 0
+                  ? t.payLeftCredits.replace("{n}", String(entitlement?.left ?? 0))
+                  : t.payNone}
+          </span>
+          <span className="shrink-0 underline">{t.paySeePlans}</span>
+        </Link>
         <ActionTile
           to="/snabbkoll"
           disabled={!car}

@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
+import { CreditCard, LogOut, Mail, Minus, Plus, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/hooks/use-auth";
+import { useEntitlement } from "@/hooks/use-entitlement";
 import { supabase } from "@/integrations/supabase/client";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/profil")({
 function Profil() {
   const { user } = useAuth();
   const { car, saveCar } = useCar();
+  const { entitlement, signedIn } = useEntitlement();
   const { t } = useI18n();
   const navigate = useNavigate();
 
@@ -89,6 +91,24 @@ function Profil() {
       </div>
 
       <div className="mt-5 grid gap-3">
+        <div className="panel flex items-center gap-3 p-4">
+          <CreditCard className="size-5 text-primary" />
+          <div className="min-w-0 flex-1">
+            <p className="stencil">{t.payPlanLabel}</p>
+            <p className="truncate text-sm">
+              {!signedIn
+                ? t.payNeedLogin
+                : entitlement?.plan === "pro"
+                  ? `${t.payPlanPro} · ${t.payLeftPro.replace("{n}", String(entitlement.monthlyLeft))}`
+                  : (entitlement?.left ?? 0) > 0
+                    ? t.payLeftCredits.replace("{n}", String(entitlement?.left ?? 0))
+                    : t.payPlanFree}
+            </p>
+          </div>
+          <Button asChild size="sm" variant="secondary">
+            <Link to="/pris">{t.paySeePlans}</Link>
+          </Button>
+        </div>
         <Button asChild variant="secondary">
           <Link to="/garage">{t.manageCar}</Link>
         </Button>
