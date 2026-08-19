@@ -556,8 +556,13 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
   .handler(async ({ data, context }): Promise<QuickCheck> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("quick");
-    const { readEntitlement, consumeEntitlement } = await import("./entitlements.server");
-    if ((await readEntitlement(context.userId)).left <= 0) throw new Error("PAYWALL");
+    const { readEntitlement, consumeEntitlement, consumeFreeQuick } = await import(
+      "./entitlements.server"
+    );
+    // One free quick check per calendar month, then credits/subscription.
+    const state = await readEntitlement(context.userId);
+    const useFree = state.freeQuickLeft > 0;
+    if (!useFree && state.left <= 0) throw new Error("PAYWALL");
     const { generateWithMedia } = await import("./ai-media.server");
     const languageName = LANGUAGE_NAME[data.language] ?? "Swedish";
     const car = data.car;
@@ -582,7 +587,12 @@ export const quickSoundCheck = createServerFn({ method: "POST" })
       }),
     );
 
-    await consumeEntitlement(context.userId);
+    if (useFree) {
+      const granted = await consumeFreeQuick(context.userId);
+      if (!granted) await consumeEntitlement(context.userId);
+    } else {
+      await consumeEntitlement(context.userId);
+    }
 
     const parsed = parseJson(text);
     const verdict = parsed?.verdict;
