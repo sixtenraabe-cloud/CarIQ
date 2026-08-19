@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -603,6 +603,7 @@ function Garage() {
         {t.saveCar}
       </Button>
       {car && editing ? (
+        <>
         <Button
           variant="outline"
           className="mt-3 w-full"
@@ -613,6 +614,30 @@ function Garage() {
         >
           {t.cancel}
         </Button>
+        <Button
+          variant="destructive"
+          className="mt-3 w-full"
+          onClick={() => {
+            saveCar(null);
+            setEditing(false);
+            setForm({
+              make: "",
+              model: "",
+              variant: "",
+              year: "",
+              mileageKm: "",
+              transmission: form.transmission,
+              fuel: form.fuel,
+              lastInspection: "",
+              oilChangeDate: "",
+              oilChangeKm: "",
+            });
+            toast.success(t.carRemoved);
+          }}
+        >
+          <Trash2 className="size-4" /> {t.removeCar}
+        </Button>
+        </>
       ) : null}
       {makeError || modelError ? (
         <p className="mt-2 text-center text-xs text-destructive">{t.unknownCar}</p>
