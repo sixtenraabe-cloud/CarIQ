@@ -13,6 +13,7 @@ import {
 import type { CSSProperties, ReactNode } from "react";
 
 import { useCar } from "@/lib/car-store";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { carValueLabel, useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
