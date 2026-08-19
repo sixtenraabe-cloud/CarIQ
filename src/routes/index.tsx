@@ -7,7 +7,6 @@ import {
   Lock,
   Pencil,
   Plus,
-  RefreshCw,
   Volume2,
   Wrench,
 } from "lucide-react";
