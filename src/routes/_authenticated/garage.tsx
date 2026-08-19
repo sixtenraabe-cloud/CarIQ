@@ -23,7 +23,7 @@ function nextInspectionFrom(iso: string) {
   return d.toISOString().slice(0, 10);
 }
 
-export const Route = createFileRoute("/garage")({
+export const Route = createFileRoute("/_authenticated/garage")({
   head: () => ({
     meta: [
       { title: "Mitt garage — CarIQ" },
