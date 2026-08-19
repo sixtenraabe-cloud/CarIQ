@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -620,6 +620,18 @@ function Garage() {
           onClick={() => {
             saveCar(null);
             setEditing(false);
+            setForm({
+              make: "",
+              model: "",
+              variant: "",
+              year: "",
+              mileageKm: "",
+              transmission: form.transmission,
+              fuel: form.fuel,
+              lastInspection: "",
+              oilChangeDate: "",
+              oilChangeKm: "",
+            });
             toast.success(t.carRemoved);
           }}
         >
