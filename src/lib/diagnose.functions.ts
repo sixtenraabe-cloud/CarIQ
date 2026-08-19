@@ -189,10 +189,13 @@ async function gatewayModel() {
 }
 
 export const analyzeSymptoms = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => AnalyzeSchema.parse(input))
-  .handler(async ({ data }): Promise<DiagnosisResult> => {
+  .handler(async ({ data, context }): Promise<DiagnosisResult> => {
     const { guardAiUsage } = await import("./ai-rate-limit.server");
     guardAiUsage("analyze");
+    const { readEntitlement, consumeEntitlement } = await import("./entitlements.server");
+    if ((await readEntitlement(context.userId)).left <= 0) throw new Error("PAYWALL");
     const { generateWithMedia } = await import("./ai-media.server");
 
     const { car } = data;
@@ -241,6 +244,8 @@ export const analyzeSymptoms = createServerFn({ method: "POST" })
       audioUsed = false;
       text = await runOnce(false);
     }
+
+    await consumeEntitlement(context.userId);
 
     const parsed = parseJson(text);
     if (!parsed) {
