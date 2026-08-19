@@ -6,6 +6,7 @@ export type EntitlementState = {
   credits: number;
   periodEnd: string | null;
   cancelAtPeriodEnd: boolean;
+  freeQuickLeft: number;
   left: number;
 };
 
@@ -17,6 +18,7 @@ const EMPTY: EntitlementState = {
   credits: 0,
   periodEnd: null,
   cancelAtPeriodEnd: false,
+  freeQuickLeft: 0,
   left: 0,
 };
 
@@ -40,4 +42,15 @@ export async function consumeEntitlement(userId: string): Promise<void> {
   }
   const result = data as unknown as { allowed?: boolean } | null;
   if (!result?.allowed) throw new Error("PAYWALL");
+}
+
+/** Uses the one free quick check per calendar month. Returns false when it is already used. */
+export async function consumeFreeQuick(userId: string): Promise<boolean> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("consume_free_quick", { _user_id: userId });
+  if (error) {
+    console.error("consume_free_quick failed", error);
+    return false;
+  }
+  return Boolean((data as unknown as { allowed?: boolean } | null)?.allowed);
 }

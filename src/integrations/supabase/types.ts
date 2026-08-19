@@ -121,6 +121,7 @@ export type Database = {
       entitlements: {
         Row: {
           credits: number
+          free_quick_month: string | null
           period_anchor: string | null
           period_uses: number
           updated_at: string
@@ -128,6 +129,7 @@ export type Database = {
         }
         Insert: {
           credits?: number
+          free_quick_month?: string | null
           period_anchor?: string | null
           period_uses?: number
           updated_at?: string
@@ -135,6 +137,7 @@ export type Database = {
         }
         Update: {
           credits?: number
+          free_quick_month?: string | null
           period_anchor?: string | null
           period_uses?: number
           updated_at?: string
@@ -271,6 +274,7 @@ export type Database = {
     }
     Functions: {
       consume_entitlement: { Args: { _user_id: string }; Returns: Json }
+      consume_free_quick: { Args: { _user_id: string }; Returns: Json }
       entitlement_state: { Args: { _user_id: string }; Returns: Json }
       grant_credits: {
         Args: { _amount: number; _user_id: string }

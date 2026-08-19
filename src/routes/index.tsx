@@ -77,6 +77,9 @@ function Home() {
   const { entitlement, loading: entLoading, signedIn } = useEntitlement();
   // Without credits (or signed out) any feature tap goes straight to checkout.
   const needsPayment = !authLoading && (!signedIn || (!entLoading && (entitlement?.left ?? 0) <= 0));
+  // The quick check is free once per calendar month.
+  const freeQuickLeft = entitlement?.freeQuickLeft ?? 0;
+  const quickNeedsPayment = signedIn ? needsPayment && !entLoading && freeQuickLeft <= 0 : false;
   return (
     <main className="px-4 pt-8">
       <header className="rise relative z-50 mb-6 flex items-start justify-between gap-3">
@@ -204,7 +207,7 @@ function Home() {
         <ActionTile
           to="/snabbkoll"
           disabled={!car}
-          payFirst={needsPayment}
+          payFirst={quickNeedsPayment}
           className="border-primary/50 bg-primary/10"
           style={{ animationDelay: "120ms" }}
         >
@@ -214,6 +217,11 @@ function Home() {
           <span className="min-w-0 flex-1">
             <span className="block font-semibold">{t.quickHome}</span>
             <span className="block text-sm leading-snug text-muted-foreground">{t.quickHomeSub}</span>
+            {!quickNeedsPayment && (!signedIn || freeQuickLeft > 0) ? (
+              <span className="mt-1 inline-block rounded-md border border-signal-safe/40 bg-signal-safe/10 px-1.5 py-0.5 text-xs font-semibold text-signal-safe">
+                {t.freeQuickBadge}
+              </span>
+            ) : null}
           </span>
           <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
         </ActionTile>
