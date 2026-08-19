@@ -10,15 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
-import { Route as DiagnosRouteImport } from './routes/diagnos'
-import { Route as GarageRouteImport } from './routes/garage'
-import { Route as HistoryRouteImport } from './routes/history'
 import { Route as PrisRouteImport } from './routes/pris'
-import { Route as ProfilRouteImport } from './routes/profil'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SnabbkollRouteImport } from './routes/snabbkoll'
+import { Route as AuthenticatedDiagnosRouteImport } from './routes/_authenticated/diagnos'
+import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
+import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
+import { Route as AuthenticatedSnabbkollRouteImport } from './routes/_authenticated/snabbkoll'
 import { Route as ApiPublicPaymentsWebhookRouteImport } from './routes/api/public/payments/webhook'
 
 const IndexRoute = IndexRouteImport.update({
@@ -26,34 +27,18 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DiagnosRoute = DiagnosRouteImport.update({
-  id: '/diagnos',
-  path: '/diagnos',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GarageRoute = GarageRouteImport.update({
-  id: '/garage',
-  path: '/garage',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoryRoute = HistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PrisRoute = PrisRouteImport.update({
   id: '/pris',
   path: '/pris',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfilRoute = ProfilRouteImport.update({
-  id: '/profil',
-  path: '/profil',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -66,10 +51,30 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SnabbkollRoute = SnabbkollRouteImport.update({
+const AuthenticatedDiagnosRoute = AuthenticatedDiagnosRouteImport.update({
+  id: '/diagnos',
+  path: '/diagnos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGarageRoute = AuthenticatedGarageRouteImport.update({
+  id: '/garage',
+  path: '/garage',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedSnabbkollRoute = AuthenticatedSnabbkollRouteImport.update({
   id: '/snabbkoll',
   path: '/snabbkoll',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ApiPublicPaymentsWebhookRoute =
   ApiPublicPaymentsWebhookRouteImport.update({
@@ -81,41 +86,42 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/diagnos': typeof DiagnosRoute
-  '/garage': typeof GarageRoute
-  '/history': typeof HistoryRoute
   '/pris': typeof PrisRoute
-  '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/snabbkoll': typeof SnabbkollRoute
+  '/diagnos': typeof AuthenticatedDiagnosRoute
+  '/garage': typeof AuthenticatedGarageRoute
+  '/history': typeof AuthenticatedHistoryRoute
+  '/profil': typeof AuthenticatedProfilRoute
+  '/snabbkoll': typeof AuthenticatedSnabbkollRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/diagnos': typeof DiagnosRoute
-  '/garage': typeof GarageRoute
-  '/history': typeof HistoryRoute
   '/pris': typeof PrisRoute
-  '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/snabbkoll': typeof SnabbkollRoute
+  '/diagnos': typeof AuthenticatedDiagnosRoute
+  '/garage': typeof AuthenticatedGarageRoute
+  '/history': typeof AuthenticatedHistoryRoute
+  '/profil': typeof AuthenticatedProfilRoute
+  '/snabbkoll': typeof AuthenticatedSnabbkollRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
-  '/diagnos': typeof DiagnosRoute
-  '/garage': typeof GarageRoute
-  '/history': typeof HistoryRoute
   '/pris': typeof PrisRoute
-  '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
-  '/snabbkoll': typeof SnabbkollRoute
+  '/_authenticated/diagnos': typeof AuthenticatedDiagnosRoute
+  '/_authenticated/garage': typeof AuthenticatedGarageRoute
+  '/_authenticated/history': typeof AuthenticatedHistoryRoute
+  '/_authenticated/profil': typeof AuthenticatedProfilRoute
+  '/_authenticated/snabbkoll': typeof AuthenticatedSnabbkollRoute
   '/api/public/payments/webhook': typeof ApiPublicPaymentsWebhookRoute
 }
 export interface FileRouteTypes {
@@ -123,54 +129,51 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/pris'
+    | '/reset-password'
+    | '/sitemap.xml'
     | '/diagnos'
     | '/garage'
     | '/history'
-    | '/pris'
     | '/profil'
-    | '/reset-password'
-    | '/sitemap.xml'
     | '/snabbkoll'
     | '/api/public/payments/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/pris'
+    | '/reset-password'
+    | '/sitemap.xml'
     | '/diagnos'
     | '/garage'
     | '/history'
-    | '/pris'
     | '/profil'
-    | '/reset-password'
-    | '/sitemap.xml'
     | '/snabbkoll'
     | '/api/public/payments/webhook'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/auth'
-    | '/diagnos'
-    | '/garage'
-    | '/history'
     | '/pris'
-    | '/profil'
     | '/reset-password'
     | '/sitemap.xml'
-    | '/snabbkoll'
+    | '/_authenticated/diagnos'
+    | '/_authenticated/garage'
+    | '/_authenticated/history'
+    | '/_authenticated/profil'
+    | '/_authenticated/snabbkoll'
     | '/api/public/payments/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
-  DiagnosRoute: typeof DiagnosRoute
-  GarageRoute: typeof GarageRoute
-  HistoryRoute: typeof HistoryRoute
   PrisRoute: typeof PrisRoute
-  ProfilRoute: typeof ProfilRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
-  SnabbkollRoute: typeof SnabbkollRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -183,6 +186,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -190,39 +200,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/diagnos': {
-      id: '/diagnos'
-      path: '/diagnos'
-      fullPath: '/diagnos'
-      preLoaderRoute: typeof DiagnosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/garage': {
-      id: '/garage'
-      path: '/garage'
-      fullPath: '/garage'
-      preLoaderRoute: typeof GarageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/pris': {
       id: '/pris'
       path: '/pris'
       fullPath: '/pris'
       preLoaderRoute: typeof PrisRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profil': {
-      id: '/profil'
-      path: '/profil'
-      fullPath: '/profil'
-      preLoaderRoute: typeof ProfilRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -239,12 +221,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/snabbkoll': {
-      id: '/snabbkoll'
+    '/_authenticated/diagnos': {
+      id: '/_authenticated/diagnos'
+      path: '/diagnos'
+      fullPath: '/diagnos'
+      preLoaderRoute: typeof AuthenticatedDiagnosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/garage': {
+      id: '/_authenticated/garage'
+      path: '/garage'
+      fullPath: '/garage'
+      preLoaderRoute: typeof AuthenticatedGarageRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/history': {
+      id: '/_authenticated/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AuthenticatedHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profil': {
+      id: '/_authenticated/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof AuthenticatedProfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/snabbkoll': {
+      id: '/_authenticated/snabbkoll'
       path: '/snabbkoll'
       fullPath: '/snabbkoll'
-      preLoaderRoute: typeof SnabbkollRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedSnabbkollRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/payments/webhook': {
       id: '/api/public/payments/webhook'
@@ -256,17 +266,32 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDiagnosRoute: typeof AuthenticatedDiagnosRoute
+  AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
+  AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
+  AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
+  AuthenticatedSnabbkollRoute: typeof AuthenticatedSnabbkollRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDiagnosRoute: AuthenticatedDiagnosRoute,
+  AuthenticatedGarageRoute: AuthenticatedGarageRoute,
+  AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
+  AuthenticatedProfilRoute: AuthenticatedProfilRoute,
+  AuthenticatedSnabbkollRoute: AuthenticatedSnabbkollRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
-  DiagnosRoute: DiagnosRoute,
-  GarageRoute: GarageRoute,
-  HistoryRoute: HistoryRoute,
   PrisRoute: PrisRoute,
-  ProfilRoute: ProfilRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
-  SnabbkollRoute: SnabbkollRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport

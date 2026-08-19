@@ -11,7 +11,7 @@ import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { LanguagePicker } from "@/components/language-picker";
 
-export const Route = createFileRoute("/profil")({
+export const Route = createFileRoute("/_authenticated/profil")({
   head: () => ({
     meta: [
       { title: "Profil — CarIQ" },

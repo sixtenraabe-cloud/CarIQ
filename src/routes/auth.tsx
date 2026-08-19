@@ -43,7 +43,7 @@ function AuthPage() {
   const [resetSentTo, setResetSentTo] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) void navigate({ to: "/history" });
+    if (user) void navigate({ to: "/" });
   }, [user, navigate]);
 
   const friendlyError = (error: unknown) => {
@@ -144,7 +144,7 @@ function AuthPage() {
       return;
     }
     if (result.redirected) return;
-    void navigate({ to: "/history" });
+    void navigate({ to: "/" });
   };
 
   return (

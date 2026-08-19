@@ -11,7 +11,7 @@ import type { Verdict } from "@/lib/diagnosis-types";
 import { useAuth } from "@/hooks/use-auth";
 import { currencyFor, useI18n } from "@/lib/i18n";
 
-export const Route = createFileRoute("/history")({
+export const Route = createFileRoute("/_authenticated/history")({
   head: () => ({
     meta: [
       { title: "Historik — CarIQ" },

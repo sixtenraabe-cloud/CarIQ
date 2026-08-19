@@ -31,7 +31,7 @@ import { currencyFor, useI18n } from "@/lib/i18n";
 
 type Search = { tag?: string };
 
-export const Route = createFileRoute("/diagnos")({
+export const Route = createFileRoute("/_authenticated/diagnos")({
   validateSearch: (search: Record<string, unknown>): Search => ({
     tag: typeof search.tag === "string" ? search.tag : undefined,
   }),

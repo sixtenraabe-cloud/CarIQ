@@ -11,7 +11,7 @@ import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { extractFromVideo } from "@/lib/media-extract";
 
-export const Route = createFileRoute("/snabbkoll")({
+export const Route = createFileRoute("/_authenticated/snabbkoll")({
   head: () => ({
     meta: [
       { title: "Snabbkoll — låter bilen normal? | CarIQ" },
