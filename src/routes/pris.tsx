@@ -12,9 +12,8 @@ import { useI18n } from "@/lib/i18n";
 import type { PriceId } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/pris")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    checkout: typeof search["checkout"] === "string" ? (search["checkout"] as string) : undefined,
-  }),
+  validateSearch: (search: Record<string, unknown>): { checkout?: string } =>
+    typeof search["checkout"] === "string" ? { checkout: search["checkout"] } : {},
   head: () => ({
     meta: [
       { title: "Priser — CarIQ" },
