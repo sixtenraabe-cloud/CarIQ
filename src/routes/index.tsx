@@ -14,6 +14,7 @@ import type { CSSProperties, ReactNode } from "react";
 
 import { useCar } from "@/lib/car-store";
 import { useEntitlement } from "@/hooks/use-entitlement";
+import { useAuth } from "@/hooks/use-auth";
 import { carValueLabel, useI18n, APP_NAME } from "@/lib/i18n";
 import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
@@ -72,6 +73,7 @@ function Home() {
   const { car } = useCar();
   const { t } = useI18n();
   const { entitlement, signedIn } = useEntitlement();
+  const { user, loading: authLoading } = useAuth();
   return (
     <main className="px-4 pt-8">
       <header className="rise relative z-50 mb-6 flex items-start justify-between gap-3">
@@ -189,6 +191,16 @@ function Home() {
       ) : null}
 
       <div className="space-y-3">
+        {!authLoading && !user ? (
+          <Link
+            to="/auth"
+            className="rise flex items-center justify-between gap-2 rounded-lg border border-primary/50 bg-primary/15 px-3 py-3 text-sm font-semibold text-primary"
+            style={{ animationDelay: "90ms" }}
+          >
+            <span>{t.payNeedLogin}</span>
+            <span className="shrink-0 underline">{t.authSignIn}</span>
+          </Link>
+        ) : null}
         <Link
           to="/pris"
           className="rise flex items-center justify-between gap-2 rounded-lg border border-primary/40 bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
