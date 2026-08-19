@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DiagnosRouteImport } from './routes/diagnos'
 import { Route as GarageRouteImport } from './routes/garage'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as PrisRouteImport } from './routes/pris'
 import { Route as ProfilRouteImport } from './routes/profil'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
@@ -43,6 +44,11 @@ const GarageRoute = GarageRouteImport.update({
 const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrisRoute = PrisRouteImport.update({
+  id: '/pris',
+  path: '/pris',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfilRoute = ProfilRouteImport.update({
@@ -78,6 +84,7 @@ export interface FileRoutesByFullPath {
   '/diagnos': typeof DiagnosRoute
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
+  '/pris': typeof PrisRoute
   '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -90,6 +97,7 @@ export interface FileRoutesByTo {
   '/diagnos': typeof DiagnosRoute
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
+  '/pris': typeof PrisRoute
   '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -103,6 +111,7 @@ export interface FileRoutesById {
   '/diagnos': typeof DiagnosRoute
   '/garage': typeof GarageRoute
   '/history': typeof HistoryRoute
+  '/pris': typeof PrisRoute
   '/profil': typeof ProfilRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/diagnos'
     | '/garage'
     | '/history'
+    | '/pris'
     | '/profil'
     | '/reset-password'
     | '/sitemap.xml'
@@ -129,6 +139,7 @@ export interface FileRouteTypes {
     | '/diagnos'
     | '/garage'
     | '/history'
+    | '/pris'
     | '/profil'
     | '/reset-password'
     | '/sitemap.xml'
@@ -141,6 +152,7 @@ export interface FileRouteTypes {
     | '/diagnos'
     | '/garage'
     | '/history'
+    | '/pris'
     | '/profil'
     | '/reset-password'
     | '/sitemap.xml'
@@ -154,6 +166,7 @@ export interface RootRouteChildren {
   DiagnosRoute: typeof DiagnosRoute
   GarageRoute: typeof GarageRoute
   HistoryRoute: typeof HistoryRoute
+  PrisRoute: typeof PrisRoute
   ProfilRoute: typeof ProfilRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -196,6 +209,13 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pris': {
+      id: '/pris'
+      path: '/pris'
+      fullPath: '/pris'
+      preLoaderRoute: typeof PrisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profil': {
@@ -242,6 +262,7 @@ const rootRouteChildren: RootRouteChildren = {
   DiagnosRoute: DiagnosRoute,
   GarageRoute: GarageRoute,
   HistoryRoute: HistoryRoute,
+  PrisRoute: PrisRoute,
   ProfilRoute: ProfilRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
