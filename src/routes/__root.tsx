@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { Car, Clock, Home, User } from "lucide-react";
 import { LanguageProvider, useI18n } from "@/lib/i18n";
+import { PaymentTestModeBanner } from "@/components/payment-test-banner";
 
 function NotFoundComponent() {
   return (
@@ -158,6 +159,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
+        <PaymentTestModeBanner />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <div className="flex-1 pb-24">
           <Outlet />
