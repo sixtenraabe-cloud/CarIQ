@@ -1,0 +1,1 @@
+REVOKE ALL ON FUNCTION public.consume_free_quick(uuid) FROM anon, authenticated;
