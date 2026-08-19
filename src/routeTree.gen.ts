@@ -12,11 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as GarageRouteImport } from './routes/garage'
 import { Route as PrisRouteImport } from './routes/pris'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedDiagnosRouteImport } from './routes/_authenticated/diagnos'
-import { Route as AuthenticatedGarageRouteImport } from './routes/_authenticated/garage'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedSnabbkollRouteImport } from './routes/_authenticated/snabbkoll'
@@ -34,6 +34,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GarageRoute = GarageRouteImport.update({
+  id: '/garage',
+  path: '/garage',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrisRoute = PrisRouteImport.update({
@@ -54,11 +59,6 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const AuthenticatedDiagnosRoute = AuthenticatedDiagnosRouteImport.update({
   id: '/diagnos',
   path: '/diagnos',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedGarageRoute = AuthenticatedGarageRouteImport.update({
-  id: '/garage',
-  path: '/garage',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
@@ -86,11 +86,11 @@ const ApiPublicPaymentsWebhookRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/garage': typeof GarageRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/diagnos': typeof AuthenticatedDiagnosRoute
-  '/garage': typeof AuthenticatedGarageRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/snabbkoll': typeof AuthenticatedSnabbkollRoute
@@ -99,11 +99,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/garage': typeof GarageRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/diagnos': typeof AuthenticatedDiagnosRoute
-  '/garage': typeof AuthenticatedGarageRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/snabbkoll': typeof AuthenticatedSnabbkollRoute
@@ -114,11 +114,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/garage': typeof GarageRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/diagnos': typeof AuthenticatedDiagnosRoute
-  '/_authenticated/garage': typeof AuthenticatedGarageRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/snabbkoll': typeof AuthenticatedSnabbkollRoute
@@ -129,11 +129,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/garage'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
     | '/diagnos'
-    | '/garage'
     | '/history'
     | '/profil'
     | '/snabbkoll'
@@ -142,11 +142,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/garage'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
     | '/diagnos'
-    | '/garage'
     | '/history'
     | '/profil'
     | '/snabbkoll'
@@ -156,11 +156,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/garage'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
     | '/_authenticated/diagnos'
-    | '/_authenticated/garage'
     | '/_authenticated/history'
     | '/_authenticated/profil'
     | '/_authenticated/snabbkoll'
@@ -171,6 +171,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  GarageRoute: typeof GarageRoute
   PrisRoute: typeof PrisRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -200,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/garage': {
+      id: '/garage'
+      path: '/garage'
+      fullPath: '/garage'
+      preLoaderRoute: typeof GarageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pris': {
       id: '/pris'
       path: '/pris'
@@ -226,13 +234,6 @@ declare module '@tanstack/react-router' {
       path: '/diagnos'
       fullPath: '/diagnos'
       preLoaderRoute: typeof AuthenticatedDiagnosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/garage': {
-      id: '/_authenticated/garage'
-      path: '/garage'
-      fullPath: '/garage'
-      preLoaderRoute: typeof AuthenticatedGarageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/history': {
@@ -268,7 +269,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDiagnosRoute: typeof AuthenticatedDiagnosRoute
-  AuthenticatedGarageRoute: typeof AuthenticatedGarageRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedSnabbkollRoute: typeof AuthenticatedSnabbkollRoute
@@ -276,7 +276,6 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDiagnosRoute: AuthenticatedDiagnosRoute,
-  AuthenticatedGarageRoute: AuthenticatedGarageRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedSnabbkollRoute: AuthenticatedSnabbkollRoute,
@@ -289,6 +288,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  GarageRoute: GarageRoute,
   PrisRoute: PrisRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
