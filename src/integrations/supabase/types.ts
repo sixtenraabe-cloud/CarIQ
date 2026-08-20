@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          label: string
+          max_uses: number
+          unlimited_days: number
+          uses: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          label?: string
+          max_uses?: number
+          unlimited_days?: number
+          uses?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          label?: string
+          max_uses?: number
+          unlimited_days?: number
+          uses?: number
+        }
+        Relationships: []
+      }
       cars: {
         Row: {
           created_at: string
@@ -55,6 +85,35 @@ export type Database = {
           year?: number
         }
         Relationships: []
+      }
+      code_redemptions: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "code_redemptions_code_fkey"
+            columns: ["code"]
+            isOneToOne: false
+            referencedRelation: "access_codes"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       diagnoses: {
         Row: {
@@ -124,6 +183,7 @@ export type Database = {
           free_quick_month: string | null
           period_anchor: string | null
           period_uses: number
+          unlimited_until: string | null
           updated_at: string
           user_id: string
         }
@@ -132,6 +192,7 @@ export type Database = {
           free_quick_month?: string | null
           period_anchor?: string | null
           period_uses?: number
+          unlimited_until?: string | null
           updated_at?: string
           user_id: string
         }
@@ -140,6 +201,7 @@ export type Database = {
           free_quick_month?: string | null
           period_anchor?: string | null
           period_uses?: number
+          unlimited_until?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -279,6 +341,10 @@ export type Database = {
       grant_credits: {
         Args: { _amount: number; _user_id: string }
         Returns: undefined
+      }
+      redeem_access_code: {
+        Args: { _code: string; _user_id: string }
+        Returns: Json
       }
     }
     Enums: {

@@ -1,5 +1,7 @@
 export type EntitlementState = {
-  plan: "free" | "pro";
+  plan: "free" | "pro" | "unlimited";
+  unlimited?: boolean;
+  unlimitedUntil?: string | null;
   monthlyLimit: number;
   monthlyUsed: number;
   monthlyLeft: number;
