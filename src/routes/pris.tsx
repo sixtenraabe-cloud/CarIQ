@@ -130,6 +130,15 @@ function Pricing() {
         ) : null}
 
         <p className="mt-6 text-xs text-muted-foreground">{t.disclaimer}</p>
+
+        <p className="mt-3 text-xs text-muted-foreground">
+          Betalningar hanteras av Paddle.com Market Ltd, vår Merchant of Record.
+        </p>
+        <nav className="mt-2 flex flex-wrap gap-3 text-xs text-primary underline">
+          <Link to="/villkor">Villkor</Link>
+          <Link to="/aterbetalning">Återbetalning</Link>
+          <Link to="/integritet">Integritet</Link>
+        </nav>
       </main>
     </>
   );

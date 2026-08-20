@@ -11,11 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AterbetalningRouteImport } from './routes/aterbetalning'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as GarageRouteImport } from './routes/garage'
+import { Route as IntegritetRouteImport } from './routes/integritet'
 import { Route as PrisRouteImport } from './routes/pris'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as VillkorRouteImport } from './routes/villkor'
 import { Route as AuthenticatedDiagnosRouteImport } from './routes/_authenticated/diagnos'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
@@ -31,6 +34,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AterbetalningRoute = AterbetalningRouteImport.update({
+  id: '/aterbetalning',
+  path: '/aterbetalning',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -39,6 +47,11 @@ const AuthRoute = AuthRouteImport.update({
 const GarageRoute = GarageRouteImport.update({
   id: '/garage',
   path: '/garage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegritetRoute = IntegritetRouteImport.update({
+  id: '/integritet',
+  path: '/integritet',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrisRoute = PrisRouteImport.update({
@@ -54,6 +67,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VillkorRoute = VillkorRouteImport.update({
+  id: '/villkor',
+  path: '/villkor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedDiagnosRoute = AuthenticatedDiagnosRouteImport.update({
@@ -85,11 +103,14 @@ const ApiPublicPaymentsWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/aterbetalning': typeof AterbetalningRoute
   '/auth': typeof AuthRoute
   '/garage': typeof GarageRoute
+  '/integritet': typeof IntegritetRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/villkor': typeof VillkorRoute
   '/diagnos': typeof AuthenticatedDiagnosRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/profil': typeof AuthenticatedProfilRoute
@@ -98,11 +119,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/aterbetalning': typeof AterbetalningRoute
   '/auth': typeof AuthRoute
   '/garage': typeof GarageRoute
+  '/integritet': typeof IntegritetRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/villkor': typeof VillkorRoute
   '/diagnos': typeof AuthenticatedDiagnosRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/profil': typeof AuthenticatedProfilRoute
@@ -113,11 +137,14 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/aterbetalning': typeof AterbetalningRoute
   '/auth': typeof AuthRoute
   '/garage': typeof GarageRoute
+  '/integritet': typeof IntegritetRoute
   '/pris': typeof PrisRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/villkor': typeof VillkorRoute
   '/_authenticated/diagnos': typeof AuthenticatedDiagnosRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
@@ -128,11 +155,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/aterbetalning'
     | '/auth'
     | '/garage'
+    | '/integritet'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/villkor'
     | '/diagnos'
     | '/history'
     | '/profil'
@@ -141,11 +171,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/aterbetalning'
     | '/auth'
     | '/garage'
+    | '/integritet'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/villkor'
     | '/diagnos'
     | '/history'
     | '/profil'
@@ -155,11 +188,14 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/aterbetalning'
     | '/auth'
     | '/garage'
+    | '/integritet'
     | '/pris'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/villkor'
     | '/_authenticated/diagnos'
     | '/_authenticated/history'
     | '/_authenticated/profil'
@@ -170,11 +206,14 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AterbetalningRoute: typeof AterbetalningRoute
   AuthRoute: typeof AuthRoute
   GarageRoute: typeof GarageRoute
+  IntegritetRoute: typeof IntegritetRoute
   PrisRoute: typeof PrisRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  VillkorRoute: typeof VillkorRoute
   ApiPublicPaymentsWebhookRoute: typeof ApiPublicPaymentsWebhookRoute
 }
 
@@ -194,6 +233,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/aterbetalning': {
+      id: '/aterbetalning'
+      path: '/aterbetalning'
+      fullPath: '/aterbetalning'
+      preLoaderRoute: typeof AterbetalningRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -206,6 +252,13 @@ declare module '@tanstack/react-router' {
       path: '/garage'
       fullPath: '/garage'
       preLoaderRoute: typeof GarageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integritet': {
+      id: '/integritet'
+      path: '/integritet'
+      fullPath: '/integritet'
+      preLoaderRoute: typeof IntegritetRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pris': {
@@ -227,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/villkor': {
+      id: '/villkor'
+      path: '/villkor'
+      fullPath: '/villkor'
+      preLoaderRoute: typeof VillkorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/diagnos': {
@@ -287,11 +347,14 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AterbetalningRoute: AterbetalningRoute,
   AuthRoute: AuthRoute,
   GarageRoute: GarageRoute,
+  IntegritetRoute: IntegritetRoute,
   PrisRoute: PrisRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  VillkorRoute: VillkorRoute,
   ApiPublicPaymentsWebhookRoute: ApiPublicPaymentsWebhookRoute,
 }
 export const routeTree = rootRouteImport
