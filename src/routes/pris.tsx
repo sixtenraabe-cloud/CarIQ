@@ -123,6 +123,8 @@ function Pricing() {
           />
         </div>
 
+        <RedeemCodeCard onRedeemed={() => void refetch()} signedIn={signedIn} />
+
         {!signedIn ? (
           <Button asChild className="mt-5 w-full">
             <Link to="/auth">{t.authSignIn}</Link>
