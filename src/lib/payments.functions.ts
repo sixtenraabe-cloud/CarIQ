@@ -34,3 +34,24 @@ export const myEntitlement = createServerFn({ method: "POST" })
     const { readEntitlement } = await import("./entitlements.server");
     return readEntitlement(context.userId);
   });
+
+const CodeSchema = z.object({ code: z.string().trim().min(3).max(64) });
+
+export type RedeemResult = { ok: boolean; reason?: "invalid" | "already" | "exhausted" };
+
+/** Redeems an access code that grants unlimited usage to the signed-in user. */
+export const redeemAccessCode = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => CodeSchema.parse(input))
+  .handler(async ({ data, context }): Promise<RedeemResult> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: result, error } = await supabaseAdmin.rpc("redeem_access_code", {
+      _user_id: context.userId,
+      _code: data.code,
+    });
+    if (error) {
+      console.error("redeem_access_code failed", error);
+      return { ok: false, reason: "invalid" };
+    }
+    return (result as unknown as RedeemResult) ?? { ok: false, reason: "invalid" };
+  });
