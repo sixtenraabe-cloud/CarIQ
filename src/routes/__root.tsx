@@ -164,6 +164,7 @@ function RootComponent() {
         <div className="flex-1 pb-24">
           <Outlet />
         </div>
+        <SiteFooter />
         <TabBar />
       </div>
       </LanguageProvider>
