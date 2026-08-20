@@ -174,12 +174,36 @@ function RootComponent() {
 }
 
 const TABS = [
-  ] as const;
   { to: "/", key: "navHome", icon: Home },
   { to: "/history", key: "navHistory", icon: Clock },
   { to: "/garage", key: "navGarage", icon: Car },
   { to: "/profil", key: "navProfile", icon: User },
 ] as const;
+
+function SiteFooter() {
+  return (
+    <footer className="border-t border-border px-4 py-5 text-center text-[11px] text-muted-foreground">
+      <nav className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+        <Link to="/pris" className="underline hover:text-foreground">
+          Priser
+        </Link>
+        <Link to="/villkor" className="underline hover:text-foreground">
+          Villkor
+        </Link>
+        <Link to="/aterbetalning" className="underline hover:text-foreground">
+          Återbetalning
+        </Link>
+        <Link to="/integritet" className="underline hover:text-foreground">
+          Integritetspolicy
+        </Link>
+      </nav>
+      <p className="mt-3">
+        © {new Date().getFullYear()} Sixten Bruno Raabe. Betalningar hanteras av Paddle.com Market Ltd, vår
+        Merchant of Record.
+      </p>
+    </footer>
+  );
+}
 
 function TabBar() {
   const { t } = useI18n();
