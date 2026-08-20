@@ -98,7 +98,9 @@ function Profil() {
             <p className="truncate text-sm">
               {!signedIn
                 ? t.payNeedLogin
-                : entitlement?.plan === "pro"
+                : entitlement?.plan === "unlimited"
+                  ? t.payPlanUnlimited
+                  : entitlement?.plan === "pro"
                   ? `${t.payPlanPro} · ${t.payLeftPro.replace("{n}", String(entitlement.monthlyLeft))}`
                   : (entitlement?.left ?? 0) > 0
                     ? t.payLeftCredits.replace("{n}", String(entitlement?.left ?? 0))
