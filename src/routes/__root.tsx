@@ -161,7 +161,7 @@ function RootComponent() {
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
         <PaymentTestModeBanner />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <div className="flex-1 pb-24">
+        <div className="flex-1">
           <Outlet />
         </div>
         <SiteFooter />
@@ -182,18 +182,18 @@ const TABS = [
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-border px-4 py-5 text-center text-[11px] text-muted-foreground">
-      <nav className="flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
-        <Link to="/pris" className="underline hover:text-foreground">
+    <footer className="mt-10 border-t border-border px-4 pb-28 pt-6 text-center text-xs text-muted-foreground">
+      <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-medium">
+        <Link to="/pris" className="underline underline-offset-2 hover:text-foreground">
           Priser
         </Link>
-        <Link to="/villkor" className="underline hover:text-foreground">
+        <Link to="/villkor" className="underline underline-offset-2 hover:text-foreground">
           Villkor
         </Link>
-        <Link to="/aterbetalning" className="underline hover:text-foreground">
+        <Link to="/aterbetalning" className="underline underline-offset-2 hover:text-foreground">
           Återbetalning
         </Link>
-        <Link to="/integritet" className="underline hover:text-foreground">
+        <Link to="/integritet" className="underline underline-offset-2 hover:text-foreground">
           Integritetspolicy
         </Link>
       </nav>
