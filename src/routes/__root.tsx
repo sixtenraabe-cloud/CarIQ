@@ -198,7 +198,7 @@ function SiteFooter() {
         </Link>
       </nav>
       <p className="mt-3">
-        © {new Date().getFullYear()} Sixten Bruno Raabe. Betalningar hanteras av Paddle.com Market Ltd, vår
+        © {new Date().getFullYear()} CarIQ App. Betalningar hanteras av Paddle.com Market Ltd, vår
         Merchant of Record.
       </p>
     </footer>
