@@ -174,6 +174,7 @@ function RootComponent() {
 }
 
 const TABS = [
+  ] as const;
   { to: "/", key: "navHome", icon: Home },
   { to: "/history", key: "navHistory", icon: Clock },
   { to: "/garage", key: "navGarage", icon: Car },
