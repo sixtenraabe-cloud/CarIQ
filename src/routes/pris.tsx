@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
-import { Check, Loader2, Sparkles, Zap } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState } from "react";
+import { Check, KeyRound, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
 import { useI18n } from "@/lib/i18n";
-import type { PriceId } from "@/lib/payments.functions";
+import { redeemAccessCode, type PriceId } from "@/lib/payments.functions";
 
 export const Route = createFileRoute("/pris")({
   validateSearch: (search: Record<string, unknown>): { checkout?: string } =>
@@ -77,11 +78,17 @@ function Pricing() {
           ) : (
             <>
               <p className="mt-1 font-display text-xl">
-                {entitlement?.plan === "pro" ? t.payPlanPro : t.payPlanFree}
+                {entitlement?.plan === "unlimited"
+                  ? t.payPlanUnlimited
+                  : entitlement?.plan === "pro"
+                    ? t.payPlanPro
+                    : t.payPlanFree}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {entitlement?.plan === "pro"
-                  ? t.payLeftPro.replace("{n}", String(entitlement.monthlyLeft))
+                {entitlement?.plan === "unlimited"
+                  ? t.codeSub
+                  : entitlement?.plan === "pro"
+                    ? t.payLeftPro.replace("{n}", String(entitlement.monthlyLeft))
                   : left > 0
                     ? t.payLeftCredits.replace("{n}", String(left))
                     : t.payNone}
@@ -190,6 +197,74 @@ function PlanCard({
           </>
         )}
       </Button>
+    </div>
+  );
+}
+
+function RedeemCodeCard({ signedIn, onRedeemed }: { signedIn: boolean; onRedeemed: () => void }) {
+  const { t } = useI18n();
+  const redeem = useServerFn(redeemAccessCode);
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!code.trim() || busy) return;
+    setBusy(true);
+    try {
+      const result = await redeem({ data: { code: code.trim() } });
+      if (result.ok) {
+        setCode("");
+        toast.success(t.codeOk);
+        onRedeemed();
+      } else if (result.reason === "already") {
+        toast.error(t.codeAlready);
+      } else if (result.reason === "exhausted") {
+        toast.error(t.codeExhausted);
+      } else {
+        toast.error(t.codeInvalid);
+      }
+    } catch {
+      toast.error(t.errGeneric);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!signedIn) return null;
+
+  return (
+    <div className="panel mt-5 p-5">
+      <div className="flex items-center gap-2">
+        <span className="grid size-9 place-items-center rounded-xl bg-primary/20 text-primary">
+          <KeyRound className="size-5" />
+        </span>
+        <p className="font-display text-lg">{t.codeTitle}</p>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{t.codeSub}</p>
+      <form
+        className="mt-3 flex gap-2"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void submit();
+        }}
+      >
+        <input
+          value={code}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          placeholder={t.codePlaceholder}
+          aria-label={t.codePlaceholder}
+          className="min-w-0 flex-1 rounded-lg border border-border bg-secondary/60 px-3 py-2 text-sm font-semibold tracking-wide text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none"
+        />
+        <Button type="submit" disabled={busy || !code.trim()}>
+          {busy ? (
+            <>
+              <Loader2 className="size-4 animate-spin" /> {t.codeRedeeming}
+            </>
+          ) : (
+            t.codeRedeem
+          )}
+        </Button>
+      </form>
     </div>
   );
 }
