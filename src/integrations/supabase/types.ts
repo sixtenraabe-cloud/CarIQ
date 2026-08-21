@@ -49,39 +49,51 @@ export type Database = {
           created_at: string
           fuel: string
           id: string
+          last_inspection: string | null
           make: string
           mileage_km: number
           model: string
           nickname: string | null
+          oil_change_date: string | null
+          oil_change_km: number | null
           transmission: string
           updated_at: string
           user_id: string
+          variant: string | null
           year: number
         }
         Insert: {
           created_at?: string
           fuel: string
           id?: string
+          last_inspection?: string | null
           make: string
           mileage_km: number
           model: string
           nickname?: string | null
+          oil_change_date?: string | null
+          oil_change_km?: number | null
           transmission: string
           updated_at?: string
           user_id: string
+          variant?: string | null
           year: number
         }
         Update: {
           created_at?: string
           fuel?: string
           id?: string
+          last_inspection?: string | null
           make?: string
           mileage_km?: number
           model?: string
           nickname?: string | null
+          oil_change_date?: string | null
+          oil_change_km?: number | null
           transmission?: string
           updated_at?: string
           user_id?: string
+          variant?: string | null
           year?: number
         }
         Relationships: []
