@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Mic, Square, Trash2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useI18n } from "@/lib/i18n";
-import { extractAudio } from "@/lib/media-extract";
+import { encodeWav, extractAudio } from "@/lib/media-extract";
 
 export type AudioClip = { base64: string; mediaType: string; url: string; label: string };
 
