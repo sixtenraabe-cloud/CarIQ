@@ -212,10 +212,21 @@ export function AudioRecorder({
       </div>
 
       {recording ? (
-        <p className="mt-3 text-sm text-primary">
-          Spelar in… håll telefonen nära ljudet, gasa eller rulla om det går säkert.
-        </p>
+        <div className="mt-3 space-y-2">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
+            <div
+              className="h-full rounded-full bg-primary transition-[width] duration-75"
+              style={{ width: `${Math.min(100, Math.round(level * 220))}%` }}
+            />
+          </div>
+          <p className="text-sm text-primary">
+            {level < 0.02
+              ? "Nästan inget ljud — håll mikrofonen närmare ljudkällan."
+              : "Spelar in… håll telefonen nära ljudet, gasa eller rulla om det går säkert."}
+          </p>
+        </div>
       ) : null}
+
 
       {clip ? (
         <div className="mt-3">
