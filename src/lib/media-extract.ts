@@ -18,7 +18,7 @@ function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
-function encodeWav(samples: Float32Array, sampleRate: number): Blob {
+export function encodeWav(samples: Float32Array, sampleRate: number): Blob {
   const buffer = new ArrayBuffer(44 + samples.length * 2);
   const view = new DataView(buffer);
   const writeText = (offset: number, text: string) => {
