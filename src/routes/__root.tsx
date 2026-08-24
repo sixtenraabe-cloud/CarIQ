@@ -96,7 +96,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:description", content: "Diagnostisera bilproblem med ljud, foto och intelligent AI-analys." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      
       { name: "twitter:title", content: "CarIQ — Din digitala bilmekaniker" },
       { name: "twitter:description", content: "Diagnostisera bilproblem med ljud, foto och intelligent AI-analys." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/lE1hyG4ER5bzDUP6vC0POLDY4GQ2/social-images/social-1785665111356-social-image.webp" },
