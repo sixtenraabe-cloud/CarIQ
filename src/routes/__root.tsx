@@ -15,7 +15,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { Car, Clock, Home, User } from "lucide-react";
 import { LanguageProvider, useI18n } from "@/lib/i18n";
 import { PaymentTestModeBanner } from "@/components/payment-test-banner";
-import { SplashScreen } from "@/components/splash-screen";
 
 function NotFoundComponent() {
   return (
