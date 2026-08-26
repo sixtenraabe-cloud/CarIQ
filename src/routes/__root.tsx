@@ -15,6 +15,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { Car, Clock, Home, User } from "lucide-react";
 import { LanguageProvider, useI18n } from "@/lib/i18n";
 import { PaymentTestModeBanner } from "@/components/payment-test-banner";
+import { SplashScreen } from "@/components/splash-screen";
 
 function NotFoundComponent() {
   return (
@@ -166,6 +167,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
+      <SplashScreen />
       <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
         <PaymentTestModeBanner />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
