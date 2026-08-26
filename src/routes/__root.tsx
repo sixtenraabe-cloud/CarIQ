@@ -166,8 +166,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
-      <SplashScreen />
-      <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
         <PaymentTestModeBanner />
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <div className="flex-1">
