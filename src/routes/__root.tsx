@@ -167,13 +167,14 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <PaymentTestModeBanner />
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <div className="flex-1">
-          <Outlet />
+        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <SiteFooter />
+          <TabBar />
         </div>
-        <SiteFooter />
-        <TabBar />
-      </div>
       </LanguageProvider>
       <Toaster position="top-center" />
     </QueryClientProvider>
