@@ -6,14 +6,25 @@ import posterAsset from "@/assets/splash-poster.jpg.asset.json";
  * Full-screen video splash shown while the app loads.
  * Plays once per session, then fades out. Falls back to the poster
  * image if the video can't autoplay or fails to load.
+ *
+ * Server-safe: renders nothing during SSR to avoid hydration mismatches.
+ * Maximum visible time is capped at 2.5 seconds.
  */
+const SPLASH_SEEN_KEY = "cariq_splash_seen";
+const MAX_SPLASH_MS = 2000; // 2 s visible video + 0.5 s fade = 2.5 s total
+
 export function SplashScreen() {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return !window.sessionStorage.getItem("cariq_splash_seen");
-  });
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+    if (!window.sessionStorage.getItem(SPLASH_SEEN_KEY)) {
+      setVisible(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!visible) return;
@@ -22,30 +33,21 @@ export function SplashScreen() {
       // Explicit play() — some browsers block even muted autoplay until nudged
       v.play().catch(() => undefined);
     }
-    // Watchdog: if the video can't load/play (no data after 2.5s),
-    // keep the poster up briefly and move on.
-    const watchdog = window.setTimeout(() => {
-      const vid = videoRef.current;
-      if (vid && vid.readyState === 0) setFading(true);
-    }, 2500);
     // Hard cap: never trap the user on the splash
-    const cap = window.setTimeout(() => setFading(true), 6500);
-    return () => {
-      window.clearTimeout(watchdog);
-      window.clearTimeout(cap);
-    };
+    const cap = window.setTimeout(() => setFading(true), MAX_SPLASH_MS);
+    return () => window.clearTimeout(cap);
   }, [visible]);
 
   useEffect(() => {
     if (!fading) return;
     const t = window.setTimeout(() => {
-      window.sessionStorage.setItem("cariq_splash_seen", "1");
+      window.sessionStorage.setItem(SPLASH_SEEN_KEY, "1");
       setVisible(false);
     }, 500);
     return () => window.clearTimeout(t);
   }, [fading]);
 
-  if (!visible) return null;
+  if (!mounted || !visible) return null;
 
   return (
     <div
