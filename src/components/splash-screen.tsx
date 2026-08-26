@@ -20,14 +20,20 @@ export function SplashScreen() {
     const v = videoRef.current;
     if (v) {
       // Explicit play() — some browsers block even muted autoplay until nudged
-      v.play().catch(() => {
-        // Video blocked: show poster briefly, then move on
-        window.setTimeout(() => setFading(true), 2500);
-      });
+      v.play().catch(() => undefined);
     }
+    // Watchdog: if the video can't load/play (no data after 2.5s),
+    // keep the poster up briefly and move on.
+    const watchdog = window.setTimeout(() => {
+      const vid = videoRef.current;
+      if (vid && vid.readyState === 0) setFading(true);
+    }, 2500);
     // Hard cap: never trap the user on the splash
     const cap = window.setTimeout(() => setFading(true), 6500);
-    return () => window.clearTimeout(cap);
+    return () => {
+      window.clearTimeout(watchdog);
+      window.clearTimeout(cap);
+    };
   }, [visible]);
 
   useEffect(() => {
