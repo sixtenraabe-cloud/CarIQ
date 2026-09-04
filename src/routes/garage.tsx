@@ -497,7 +497,7 @@ function Garage() {
                 ))}
               </ul>
             ) : null}
-            {brand ? <p className="text-xs text-muted-foreground">{t.variantHint}</p> : null}
+            
           </div>
           <div className="space-y-2">
             <Label htmlFor="year">{t.year}</Label>
