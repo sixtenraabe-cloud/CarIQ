@@ -203,9 +203,6 @@ function Home() {
         </div>
       ) : null}
 
-
-
-
       <h2 className="rise mb-2 font-display text-lg font-bold tracking-tight" style={{ animationDelay: "110ms" }}>
         {t.helpHeading}
       </h2>
