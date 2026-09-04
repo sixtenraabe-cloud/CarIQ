@@ -203,18 +203,6 @@ function Home() {
         </div>
       ) : null}
 
-      <div
-        className="rise mb-5 rounded-xl border border-border bg-secondary/40 px-4 py-3"
-        style={{ animationDelay: "100ms" }}
-      >
-        <p className="stencil mb-2 block">{t.howTitle}</p>
-        <ol className="space-y-1 text-sm font-medium text-muted-foreground">
-          <li>{t.howStep1}</li>
-          <li>{t.howStep2}</li>
-          <li>{t.howStep3}</li>
-        </ol>
-      </div>
-
       <h2 className="rise mb-2 font-display text-lg font-bold tracking-tight" style={{ animationDelay: "110ms" }}>
         {t.helpHeading}
       </h2>
