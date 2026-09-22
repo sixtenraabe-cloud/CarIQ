@@ -9,7 +9,6 @@ import {
   Receipt,
   Stethoscope,
   TriangleAlert,
-  Waves,
   Wrench,
 } from "lucide-react";
 import type { DiagnosisResult, SecondOpinion, Verdict } from "@/lib/diagnosis-types";

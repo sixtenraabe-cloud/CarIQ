@@ -12,6 +12,7 @@ import {
   Volume2,
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 import { useCar } from "@/lib/car-store";
 import { Button } from "@/components/ui/button";
@@ -251,7 +252,7 @@ function ProblemLink({
   search: Record<string, string>;
   disabled?: boolean;
   payFirst?: boolean;
-  icon: typeof Volume2;
+  icon: LucideIcon;
   label: string;
   tone?: "primary" | "caution" | "soon" | "neutral";
 }) {
