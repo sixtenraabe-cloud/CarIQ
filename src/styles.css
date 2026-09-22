@@ -284,6 +284,10 @@
   padding-bottom: 2rem;
 }
 
+.has-app-navigation .app-page {
+  padding-bottom: max(7rem, calc(5.5rem + env(safe-area-inset-bottom)));
+}
+
 @utility app-safe-bottom {
   padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
