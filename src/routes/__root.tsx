@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -162,18 +163,22 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const corePaths = ["/", "/history", "/garage", "/profil", "/diagnos", "/snabbkoll"];
+  const showAppNavigation = corePaths.includes(pathname);
+  const showFooter = pathname === "/" || pathname === "/pris";
 
   return (
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <PaymentTestModeBanner />
-        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col">
+        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col border-x border-border/40">
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <div className="flex-1">
             <Outlet />
           </div>
-          <SiteFooter />
-          <TabBar />
+          {showFooter ? <SiteFooter hasTabs={showAppNavigation} /> : null}
+          {showAppNavigation ? <TabBar /> : null}
         </div>
       </LanguageProvider>
       <Toaster position="top-center" />
@@ -188,9 +193,9 @@ const TABS = [
   { to: "/profil", key: "navProfile", icon: User },
 ] as const;
 
-function SiteFooter() {
+function SiteFooter({ hasTabs }: { hasTabs: boolean }) {
   return (
-    <footer className="mt-10 border-t border-border px-4 pb-28 pt-6 text-center text-xs text-muted-foreground">
+    <footer className={`mt-auto border-t border-border px-4 pt-6 text-center text-xs text-muted-foreground ${hasTabs ? "pb-24" : "pb-8"}`}>
       <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 font-medium">
         <Link to="/pris" className="underline underline-offset-2 hover:text-foreground">
           Priser
@@ -216,14 +221,14 @@ function SiteFooter() {
 function TabBar() {
   const { t } = useI18n();
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
-      <div className="mx-auto flex max-w-md items-stretch justify-between px-2 py-2">
+    <nav className="app-safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-md items-stretch justify-between px-2 pt-2">
         {TABS.map((tab) => (
           <Link
             key={tab.to}
             to={tab.to}
             activeOptions={{ exact: tab.to === "/" }}
-            className="flex flex-1 flex-col items-center gap-1 py-1 text-[11px] font-medium text-muted-foreground transition-colors [&.active]:text-primary"
+            className="relative flex min-h-12 flex-1 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-semibold text-muted-foreground transition-colors before:absolute before:top-0 before:h-0.5 before:w-5 before:rounded-full before:bg-transparent [&.active]:bg-primary/8 [&.active]:text-primary [&.active]:before:bg-primary"
           >
             <tab.icon className="size-5" />
             {t[tab.key]}

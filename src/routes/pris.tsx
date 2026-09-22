@@ -5,7 +5,6 @@ import { Check, KeyRound, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { PaymentTestModeBanner } from "@/components/payment-test-banner";
 import { useAuth } from "@/hooks/use-auth";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
@@ -65,9 +64,7 @@ function Pricing() {
   const left = entitlement?.left ?? 0;
 
   return (
-    <>
-      <PaymentTestModeBanner />
-      <main className="px-4 pt-8">
+      <main className="app-page">
         <h1 className="font-display text-3xl tracking-tight">{t.payTitle}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t.paySub}</p>
 
@@ -149,7 +146,6 @@ function Pricing() {
           <Link to="/integritet">Integritet</Link>
         </nav>
       </main>
-    </>
   );
 }
 
