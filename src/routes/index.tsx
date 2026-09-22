@@ -1,13 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
+  AlertTriangle,
   ChevronRight,
+  CircleHelp,
   Ear,
+  Gauge,
   Lock,
   Pencil,
   Plus,
   ScanSearch,
+  Volume2,
 } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 
 import { useCar } from "@/lib/car-store";
 import { Button } from "@/components/ui/button";
@@ -18,6 +23,7 @@ import logoAsset from "@/assets/cariq-logo.jpg.asset.json";
 import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
+import { CarStatusPanel } from "@/components/cariq-ui";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -167,53 +173,137 @@ function Home() {
         </div>
       ) : null}
 
-      <h2 className="rise mb-3 font-display text-xl font-bold" style={{ animationDelay: "110ms" }}>
-        {t.helpHeading}
-      </h2>
+      <div className="rise mb-5" style={{ animationDelay: "110ms" }}>
+        <CarStatusPanel
+          title={t.carStatusTitle}
+          label={car ? t.carStatusGood : t.firstCarTitle}
+          body={car ? t.carStatusGoodSub : t.firstCarSub}
+          level={car ? "safe" : "neutral"}
+        />
+      </div>
 
-      <div className="space-y-3">
-        <ActionTile
-          to="/diagnos"
-          disabled={!car}
-          payFirst={needsPayment}
-          className="border-primary bg-primary text-primary-foreground"
-          style={{ animationDelay: "120ms" }}
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-foreground/12 text-primary-foreground">
-            <ScanSearch className="size-5" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold">{t.analyze}</span>
-            <span className="block text-sm leading-snug text-primary-foreground/75">{t.describeHint}</span>
-          </span>
-          <ChevronRight className="size-5 shrink-0 text-primary-foreground/75" />
-        </ActionTile>
+      <div className="space-y-3" aria-labelledby="home-primary-action">
+        <h2 id="home-primary-action" className="sr-only">
+          {t.quickPrimary}
+        </h2>
         <ActionTile
           to="/snabbkoll"
           disabled={!car}
           payFirst={quickNeedsPayment}
-          style={{ animationDelay: "175ms" }}
+          className="border-primary bg-primary text-primary-foreground"
+          style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-primary">
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-foreground/12 text-primary-foreground">
             <Ear className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-semibold">{t.quickHome}</span>
-            <span className="block text-sm leading-snug text-muted-foreground">{t.quickHomeSub}</span>
+            <span className="block text-base font-semibold">{t.quickPrimary}</span>
+            <span className="block text-sm leading-snug text-primary-foreground/75">{t.quickPrimarySub}</span>
             {!quickNeedsPayment && (!signedIn || freeQuickLeft > 0) ? (
-              <span className="mt-2 inline-block rounded-md border border-signal-safe/40 bg-signal-safe/10 px-2 py-1 text-xs font-semibold text-signal-safe">
+              <span className="mt-2 inline-block rounded-md border border-primary-foreground/25 bg-primary-foreground/10 px-2 py-1 text-xs font-semibold text-primary-foreground/90">
                 {t.freeQuickBadge}
               </span>
             ) : null}
           </span>
-          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+          <ChevronRight className="size-5 shrink-0 text-primary-foreground/75" />
         </ActionTile>
       </div>
+
+      <section className="rise mt-6" style={{ animationDelay: "175ms" }} aria-labelledby="secondary-help">
+        <p id="secondary-help" className="stencil mb-3">{t.homeSecondaryTitle}</p>
+        <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
+          <ProblemLink to="/diagnos" search={{ tag: "noise" }} disabled={!car} payFirst={needsPayment} icon={Volume2} label={t.aNoise} />
+          <ProblemLink to="/diagnos" search={{ tag: "warning" }} disabled={!car} payFirst={needsPayment} icon={AlertTriangle} label={t.aWarning} tone="caution" />
+          <ProblemLink to="/diagnos" search={{ tag: "other" }} disabled={!car} payFirst={needsPayment} icon={CircleHelp} label={t.feelsWrongTitle} tone="neutral" />
+          <ProblemLink to="/diagnos" search={{ tag: "performance" }} disabled={!car} payFirst={needsPayment} icon={Gauge} label={t.aPerf} tone="soon" />
+        </div>
+        <ActionTile
+          to="/diagnos"
+          disabled={!car}
+          payFirst={needsPayment}
+          className="bg-card/55"
+          style={{ animationDelay: "210ms" }}
+        >
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-primary">
+            <ScanSearch className="size-5" />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">{t.analyze}</span>
+            <span className="block text-sm leading-snug text-muted-foreground">{t.describeHint}</span>
+          </span>
+          <ChevronRight className="size-5 shrink-0 text-muted-foreground" />
+        </ActionTile>
+      </section>
 
       <p className="mt-6 text-xs text-muted-foreground">
         {APP_NAME} · {t.disclaimer}
       </p>
     </main>
+  );
+}
+
+function ProblemLink({
+  to,
+  search,
+  disabled,
+  payFirst,
+  icon: Icon,
+  label,
+  tone = "primary",
+}: {
+  to: string;
+  search: Record<string, string>;
+  disabled?: boolean;
+  payFirst?: boolean;
+  icon: LucideIcon;
+  label: string;
+  tone?: "primary" | "caution" | "soon" | "neutral";
+}) {
+  const { t } = useI18n();
+  const toneClass =
+    tone === "caution"
+      ? "text-signal-caution bg-signal-caution/10 border-signal-caution/35"
+      : tone === "soon"
+        ? "text-signal-soon bg-signal-soon/10 border-signal-soon/35"
+        : tone === "neutral"
+          ? "text-muted-foreground bg-secondary/60 border-border"
+          : "text-primary bg-primary/10 border-primary/35";
+  const content = (
+    <>
+      <span className={`grid size-10 shrink-0 place-items-center rounded-lg border ${toneClass}`}>
+        <Icon className="size-4" aria-hidden="true" />
+      </span>
+      <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">{label}</span>
+      <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+    </>
+  );
+  if (disabled) {
+    return (
+      <Link
+        to="/garage"
+        aria-label={t.addCarToUse}
+        className="action-row flex min-h-16 items-center gap-3 p-3 text-left opacity-60"
+      >
+        {content}
+      </Link>
+    );
+  }
+  if (payFirst) {
+    return (
+      <Link to="/pris" className="action-row flex min-h-16 items-center gap-3 p-3 text-left">
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      search={search}
+      aria-label={label}
+      className="action-row flex min-h-16 items-center gap-3 p-3 text-left"
+    >
+      {content}
+    </Link>
   );
 }
 
@@ -226,7 +316,7 @@ function ActionTile({
   style,
   children,
 }: {
-  to: string;
+  to: "/diagnos" | "/snabbkoll";
   search?: Record<string, string>;
   disabled?: boolean;
   payFirst?: boolean;

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Search, Trash2 } from "lucide-react";
+import { CheckCircle2, Loader2, Search, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { suggestBrands } from "@/lib/car-brands";
 import { BrandLogo } from "@/components/brand-logo";
 import { fuelsFor, isKnownCar, normalizeBrand, suggestModels, suggestVariants } from "@/lib/car-models";
 import { CarSilhouette } from "@/components/car-silhouette";
+import { CarStatusPanel } from "@/components/cariq-ui";
 
 /** Swedish inspections run yearly (14 months after the previous one). */
 function nextInspectionFrom(iso: string) {
@@ -221,7 +222,14 @@ function Garage() {
             model={car.model}
             className="relative mx-auto w-60"
           />
-          <dl className="relative grid grid-cols-2 gap-2 text-sm">
+          <CarStatusPanel
+            title={t.garageHealthTitle}
+            label={t.garageHealthGood}
+            body={t.carStatusGoodSub}
+            level="safe"
+          />
+
+          <dl className="relative mt-4 grid grid-cols-2 gap-2 text-sm">
             <Fact label={t.year} value={String(car.year)} />
             <Fact label={t.mileage} value={`${car.mileageKm.toLocaleString("sv-SE")} km`} />
             <Fact label={t.transmission} value={carValueLabel(car.transmission, t)} />
@@ -268,6 +276,18 @@ function Garage() {
           {ready && car ? t.editCarSub : t.garageSub}
         </p>
       </div>
+
+      {!car ? (
+        <div className="panel mt-5 flex items-start gap-3 p-4">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary/35 bg-primary/10 text-primary">
+            <CheckCircle2 className="size-4" />
+          </span>
+          <div>
+            <h2 className="text-lg">{t.firstCarTitle}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.firstCarSub}</p>
+          </div>
+        </div>
+      ) : null}
 
       {plateCard ? (
         <div
@@ -346,7 +366,7 @@ function Garage() {
 
       {showForm ? (
         <>
-      <div
+          <div
         className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
         style={{ animationDelay: "60ms" }}
       >
