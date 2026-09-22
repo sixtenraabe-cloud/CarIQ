@@ -190,10 +190,10 @@ function Home() {
           to="/snabbkoll"
           disabled={!car}
           payFirst={quickNeedsPayment}
-          className="border-2 border-primary bg-primary text-primary-foreground hover:border-primary/80"
+          className="border-2 border-primary bg-card text-primary-foreground hover:border-primary/80"
           style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-foreground/15 text-primary-foreground">
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <Ear className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
