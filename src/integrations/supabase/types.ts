@@ -140,6 +140,7 @@ export type Database = {
           had_audio: boolean
           headline: string
           id: string
+          resolved_at: string | null
           symptom: string
           symptom_tags: string[]
           user_id: string
@@ -157,6 +158,7 @@ export type Database = {
           had_audio?: boolean
           headline: string
           id?: string
+          resolved_at?: string | null
           symptom: string
           symptom_tags?: string[]
           user_id: string
@@ -174,6 +176,7 @@ export type Database = {
           had_audio?: boolean
           headline?: string
           id?: string
+          resolved_at?: string | null
           symptom?: string
           symptom_tags?: string[]
           user_id?: string
