@@ -176,10 +176,20 @@ function Home() {
       <div className="rise mb-5" style={{ animationDelay: "110ms" }}>
         <CarStatusPanel
           title={t.carStatusTitle}
-          label={car ? t.carStatusGood : t.firstCarTitle}
-          body={car ? t.carStatusGoodSub : t.firstCarSub}
-          level={car ? "safe" : "neutral"}
-        />
+          label={active ? active.headline : car ? t.carStatusGood : t.firstCarTitle}
+          body={active ? t.carStatusActiveSub : car ? t.carStatusGoodSub : t.firstCarSub}
+          level={active ? (active.verdict as StatusLevel) : car ? "safe" : "neutral"}
+        >
+          {active ? (
+            <Button
+              className="w-full"
+              disabled={resolve.isPending}
+              onClick={() => resolve.mutate(active.id)}
+            >
+              <Check className="size-4" /> {t.issueFixed}
+            </Button>
+          ) : null}
+        </CarStatusPanel>
       </div>
 
       <div className="space-y-3" aria-labelledby="home-primary-action">
