@@ -10,3 +10,4 @@
 - [x] Historik: skannbara poster och tydligt tomläge
 - [x] Konto, Premium och auth: konsekvent fokuserade vyer
 - [x] Slutkontroll vid 320 px och vanlig mobil
+- [x] Förfina första problemvalet med ikoner och matchande statusfärger
