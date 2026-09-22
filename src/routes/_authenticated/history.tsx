@@ -75,7 +75,7 @@ function HistoryPage() {
   const rows = query.data ?? [];
 
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page">
       <p className="stencil">{t.historyKicker}</p>
       <h1 className="mt-2 text-2xl">{t.historyTitle}</h1>
 
@@ -103,13 +103,18 @@ function HistoryPage() {
                 <button
                   aria-label={t.deleteReport}
                   onClick={() => del.mutate(row.id)}
-                  className="text-muted-foreground transition-colors hover:text-destructive"
+                  className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
                 >
                   <Trash2 className="size-4" />
                 </button>
               </div>
-              <p className="mt-3 text-sm text-muted-foreground">{row.symptom}</p>
-              <p className="mt-3 text-xs text-muted-foreground">
+              <details className="group mt-3 border-t border-border pt-3">
+                <summary className="min-h-11 cursor-pointer list-none py-2 text-sm font-semibold text-primary">
+                  {t.showMore}
+                </summary>
+                <p className="pb-2 text-sm text-muted-foreground">{row.symptom}</p>
+              </details>
+              <p className="mt-2 text-xs text-muted-foreground">
                 {new Date(row.created_at).toLocaleString(currencyFor(lang).locale)} · {row.confidence}%{" "}
                 {t.confidence.toLowerCase()} · {row.estimated_cost}
                 {row.had_audio ? ` · ${t.audioAnalyzed}` : ""}

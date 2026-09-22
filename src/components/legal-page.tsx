@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 export function LegalPage({ title, updated, children }: { title: string; updated: string; children: ReactNode }) {
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page">
       <h1 className="font-display text-2xl tracking-tight">{title}</h1>
       <p className="mt-1 text-xs text-muted-foreground">Senast uppdaterad: {updated}</p>
       <div className="mt-5 space-y-5 text-sm leading-relaxed text-foreground/90 [&_h2]:font-display [&_h2]:text-base [&_h2]:text-foreground [&_li]:mt-1 [&_ul]:list-disc [&_ul]:pl-5">

@@ -148,7 +148,7 @@ function AuthPage() {
   };
 
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page my-auto w-full">
       <div className="mb-6 flex items-start justify-between gap-3">
         <div>
           <p className="stencil">{t.authKicker}</p>

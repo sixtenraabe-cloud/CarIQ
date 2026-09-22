@@ -247,7 +247,6 @@ export function DiagnosisReport({
       ) : null}
 
       <section className={`surface rise relative overflow-hidden border-l-4 p-5 ${style.border}`}>
-        <div className={`pointer-events-none absolute -top-16 -right-12 size-48 rounded-full blur-3xl ${style.bg}`} />
         <div className="relative">
           <p className="stencil">{carLine}</p>
           <div className="mt-3 flex items-start justify-between gap-4">
@@ -270,6 +269,10 @@ export function DiagnosisReport({
           </div>
         </div>
       </section>
+
+      <SectionCard icon={Stethoscope} title={t.recommendation}>
+        <p className="text-[15px] leading-relaxed whitespace-pre-line">{result.advice}</p>
+      </SectionCard>
 
       {result.mechanicNote ? (
         <SectionCard icon={Wrench} title={t.mechanicSays}>
@@ -338,9 +341,6 @@ export function DiagnosisReport({
       ) : null}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <SectionCard icon={Stethoscope} title={t.recommendation}>
-          <p className="text-sm leading-relaxed whitespace-pre-line">{result.advice}</p>
-        </SectionCard>
         <SectionCard icon={Receipt} title={t.estimatedCost} className="flex flex-col justify-between">
           <div>
             <p className="font-display brand-text text-3xl">{result.estimatedCost}</p>
