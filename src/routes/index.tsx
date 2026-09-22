@@ -260,7 +260,6 @@ function ProblemLink({
   tone?: "primary" | "caution" | "soon" | "neutral";
 }) {
   const { t } = useI18n();
-  const href = disabled ? "/garage" : payFirst ? "/pris" : to;
   const toneClass =
     tone === "caution"
       ? "text-signal-caution bg-signal-caution/10 border-signal-caution/35"
@@ -269,18 +268,41 @@ function ProblemLink({
         : tone === "neutral"
           ? "text-muted-foreground bg-secondary/60 border-border"
           : "text-primary bg-primary/10 border-primary/35";
-  return (
-    <Link
-      to={href}
-      search={disabled || payFirst ? undefined : search}
-      aria-label={disabled ? t.addCarToUse : label}
-      className={`action-row flex min-h-16 items-center gap-3 p-3 text-left ${disabled ? "opacity-60" : ""}`}
-    >
+  const content = (
+    <>
       <span className={`grid size-10 shrink-0 place-items-center rounded-lg border ${toneClass}`}>
         <Icon className="size-4" aria-hidden="true" />
       </span>
       <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">{label}</span>
       <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+    </>
+  );
+  if (disabled) {
+    return (
+      <Link
+        to="/garage"
+        aria-label={t.addCarToUse}
+        className="action-row flex min-h-16 items-center gap-3 p-3 text-left opacity-60"
+      >
+        {content}
+      </Link>
+    );
+  }
+  if (payFirst) {
+    return (
+      <Link to="/pris" className="action-row flex min-h-16 items-center gap-3 p-3 text-left">
+        {content}
+      </Link>
+    );
+  }
+  return (
+    <Link
+      to={to}
+      search={search}
+      aria-label={label}
+      className="action-row flex min-h-16 items-center gap-3 p-3 text-left"
+    >
+      {content}
     </Link>
   );
 }
