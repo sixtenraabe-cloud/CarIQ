@@ -9,4 +9,4 @@
 - [x] Resultat: körbesked, åtgärd och sannolik orsak i rätt ordning
 - [x] Historik: skannbara poster och tydligt tomläge
 - [x] Konto, Premium och auth: konsekvent fokuserade vyer
-- [ ] Slutkontroll vid 320 px och vanlig mobil
+- [x] Slutkontroll vid 320 px och vanlig mobil
