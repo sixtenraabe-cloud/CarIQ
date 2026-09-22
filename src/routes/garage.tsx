@@ -423,9 +423,6 @@ function Garage() {
               id="model"
               autoComplete="off"
               disabled={!brand}
-              required
-              aria-invalid={variantError}
-              className={variantError ? "border-destructive focus-visible:ring-destructive" : ""}
               aria-invalid={modelError}
               className={modelError ? "border-destructive focus-visible:ring-destructive" : ""}
               placeholder={brand ? (brand === "BMW" ? "E92" : "V70") : t.pickMakeFirst}
@@ -463,6 +460,9 @@ function Garage() {
               id="variant"
               autoComplete="off"
               disabled={!brand}
+              required
+              aria-invalid={variantError}
+              className={variantError ? "border-destructive focus-visible:ring-destructive" : ""}
               placeholder={brand ? (brand === "BMW" ? "335i" : t.variant) : t.pickMakeFirst}
               value={form.variant}
               onFocus={() => setShowVariantSuggestions(true)}
