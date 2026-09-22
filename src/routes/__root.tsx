@@ -170,7 +170,11 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <LanguageProvider>
         <PaymentTestModeBanner />
-        <div className="mx-auto flex min-h-screen w-full max-w-md flex-col border-x border-border/40">
+        <div
+          className={`mx-auto flex min-h-screen w-full max-w-md flex-col border-x border-border/40 ${
+            showAppNavigation ? "has-app-navigation" : ""
+          }`}
+        >
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <div className="flex-1">
             <Outlet />
