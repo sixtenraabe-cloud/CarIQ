@@ -14,8 +14,9 @@ import {
 } from "lucide-react";
 import type { DiagnosisResult, SecondOpinion, Verdict } from "@/lib/diagnosis-types";
 import type { Cause } from "@/lib/diagnosis-types";
-import { VERDICTS, VERDICT_DOT } from "@/lib/diagnosis-types";
+import { VERDICTS } from "@/lib/diagnosis-types";
 import { useI18n, type Dict } from "@/lib/i18n";
+import { StatusMark, StatusPill } from "@/components/cariq-ui";
 
 type TextKey = { [K in keyof Dict]: Dict[K] extends string ? K : never }[keyof Dict];
 
@@ -73,15 +74,11 @@ const VERDICT_ICON: Record<Verdict, typeof CheckCircle2> = {
 
 export function VerdictBadge({ verdict }: { verdict: Verdict }) {
   const { t } = useI18n();
-  const style = VERDICT_STYLE[verdict] ?? VERDICT_STYLE.caution;
   const key = VERDICT_KEY[verdict] ?? "sevCaution";
   return (
-    <span
-      className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide uppercase ${style.border} ${style.text} ${style.bg}`}
-    >
-      <span aria-hidden="true">{VERDICT_DOT[verdict] ?? "🟡"}</span>
+    <StatusPill level={verdict}>
       {t[key]}
-    </span>
+    </StatusPill>
   );
 }
 
@@ -148,15 +145,13 @@ function SeverityScale({ active }: { active: Verdict }) {
         const style = VERDICT_STYLE[level];
         const on = level === active;
         return (
-          <div
+            <div
             key={level}
             className={`rounded-xl border p-2 text-center transition-all ${
               on ? `${style.border} ${style.bg} scale-[1.03]` : "border-border opacity-40"
             }`}
           >
-            <div className="text-base leading-none" aria-hidden="true">
-              {VERDICT_DOT[level]}
-            </div>
+              <StatusMark level={level} className="mx-auto size-7 rounded-md" />
             <p className={`mt-1 text-[11px] leading-tight font-semibold ${on ? style.text : "text-muted-foreground"}`}>
               {t[VERDICT_KEY[level]]}
             </p>
@@ -262,7 +257,14 @@ export function DiagnosisReport({
               <p className="stencil mt-1 text-[10px]">{t.confidence}</p>
             </div>
           </div>
-          <p className="mt-4 text-lg leading-snug text-foreground">{result.headline}</p>
+          <div className="mt-5 rounded-lg border border-border bg-secondary/35 p-4">
+            <p className="stencil mb-1">{t.canDriveTitle}</p>
+            <p className="text-base leading-relaxed text-foreground">{t[VERDICT_SUB[result.verdict]]}</p>
+          </div>
+          <div className="mt-4">
+            <p className="stencil mb-1">{t.whatWeThink}</p>
+            <p className="text-lg leading-snug text-foreground">{result.headline}</p>
+          </div>
           <div className="mt-5">
             <p className="stencil mb-2">{t.severityScale}</p>
             <SeverityScale active={result.verdict} />
@@ -273,46 +275,6 @@ export function DiagnosisReport({
       <SectionCard icon={Stethoscope} title={t.recommendation}>
         <p className="text-[15px] leading-relaxed whitespace-pre-line">{result.advice}</p>
       </SectionCard>
-
-      {result.mechanicNote ? (
-        <SectionCard icon={Wrench} title={t.mechanicSays}>
-          <div className="space-y-2">
-            {result.mechanicNote
-              .split(/(?<=[.!?])\s+/)
-              .map((s) => s.trim())
-              .filter(Boolean)
-              .slice(0, 3)
-              .map((s) => (
-                <p key={s} className="text-[15px] leading-relaxed text-foreground/90">
-                  {s}
-                </p>
-              ))}
-          </div>
-        </SectionCard>
-      ) : null}
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        {result.lampName ? (
-          <div className="surface border-l-4 border-signal-caution p-5">
-            <div className="mb-2 flex items-center gap-2.5">
-              <span className="grid size-8 place-items-center rounded-lg bg-signal-caution/12 text-signal-caution">
-                <AlertTriangle className="size-4" />
-              </span>
-              <p className="stencil">{t.lampTitle}</p>
-            </div>
-            <p className="font-semibold">{result.lampName}</p>
-            {result.lampMeaning ? (
-              <p className="mt-1 text-sm whitespace-pre-line text-muted-foreground">{result.lampMeaning}</p>
-            ) : null}
-          </div>
-        ) : null}
-
-        {result.audioUsed && result.audioNote ? (
-          <SectionCard icon={Waves} title={t.audioSounded}>
-            <p className="text-sm leading-relaxed">{result.audioNote}</p>
-          </SectionCard>
-        ) : null}
-      </div>
 
       {causes.length ? (
         <div>
@@ -348,6 +310,52 @@ export function DiagnosisReport({
           </div>
         </SectionCard>
       </div>
+
+      <details className="surface group p-5">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3">
+          <span className="flex items-center gap-2.5">
+            <span className="grid size-8 place-items-center rounded-lg bg-secondary text-primary">
+              <Wrench className="size-4" />
+            </span>
+            <span className="stencil">{t.technicalDetails}</span>
+          </span>
+          <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="mt-4 space-y-4 border-t border-border pt-4">
+          {result.mechanicNote ? (
+            <div>
+              <p className="font-semibold">{t.mechanicSays}</p>
+              <div className="mt-2 space-y-2">
+                {result.mechanicNote
+                  .split(/(?<=[.!?])\s+/)
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .slice(0, 3)
+                  .map((s) => (
+                    <p key={s} className="text-sm leading-relaxed text-muted-foreground">
+                      {s}
+                    </p>
+                  ))}
+              </div>
+            </div>
+          ) : null}
+          {result.lampName ? (
+            <div className="rounded-lg border border-signal-caution/35 bg-signal-caution/10 p-3">
+              <p className="font-semibold text-signal-caution">{t.lampTitle}</p>
+              <p className="mt-1 text-sm font-semibold">{result.lampName}</p>
+              {result.lampMeaning ? (
+                <p className="mt-1 text-sm whitespace-pre-line text-muted-foreground">{result.lampMeaning}</p>
+              ) : null}
+            </div>
+          ) : null}
+          {result.audioUsed && result.audioNote ? (
+            <div>
+              <p className="font-semibold">{t.audioSounded}</p>
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{result.audioNote}</p>
+            </div>
+          ) : null}
+        </div>
+      </details>
 
       {secondOpinion ? (
         <section className="surface border-l-4 border-primary p-5">

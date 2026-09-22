@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useState } from "react";
-import { ChevronLeft, ImagePlus, Loader2, RotateCcw, Sparkles, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ChevronLeft, ImagePlus, Loader2, RotateCcw, ScanSearch, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { quickSoundCheck, type QuickCheck } from "@/lib/diagnose.functions";
 import { useCar } from "@/lib/car-store";
 import { useI18n } from "@/lib/i18n";
 import { extractFromVideo } from "@/lib/media-extract";
+import { AnalysisProgress, StatusMark } from "@/components/cariq-ui";
 
 export const Route = createFileRoute("/_authenticated/snabbkoll")({
   head: () => ({
@@ -34,16 +35,10 @@ export const Route = createFileRoute("/_authenticated/snabbkoll")({
   component: QuickCheckPage,
 });
 
-const TONE: Record<QuickCheck["verdict"], string> = {
-  drive: "border-signal-safe text-signal-safe",
-  workshop: "border-signal-caution text-signal-caution",
-  stop: "border-signal-urgent text-signal-urgent",
-};
-
-const DOT: Record<QuickCheck["verdict"], string> = {
-  drive: "🟢",
-  workshop: "🟡",
-  stop: "🔴",
+const TONE: Record<QuickCheck["verdict"], { border: string; level: "safe" | "caution" | "urgent" }> = {
+  drive: { border: "border-signal-safe", level: "safe" },
+  workshop: { border: "border-signal-caution", level: "caution" },
+  stop: { border: "border-signal-urgent", level: "urgent" },
 };
 
 function toBase64(file: Blob): Promise<string> {
@@ -68,6 +63,7 @@ function QuickCheckPage() {
   const [image, setImage] = useState<{ base64: string; mediaType: string; url: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<QuickCheck | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const label =
     result?.verdict === "drive"
@@ -75,6 +71,18 @@ function QuickCheckPage() {
       : result?.verdict === "stop"
         ? t.quickStop
         : t.quickWorkshop;
+  const progressSteps = [t.analysisStepPrepare, t.analysisStepListen, t.analysisStepAnalyze, t.analysisStepCompare, t.analysisStepResult];
+
+  useEffect(() => {
+    if (!loading) {
+      setProgress(0);
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setProgress((value) => Math.min(progressSteps.length - 1, value + 1));
+    }, 900);
+    return () => window.clearInterval(timer);
+  }, [loading, progressSteps.length]);
 
   const pickImage = async (file: File) => {
     const isVideo = (file.type || "").startsWith("video/");
@@ -228,15 +236,20 @@ function QuickCheckPage() {
               t.quickRun
             )}
           </Button>
+          {loading ? <AnalysisProgress steps={progressSteps} activeIndex={progress} /> : null}
         </div>
       ) : (
         <div className="space-y-5">
-          <div className={`panel border-l-4 p-4 ${TONE[result.verdict]}`}>
-            <p className="text-sm font-semibold">
-              {DOT[result.verdict]} {label}
-            </p>
+          <div className={`surface border-l-4 p-5 ${TONE[result.verdict].border}`}>
+            <div className="flex items-start gap-3">
+              <StatusMark level={TONE[result.verdict].level} />
+              <div className="min-w-0 flex-1">
+                <p className="stencil">{t.canDriveTitle}</p>
+                <h2 className="mt-1 text-xl">{label}</h2>
+              </div>
+            </div>
             {result.headline ? (
-              <p className="mt-1 text-lg font-bold text-foreground">{result.headline}</p>
+              <p className="mt-4 text-lg font-bold text-foreground">{result.headline}</p>
             ) : null}
             <p className="mt-2 text-sm whitespace-pre-line text-muted-foreground">{result.note}</p>
           </div>
@@ -246,7 +259,7 @@ function QuickCheckPage() {
             <p className="mt-1 text-sm text-muted-foreground">{t.quickDeeperSub}</p>
             <Button asChild className="mt-3 w-full">
               <Link to="/diagnos" search={{ tag: "noise" }}>
-                <Sparkles className="size-4" /> {t.quickFull}
+                <ScanSearch className="size-4" /> {t.quickFull}
               </Link>
             </Button>
           </div>
