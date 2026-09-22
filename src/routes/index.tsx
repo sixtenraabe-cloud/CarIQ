@@ -28,6 +28,8 @@ import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
 import { CarStatusPanel } from "@/components/cariq-ui";
+import type { StatusLevel } from "@/components/cariq-ui";
+import { activeDiagnosis, resolveDiagnosis } from "@/lib/diagnose.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,6 +64,25 @@ function Home() {
   // The quick check is free once per calendar month.
   const freeQuickLeft = entitlement?.freeQuickLeft ?? 0;
   const quickNeedsPayment = signedIn ? needsPayment && !entLoading && freeQuickLeft <= 0 : false;
+
+  // The car status mirrors the newest analysis until the owner marks it as fixed.
+  const fetchActive = useServerFn(activeDiagnosis);
+  const markFixed = useServerFn(resolveDiagnosis);
+  const queryClient = useQueryClient();
+  const activeQuery = useQuery({
+    queryKey: ["active-diagnosis"],
+    queryFn: () => fetchActive(),
+    enabled: Boolean(user),
+  });
+  const active = activeQuery.data ?? null;
+  const resolve = useMutation({
+    mutationFn: (id: string) => markFixed({ data: { id } }),
+    onSuccess: () => {
+      toast.success(t.issueFixedDone);
+      void queryClient.invalidateQueries({ queryKey: ["active-diagnosis"] });
+      void queryClient.invalidateQueries({ queryKey: ["diagnoses"] });
+    },
+  });
   return (
     <main className="app-page">
       <header className="rise relative z-50 mb-7 flex items-center justify-between gap-3">
