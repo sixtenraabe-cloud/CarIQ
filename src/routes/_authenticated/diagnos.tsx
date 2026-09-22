@@ -380,13 +380,13 @@ function Diagnos() {
   };
 
   return (
-    <main className="px-4 pt-6">
+    <main className="app-page">
       <header className="mb-5 flex items-center gap-3">
         {step < 3 ? (
           <button
             onClick={back}
             aria-label={t.back}
-            className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground"
+            className="grid size-11 place-items-center rounded-lg border border-border text-muted-foreground"
           >
             <ChevronLeft className="size-5" />
           </button>
@@ -451,7 +451,7 @@ function Diagnos() {
       ) : null}
 
       {step === 1 ? (
-        <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
           {PROBLEMS.map((option) => (
             <button
               key={option.key}
@@ -459,7 +459,7 @@ function Diagnos() {
                 setProblemKey(option.key);
                 setStep(2);
               }}
-              className={`tile min-h-24 p-4 text-left text-sm font-semibold active:scale-[0.99] ${
+              className={`tile min-h-16 p-4 text-left text-sm font-semibold active:scale-[0.99] ${
                 problemKey === option.key ? "border-primary bg-primary/15" : ""
               }`}
             >
@@ -471,6 +471,18 @@ function Diagnos() {
 
       {step === 2 ? (
         <div className="space-y-5">
+          {isLamp ? null : showWhere ? (
+            <div>
+              <p className="stencil mb-2">{t.whereFrom}</p>
+              <CarDiagram
+                make={car?.make ?? ""}
+                model={car?.model ?? ""}
+                value={zone}
+                onChange={setZone}
+              />
+            </div>
+          ) : null}
+
           <div>
             <p className="stencil mb-2">{isLamp ? t.lampPhoto : t.uploadMedia}</p>
               <div className="panel p-4">
@@ -538,10 +550,6 @@ function Diagnos() {
           {isLamp ? (
             <>
               <div className="surface relative overflow-hidden p-4">
-                <span
-                  aria-hidden="true"
-                  className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
-                />
                 <p className="stencil relative mb-1">{t.lampPickTitle}</p>
                 <p className="relative mb-3 text-xs text-muted-foreground">{t.lampPickHint}</p>
                 <div className="relative grid grid-cols-4 gap-2">
@@ -556,7 +564,7 @@ function Diagnos() {
                           onClick={() => setLamp(active ? "" : key)}
                           className={`flex flex-col items-center gap-1.5 rounded-xl border p-2 text-center transition-all duration-200 ${
                             active
-                              ? "border-primary bg-primary/20 shadow-[0_0_18px_-4px_var(--primary)]"
+                              ? "border-primary bg-primary/15"
                               : "border-border bg-card/60 hover:border-primary/60 hover:bg-primary/10"
                           }`}
                         >
@@ -607,10 +615,6 @@ function Diagnos() {
 
           {car && !isLamp && !issuesDismissed && (issuesLoading || issues.length) ? (
             <div className="surface relative overflow-hidden p-4">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute -right-14 -top-20 size-48 rounded-full bg-primary/20 blur-3xl"
-              />
               <p className="stencil relative mb-1">{t.knownTitle}</p>
               <p className="relative mb-3 text-xs text-muted-foreground">
                 {issuesLoading ? t.knownLoading : t.knownHint}
@@ -629,8 +633,8 @@ function Diagnos() {
                       }
                       className={`rounded-full border px-3 py-2 text-left text-sm transition-all duration-200 ${
                         active
-                          ? "border-primary bg-primary/20 text-foreground shadow-[0_0_18px_-4px_var(--primary)]"
-                          : "border-border bg-card/60 text-foreground/90 shadow-[0_0_12px_-6px_var(--primary)] hover:border-primary/60 hover:bg-primary/10 hover:shadow-[0_0_16px_-4px_var(--primary)]"
+                           ? "border-primary bg-primary/15 text-foreground"
+                           : "border-border bg-card/60 text-foreground/90 hover:border-primary/60 hover:bg-primary/10"
                       }`}
                     >
                       {issue}
@@ -650,18 +654,6 @@ function Diagnos() {
                   </button>
                 ) : null}
               </div>
-            </div>
-          ) : null}
-
-          {showWhere ? (
-            <div>
-              <p className="stencil mb-2">{t.whereFrom}</p>
-              <CarDiagram
-                make={car?.make ?? ""}
-                model={car?.model ?? ""}
-                value={zone}
-                onChange={setZone}
-              />
             </div>
           ) : null}
 
@@ -765,7 +757,7 @@ function Chip({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+      className={`min-h-11 rounded-lg border px-3 py-2 text-sm transition-colors ${
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border text-muted-foreground"

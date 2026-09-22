@@ -35,21 +35,21 @@ function Profil() {
   const navigate = useNavigate();
 
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page">
       <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl">{t.navProfile}</h1>
         <LanguagePicker />
       </div>
 
-      <div className="panel mt-6 space-y-3 p-5">
-        <div className="flex items-center gap-3">
+      <div className="panel mt-6 divide-y divide-border p-5">
+        <div className="flex items-center gap-3 pb-4">
           <Mail className="size-5 text-primary" />
           <div className="min-w-0">
             <p className="stencil">{t.account}</p>
             <p className="truncate text-sm">{user?.email ?? t.notSignedIn}</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 pt-4">
           <ShieldCheck className="size-5 text-primary" />
           <div className="min-w-0 flex-1">
             <p className="stencil">{t.savedCarLabel}</p>

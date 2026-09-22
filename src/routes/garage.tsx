@@ -113,7 +113,10 @@ function Garage() {
   const modelError = Boolean(brand) && form.model.trim() !== "" && !knownCar;
   const allowedFuels = fuelsFor(form.make, form.model);
   const fuelLocked = knownCar && allowedFuels.length === 1;
-  const valid = Boolean(knownCar && Number(form.year) >= 1950 && form.mileageKm !== "");
+  const variantError = knownCar && form.variant.trim() === "";
+  const valid = Boolean(
+    knownCar && form.variant.trim() && Number(form.year) >= 1950 && form.mileageKm !== "",
+  );
   const plateCard = lang === "sv" && !car;
   const showForm = !plateCard || manualOpen || form.make.trim() !== "";
 
@@ -195,17 +198,13 @@ function Garage() {
     const sinceOil =
       car.oilChangeKm && car.mileageKm > car.oilChangeKm ? car.mileageKm - car.oilChangeKm : null;
     return (
-      <main className="px-4 pt-8">
+      <main className="app-page">
         <div className="rise">
           <h1 className="text-2xl">{t.savedCarTitle}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{t.savedCarLocked}</p>
         </div>
 
         <div className="surface rise relative mt-5 overflow-hidden p-5" aria-disabled="true">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
-          />
           <div className="relative flex items-center gap-2">
             <BrandLogo make={car.make} size={34} />
             <div className="min-w-0">
@@ -220,7 +219,7 @@ function Garage() {
           <CarSilhouette
             make={car.make}
             model={car.model}
-            className="relative mx-auto w-60 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+            className="relative mx-auto w-60"
           />
           <dl className="relative grid grid-cols-2 gap-2 text-sm">
             <Fact label={t.year} value={String(car.year)} />
@@ -262,7 +261,7 @@ function Garage() {
   }
 
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page">
       <div className="rise">
         <h1 className="text-2xl">{ready && car ? t.editCar : t.garageTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -275,10 +274,6 @@ function Garage() {
           className="surface rise relative mt-5 overflow-hidden p-5"
           style={{ animationDelay: "40ms" }}
         >
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
-          />
           <div className="relative">
             <p className="stencil">{t.plateSection}</p>
             <p className="mt-1 text-xs text-muted-foreground">{t.plateHint}</p>
@@ -355,10 +350,6 @@ function Garage() {
         className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
         style={{ animationDelay: "60ms" }}
       >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -left-16 -top-24 size-56 rounded-full bg-primary/20 blur-3xl"
-        />
         <div className="relative flex items-center gap-2">
           <span className="stencil">{t.myCar}</span>
           <span className="ml-auto flex items-center gap-1" aria-hidden="true">
@@ -383,7 +374,7 @@ function Garage() {
         <CarSilhouette
           make={form.make}
           model={form.model}
-          className="relative mx-auto w-60 drop-shadow-[0_18px_28px_rgba(0,0,0,0.55)]"
+          className="relative mx-auto w-60"
         />
       </div>
 
@@ -469,6 +460,9 @@ function Garage() {
               id="variant"
               autoComplete="off"
               disabled={!brand}
+              required
+              aria-invalid={variantError}
+              className={variantError ? "border-destructive focus-visible:ring-destructive" : ""}
               placeholder={brand ? (brand === "BMW" ? "335i" : t.variant) : t.pickMakeFirst}
               value={form.variant}
               onFocus={() => setShowVariantSuggestions(true)}
@@ -608,7 +602,7 @@ function Garage() {
 
       <Button
         size="lg"
-        className="mt-5 w-full shadow-[0_18px_36px_-20px] shadow-primary/80 transition-transform active:scale-[0.99]"
+        className="mt-5 w-full"
         disabled={!valid}
         onClick={submit}
       >
@@ -653,6 +647,8 @@ function Garage() {
       ) : null}
       {makeError || modelError ? (
         <p className="mt-2 text-center text-xs text-destructive">{t.unknownCar}</p>
+      ) : variantError ? (
+        <p className="mt-2 text-center text-xs text-destructive">{t.variant}</p>
       ) : brand ? (
         <p className="mt-2 text-center text-xs text-muted-foreground">{t.modelSuggestHint}</p>
       ) : null}
@@ -668,7 +664,7 @@ function Garage() {
 
 function Fact({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-border bg-secondary/40 px-3 py-2">
+    <div className="min-w-0 rounded-lg border border-border bg-secondary/40 px-3 py-2">
       <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</dt>
       <dd className="truncate font-semibold">{value}</dd>
     </div>
@@ -688,9 +684,9 @@ function Pick({
     <button
       type="button"
       onClick={onClick}
-      className={`rounded-lg border px-3 py-1.5 text-sm transition-colors ${
+      className={`min-h-11 rounded-lg border px-3 py-2 text-sm transition-colors ${
         active
-          ? "border-primary bg-primary text-primary-foreground shadow-[0_10px_22px_-14px] shadow-primary"
+          ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-secondary/40 text-muted-foreground hover:border-primary/40 hover:text-foreground"
       }`}
     >

@@ -24,7 +24,7 @@ export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
         onClick={() => setOpen((v) => !v)}
         aria-label={t.chooseLanguage}
         aria-expanded={open}
-        className="flex items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-lg leading-none transition-colors hover:border-primary/60"
+        className="flex min-h-11 items-center gap-1 rounded-lg border border-border bg-card px-3 text-lg leading-none transition-colors hover:border-primary/60"
       >
         <Flag code={current.code} className="h-4 w-6" />
         <ChevronDown className="size-4 text-muted-foreground" />
@@ -32,7 +32,7 @@ export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
 
       {open ? (
         <ul
-          className={`absolute z-50 mt-2 w-44 overflow-hidden rounded-xl border border-border bg-card shadow-xl ${
+          className={`absolute z-50 mt-2 w-44 overflow-hidden rounded-lg border border-border bg-card shadow-lg ${
             align === "end" ? "right-0" : "left-0"
           }`}
         >
@@ -44,7 +44,7 @@ export function LanguagePicker({ align = "end" }: { align?: "start" | "end" }) {
                   setLang(option.code);
                   setOpen(false);
                 }}
-                className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-secondary"
+                className="flex min-h-11 w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-secondary"
               >
                 <Flag code={option.code} className="h-4 w-6" />
                 <span className="flex-1">{option.label}</span>

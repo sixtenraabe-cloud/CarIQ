@@ -5,7 +5,6 @@ import { Check, KeyRound, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { PaymentTestModeBanner } from "@/components/payment-test-banner";
 import { useAuth } from "@/hooks/use-auth";
 import { useEntitlement } from "@/hooks/use-entitlement";
 import { usePaddleCheckout } from "@/hooks/use-paddle-checkout";
@@ -65,9 +64,7 @@ function Pricing() {
   const left = entitlement?.left ?? 0;
 
   return (
-    <>
-      <PaymentTestModeBanner />
-      <main className="px-4 pt-8">
+      <main className="app-page">
         <h1 className="font-display text-3xl tracking-tight">{t.payTitle}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t.paySub}</p>
 
@@ -140,16 +137,7 @@ function Pricing() {
 
         <p className="mt-6 text-xs text-muted-foreground">{t.disclaimer}</p>
 
-        <p className="mt-3 text-xs text-muted-foreground">
-          Betalningar hanteras av Paddle.com Market Ltd, vår Merchant of Record.
-        </p>
-        <nav className="mt-2 flex flex-wrap gap-3 text-xs text-primary underline">
-          <Link to="/villkor">Villkor</Link>
-          <Link to="/aterbetalning">Återbetalning</Link>
-          <Link to="/integritet">Integritet</Link>
-        </nav>
       </main>
-    </>
   );
 }
 

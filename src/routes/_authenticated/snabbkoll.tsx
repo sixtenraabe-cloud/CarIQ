@@ -141,12 +141,12 @@ function QuickCheckPage() {
   };
 
   return (
-    <main className="px-4 pt-6">
+    <main className="app-page">
       <header className="mb-5 flex items-center gap-3">
         <button
           onClick={() => void navigate({ to: "/" })}
           aria-label={t.back}
-          className="grid size-9 place-items-center rounded-lg border border-border text-muted-foreground"
+          className="grid size-11 place-items-center rounded-lg border border-border text-muted-foreground"
         >
           <ChevronLeft className="size-5" />
         </button>

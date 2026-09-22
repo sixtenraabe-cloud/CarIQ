@@ -81,7 +81,7 @@ function ResetPasswordPage() {
   };
 
   return (
-    <main className="px-4 pt-8">
+    <main className="app-page my-auto w-full">
       <p className="stencil">{t.authKicker}</p>
       <h1 className="mt-1 text-3xl">{t.resetTitle}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{t.resetSub}</p>
