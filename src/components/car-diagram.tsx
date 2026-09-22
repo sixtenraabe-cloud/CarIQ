@@ -40,7 +40,7 @@ export function CarDiagram({
             type="button"
             onClick={() => onChange(zone.key)}
             aria-pressed={value === zone.key}
-            className={`rounded-lg border px-3 py-2 text-sm transition-colors ${
+            className={`min-h-11 rounded-lg border px-3 py-2 text-sm transition-colors ${
               value === zone.key
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border text-muted-foreground hover:border-primary/50"
