@@ -36,6 +36,7 @@ import {
   RED_LAMPS,
   type LampKey,
 } from "@/components/warning-lamps";
+import { useQueryClient } from "@tanstack/react-query";
 import { analyzeSymptoms, saveDiagnosis, secondOpinion } from "@/lib/diagnose.functions";
 import { knownIssues } from "@/lib/issues.functions";
 import { extractFromVideo } from "@/lib/media-extract";
@@ -90,6 +91,7 @@ function Diagnos() {
   const { t, lang } = useI18n();
   const analyze = useServerFn(analyzeSymptoms);
   const save = useServerFn(saveDiagnosis);
+  const queryClient = useQueryClient();
   const askSecond = useServerFn(secondOpinion);
   const fetchIssues = useServerFn(knownIssues);
 
@@ -361,6 +363,8 @@ function Diagnos() {
         },
       });
       setSaved(true);
+      // The newly saved diagnosis becomes the car's active status on the home screen.
+      void queryClient.invalidateQueries({ queryKey: ["active-diagnosis"] });
       toast.success(t.savedToast);
     } catch {
       toast.error(t.errSave);

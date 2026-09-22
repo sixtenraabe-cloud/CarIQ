@@ -507,16 +507,44 @@ export const saveDiagnosis = createServerFn({ method: "POST" })
     return { id: row.id };
   });
 
+/** History only holds diagnoses the owner has marked as fixed. */
 export const listDiagnoses = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("diagnoses")
       .select("*")
-      .order("created_at", { ascending: false })
+      .not("resolved_at", "is", null)
+      .order("resolved_at", { ascending: false })
       .limit(50);
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+/** The newest diagnosis that has not been marked as fixed — drives the car status. */
+export const activeDiagnosis = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("diagnoses")
+      .select("*")
+      .is("resolved_at", null)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (error) throw new Error(error.message);
+    return data?.[0] ?? null;
+  });
+
+export const resolveDiagnosis = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("diagnoses")
+      .update({ resolved_at: new Date().toISOString() })
+      .eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 export const deleteDiagnosis = createServerFn({ method: "POST" })

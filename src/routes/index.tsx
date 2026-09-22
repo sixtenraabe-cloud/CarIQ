@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   AlertTriangle,
+  Check,
   ChevronRight,
   CircleHelp,
   Ear,
@@ -24,6 +28,8 @@ import { LanguagePicker } from "@/components/language-picker";
 import { CarSilhouette } from "@/components/car-silhouette";
 import { BrandLogo } from "@/components/brand-logo";
 import { CarStatusPanel } from "@/components/cariq-ui";
+import type { StatusLevel } from "@/components/cariq-ui";
+import { activeDiagnosis, resolveDiagnosis } from "@/lib/diagnose.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -58,6 +64,25 @@ function Home() {
   // The quick check is free once per calendar month.
   const freeQuickLeft = entitlement?.freeQuickLeft ?? 0;
   const quickNeedsPayment = signedIn ? needsPayment && !entLoading && freeQuickLeft <= 0 : false;
+
+  // The car status mirrors the newest analysis until the owner marks it as fixed.
+  const fetchActive = useServerFn(activeDiagnosis);
+  const markFixed = useServerFn(resolveDiagnosis);
+  const queryClient = useQueryClient();
+  const activeQuery = useQuery({
+    queryKey: ["active-diagnosis"],
+    queryFn: () => fetchActive(),
+    enabled: Boolean(user),
+  });
+  const active = activeQuery.data ?? null;
+  const resolve = useMutation({
+    mutationFn: (id: string) => markFixed({ data: { id } }),
+    onSuccess: () => {
+      toast.success(t.issueFixedDone);
+      void queryClient.invalidateQueries({ queryKey: ["active-diagnosis"] });
+      void queryClient.invalidateQueries({ queryKey: ["diagnoses"] });
+    },
+  });
   return (
     <main className="app-page">
       <header className="rise relative z-50 mb-7 flex items-center justify-between gap-3">
@@ -176,10 +201,20 @@ function Home() {
       <div className="rise mb-5" style={{ animationDelay: "110ms" }}>
         <CarStatusPanel
           title={t.carStatusTitle}
-          label={car ? t.carStatusGood : t.firstCarTitle}
-          body={car ? t.carStatusGoodSub : t.firstCarSub}
-          level={car ? "safe" : "neutral"}
-        />
+          label={active ? active.headline : car ? t.carStatusGood : t.firstCarTitle}
+          body={active ? t.carStatusActiveSub : car ? t.carStatusGoodSub : t.firstCarSub}
+          level={active ? (active.verdict as StatusLevel) : car ? "safe" : "neutral"}
+        >
+          {active ? (
+            <Button
+              className="w-full"
+              disabled={resolve.isPending}
+              onClick={() => resolve.mutate(active.id)}
+            >
+              <Check className="size-4" /> {t.issueFixed}
+            </Button>
+          ) : null}
+        </CarStatusPanel>
       </div>
 
       <div className="space-y-3" aria-labelledby="home-primary-action">
