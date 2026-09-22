@@ -108,12 +108,7 @@ function HistoryPage() {
                   <Trash2 className="size-4" />
                 </button>
               </div>
-              <details className="group mt-3 border-t border-border pt-3">
-                <summary className="min-h-11 cursor-pointer list-none py-2 text-sm font-semibold text-primary">
-                  {t.showMore}
-                </summary>
-                <p className="pb-2 text-sm text-muted-foreground">{row.symptom}</p>
-              </details>
+              <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">{row.symptom}</p>
               <p className="mt-2 text-xs text-muted-foreground">
                 {new Date(row.created_at).toLocaleString(currencyFor(lang).locale)} · {row.confidence}%{" "}
                 {t.confidence.toLowerCase()} · {row.estimated_cost}

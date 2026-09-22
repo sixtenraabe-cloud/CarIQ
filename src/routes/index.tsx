@@ -184,7 +184,7 @@ function Home() {
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t.analyze}</span>
-            <span className="block text-sm leading-snug text-primary-foreground/75">{t.helpHeading}</span>
+            <span className="block text-sm leading-snug text-primary-foreground/75">{t.describeHint}</span>
           </span>
           <ChevronRight className="size-5 shrink-0 text-primary-foreground/75" />
         </ActionTile>
