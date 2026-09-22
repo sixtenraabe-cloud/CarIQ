@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Trash2 } from "lucide-react";
+import { Clock3, Loader2, ScanSearch, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { deleteDiagnosis, listDiagnoses } from "@/lib/diagnose.functions";
 import type { Verdict } from "@/lib/diagnosis-types";
 import { useAuth } from "@/hooks/use-auth";
 import { currencyFor, useI18n } from "@/lib/i18n";
+import { EmptyState } from "@/components/cariq-ui";
 
 export const Route = createFileRoute("/_authenticated/history")({
   head: () => ({
@@ -73,6 +74,15 @@ function HistoryPage() {
   }
 
   const rows = query.data ?? [];
+  const grouped = rows.reduce<Record<string, typeof rows>>((acc, row) => {
+    const label = new Date(row.created_at).toLocaleDateString(currencyFor(lang).locale, {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    acc[label] = [...(acc[label] ?? []), row];
+    return acc;
+  }, {});
 
   return (
     <main className="app-page">
@@ -84,39 +94,61 @@ function HistoryPage() {
           <Loader2 className="size-5 animate-spin text-muted-foreground" />
         </div>
       ) : rows.length === 0 ? (
-        <div className="panel mt-6 p-8 text-center">
-          <p className="text-muted-foreground">{t.historyEmpty}</p>
-          <Button asChild className="mt-4">
-            <Link to="/">{t.doDiagnosis}</Link>
-          </Button>
+        <div className="mt-6">
+          <EmptyState
+            icon={Clock3}
+            title={t.historyEmptyTitle}
+            body={t.historyEmptySub}
+            action={(
+              <Button asChild>
+                <Link to="/snabbkoll"><ScanSearch className="size-4" /> {t.quickPrimary}</Link>
+              </Button>
+            )}
+          />
         </div>
       ) : (
-        <ul className="mt-6 space-y-3">
-          {rows.map((row) => (
-            <li key={row.id} className="tile p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <VerdictBadge verdict={row.verdict as Verdict} />
-                  <h2 className="mt-2 text-lg leading-snug">{row.headline}</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">{row.car_summary}</p>
-                </div>
-                <button
-                  aria-label={t.deleteReport}
-                  onClick={() => del.mutate(row.id)}
-                  className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                >
-                  <Trash2 className="size-4" />
-                </button>
-              </div>
-              <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">{row.symptom}</p>
-              <p className="mt-2 text-xs text-muted-foreground">
-                {new Date(row.created_at).toLocaleString(currencyFor(lang).locale)} · {row.confidence}%{" "}
-                {t.confidence.toLowerCase()} · {row.estimated_cost}
-                {row.had_audio ? ` · ${t.audioAnalyzed}` : ""}
-              </p>
-            </li>
+        <div className="mt-6 space-y-6">
+          {Object.entries(grouped).map(([date, items]) => (
+            <section key={date}>
+              <p className="stencil mb-3">{date}</p>
+              <ol className="relative space-y-3 border-l border-border pl-4">
+                {items.map((row) => (
+                  <li key={row.id} className="relative">
+                    <span className="absolute -left-[21px] top-5 size-2.5 rounded-full border border-background bg-primary" aria-hidden="true" />
+                    <article className="tile p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <VerdictBadge verdict={row.verdict as Verdict} />
+                            {row.had_audio ? (
+                              <span className="rounded-full border border-border bg-secondary/45 px-2 py-1 text-xs text-muted-foreground">
+                                {t.audioAnalyzed}
+                              </span>
+                            ) : null}
+                          </div>
+                          <h2 className="mt-3 text-lg leading-snug">{row.headline}</h2>
+                          <p className="mt-1 text-sm text-muted-foreground">{row.car_summary}</p>
+                        </div>
+                        <button
+                          aria-label={t.deleteReport}
+                          onClick={() => del.mutate(row.id)}
+                          className="grid size-11 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="size-4" />
+                        </button>
+                      </div>
+                      <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">{row.symptom}</p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {new Date(row.created_at).toLocaleTimeString(currencyFor(lang).locale, { hour: "2-digit", minute: "2-digit" })} · {row.confidence}%{" "}
+                        {t.confidence.toLowerCase()} · {row.estimated_cost}
+                      </p>
+                    </article>
+                  </li>
+                ))}
+              </ol>
+            </section>
           ))}
-        </ul>
+        </div>
       )}
     </main>
   );
