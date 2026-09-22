@@ -190,22 +190,22 @@ function Home() {
           to="/snabbkoll"
           disabled={!car}
           payFirst={quickNeedsPayment}
-          className="border-primary bg-primary text-primary-foreground"
+          className="border-2 border-primary bg-card text-primary hover:border-primary/80"
           style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-foreground/12 text-primary-foreground">
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
             <Ear className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t.quickPrimary}</span>
-            <span className="block text-sm leading-snug text-primary-foreground/75">{t.quickPrimarySub}</span>
+            <span className="block text-sm leading-snug text-primary/75">{t.quickPrimarySub}</span>
             {!quickNeedsPayment && (!signedIn || freeQuickLeft > 0) ? (
-              <span className="mt-2 inline-block rounded-md border border-primary-foreground/25 bg-primary-foreground/10 px-2 py-1 text-xs font-semibold text-primary-foreground/90">
+              <span className="mt-2 inline-block rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary/90">
                 {t.freeQuickBadge}
               </span>
             ) : null}
           </span>
-          <ChevronRight className="size-5 shrink-0 text-primary-foreground/75" />
+          <ChevronRight className="size-5 shrink-0 text-primary/75" />
         </ActionTile>
       </div>
 
