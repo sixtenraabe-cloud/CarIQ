@@ -1,7 +1,22 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { ChevronLeft, ImagePlus, Loader2, RotateCcw, Save, Sparkles, Trash2 } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  ChevronLeft,
+  ChevronRight,
+  CircleHelp,
+  Gauge,
+  ImagePlus,
+  Loader2,
+  RotateCcw,
+  Save,
+  Sparkles,
+  Trash2,
+  Volume2,
+  Disc3,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -78,13 +93,49 @@ function Diagnos() {
   const askSecond = useServerFn(secondOpinion);
   const fetchIssues = useServerFn(knownIssues);
 
-  const PROBLEMS: { key: string; label: string }[] = [
-    { key: "noise", label: t.aNoise },
-    { key: "warning", label: t.aWarning },
-    { key: "nostart", label: t.aNostart },
-    { key: "performance", label: t.aPerf },
-    { key: "brakes", label: t.aBrakes },
-    { key: "other", label: t.aOther },
+  const PROBLEMS = [
+    {
+      key: "noise",
+      label: t.aNoise,
+      Icon: Volume2,
+      tone: "border-primary/55 hover:border-primary",
+      iconTone: "bg-primary/12 text-primary",
+    },
+    {
+      key: "warning",
+      label: t.aWarning,
+      Icon: AlertTriangle,
+      tone: "border-signal-caution/55 hover:border-signal-caution",
+      iconTone: "bg-signal-caution/12 text-signal-caution",
+    },
+    {
+      key: "nostart",
+      label: t.aNostart,
+      Icon: Ban,
+      tone: "border-signal-urgent/55 hover:border-signal-urgent",
+      iconTone: "bg-signal-urgent/12 text-signal-urgent",
+    },
+    {
+      key: "performance",
+      label: t.aPerf,
+      Icon: Gauge,
+      tone: "border-signal-soon/55 hover:border-signal-soon",
+      iconTone: "bg-signal-soon/12 text-signal-soon",
+    },
+    {
+      key: "brakes",
+      label: t.aBrakes,
+      Icon: Disc3,
+      tone: "border-signal-urgent/55 hover:border-signal-urgent",
+      iconTone: "bg-signal-urgent/12 text-signal-urgent",
+    },
+    {
+      key: "other",
+      label: t.aOther,
+      Icon: CircleHelp,
+      tone: "border-muted-foreground/35 hover:border-muted-foreground/70",
+      iconTone: "bg-secondary text-muted-foreground",
+    },
   ];
   const WHEN = [t.atStart, t.whileDriving, t.whenBraking, t.whenTurning, t.always, t.other];
 
@@ -451,22 +502,33 @@ function Diagnos() {
       ) : null}
 
       {step === 1 ? (
-            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
+        <section aria-labelledby="problem-heading">
+          <div className="mb-4">
+            <p className="stencil">1 / 3</p>
+            <h2 id="problem-heading" className="mt-1 text-lg">{titles[0]}</h2>
+          </div>
+          <div className="grid grid-cols-1 gap-3 min-[380px]:grid-cols-2">
           {PROBLEMS.map((option) => (
             <button
+              type="button"
               key={option.key}
               onClick={() => {
                 setProblemKey(option.key);
                 setStep(2);
               }}
-              className={`tile min-h-16 p-4 text-left text-sm font-semibold active:scale-[0.99] ${
-                problemKey === option.key ? "border-primary bg-primary/15" : ""
+              className={`group flex min-h-20 w-full items-center gap-3 rounded-lg border bg-card p-3 text-left transition-[background-color,border-color,transform] hover:bg-secondary/35 active:scale-[0.99] ${option.tone} ${
+                problemKey === option.key ? "bg-secondary/50 ring-2 ring-primary/20" : ""
               }`}
             >
-              {option.label}
+              <span className={`grid size-11 shrink-0 place-items-center rounded-lg ${option.iconTone}`}>
+                <option.Icon className="size-5" aria-hidden="true" />
+              </span>
+              <span className="min-w-0 flex-1 text-sm font-semibold leading-snug">{option.label}</span>
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
             </button>
           ))}
-        </div>
+          </div>
+        </section>
       ) : null}
 
       {step === 2 ? (
