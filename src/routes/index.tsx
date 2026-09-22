@@ -190,28 +190,28 @@ function Home() {
           to="/snabbkoll"
           disabled={!car}
           payFirst={quickNeedsPayment}
-          className="border-2 border-primary bg-card text-primary hover:border-primary/80"
+          className="border-2 border-primary bg-primary text-primary-foreground hover:border-primary/80"
           style={{ animationDelay: "120ms" }}
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+          <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-primary-foreground/15 text-primary-foreground">
             <Ear className="size-5" />
           </span>
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t.quickPrimary}</span>
-            <span className="block text-sm leading-snug text-primary/75">{t.quickPrimarySub}</span>
+            <span className="block text-sm leading-snug text-primary-foreground/80">{t.quickPrimarySub}</span>
             {!quickNeedsPayment ? (
               signedIn && freeQuickLeft <= 0 ? (
-                <span className="mt-2 inline-block rounded-md border border-signal-urgent/30 bg-signal-urgent/10 px-2 py-1 text-xs font-semibold text-signal-urgent">
+                <span className="mt-2 inline-block rounded-md border border-signal-urgent/40 bg-signal-urgent/15 px-2 py-1 text-xs font-semibold text-signal-urgent">
                   {t.freeQuickBadgeUsed}
                 </span>
               ) : (
-                <span className="mt-2 inline-block rounded-md border border-signal-safe/30 bg-signal-safe/10 px-2 py-1 text-xs font-semibold text-signal-safe">
+                <span className="mt-2 inline-block rounded-md border border-signal-safe/40 bg-signal-safe/15 px-2 py-1 text-xs font-semibold text-signal-safe">
                   {t.freeQuickBadge}
                 </span>
               )
             ) : null}
           </span>
-          <ChevronRight className="size-5 shrink-0 text-primary/75" />
+          <ChevronRight className="size-5 shrink-0 text-primary-foreground/80" />
         </ActionTile>
       </div>
 
