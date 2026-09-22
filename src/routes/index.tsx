@@ -183,7 +183,9 @@ function Home() {
       </div>
 
       <div className="space-y-3" aria-labelledby="home-primary-action">
-        <h2 id="home-primary-action" className="sr-only">{t.quickPrimary}</h2>
+        <h2 id="home-primary-action" className="sr-only">
+          {t.quickPrimary}
+        </h2>
         <ActionTile
           to="/snabbkoll"
           disabled={!car}
@@ -219,6 +221,7 @@ function Home() {
           to="/diagnos"
           disabled={!car}
           payFirst={needsPayment}
+          className="bg-card/55"
           style={{ animationDelay: "210ms" }}
         >
           <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-secondary text-primary">
@@ -291,7 +294,7 @@ function ActionTile({
   style,
   children,
 }: {
-  to: string;
+  to: "/diagnos" | "/snabbkoll";
   search?: Record<string, string>;
   disabled?: boolean;
   payFirst?: boolean;

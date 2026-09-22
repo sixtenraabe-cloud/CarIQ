@@ -270,24 +270,24 @@ function Garage() {
 
   return (
     <main className="app-page">
-        <div className="rise">
+      <div className="rise">
         <h1 className="text-2xl">{ready && car ? t.editCar : t.garageTitle}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {ready && car ? t.editCarSub : t.garageSub}
         </p>
       </div>
 
-        {!car ? (
-          <div className="panel mt-5 flex items-start gap-3 p-4">
-            <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary/35 bg-primary/10 text-primary">
-              <CheckCircle2 className="size-4" />
-            </span>
-            <div>
-              <h2 className="text-lg">{t.firstCarTitle}</h2>
-              <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.firstCarSub}</p>
-            </div>
+      {!car ? (
+        <div className="panel mt-5 flex items-start gap-3 p-4">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg border border-primary/35 bg-primary/10 text-primary">
+            <CheckCircle2 className="size-4" />
+          </span>
+          <div>
+            <h2 className="text-lg">{t.firstCarTitle}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t.firstCarSub}</p>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
       {plateCard ? (
         <div
@@ -366,7 +366,7 @@ function Garage() {
 
       {showForm ? (
         <>
-      <div
+          <div
         className="surface rise relative mt-5 overflow-hidden px-4 pb-2 pt-4"
         style={{ animationDelay: "60ms" }}
       >

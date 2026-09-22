@@ -144,13 +144,13 @@ function SeverityScale({ active }: { active: Verdict }) {
         const style = VERDICT_STYLE[level];
         const on = level === active;
         return (
-            <div
+          <div
             key={level}
             className={`rounded-xl border p-2 text-center transition-all ${
               on ? `${style.border} ${style.bg} scale-[1.03]` : "border-border opacity-40"
             }`}
           >
-              <StatusMark level={level} className="mx-auto size-7 rounded-md" />
+            <StatusMark level={level} className="mx-auto size-7 rounded-md" />
             <p className={`mt-1 text-[11px] leading-tight font-semibold ${on ? style.text : "text-muted-foreground"}`}>
               {t[VERDICT_KEY[level]]}
             </p>
