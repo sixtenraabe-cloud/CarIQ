@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, Loader2, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, Check, KeyRound, Loader2, Sparkles, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,13 @@ function Pricing() {
 
   return (
       <main className="app-page">
+        <Link
+          to="/"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          {t.back}
+        </Link>
         <h1 className="font-display text-3xl tracking-tight">{t.payTitle}</h1>
         <p className="mt-2 text-sm text-muted-foreground">{t.paySub}</p>
 
