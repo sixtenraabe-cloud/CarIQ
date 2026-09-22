@@ -147,7 +147,7 @@ function HistoryPage() {
                       </div>
                       <p className="mt-3 border-t border-border pt-3 text-sm text-muted-foreground">{row.symptom}</p>
                       <p className="mt-2 text-xs text-muted-foreground">
-                        {new Date(row.created_at).toLocaleTimeString(currencyFor(lang).locale, { hour: "2-digit", minute: "2-digit" })} · {row.confidence}%{" "}
+                        {t.resolvedAt} {new Date(row.resolved_at ?? row.created_at).toLocaleTimeString(currencyFor(lang).locale, { hour: "2-digit", minute: "2-digit" })} · {row.confidence}%{" "}
                         {t.confidence.toLowerCase()} · {row.estimated_cost}
                       </p>
                     </article>
