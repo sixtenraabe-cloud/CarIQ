@@ -73,14 +73,22 @@ function HistoryPage() {
     );
   }
 
-  const rows = query.data ?? [];
+  const rows = (query.data ?? []).slice().sort((a, b) => {
+    const aTime = new Date(a.resolved_at ?? a.created_at).getTime();
+    const bTime = new Date(b.resolved_at ?? b.created_at).getTime();
+    return bTime - aTime; // newest first
+  });
   const grouped = rows.reduce<Record<string, typeof rows>>((acc, row) => {
-    const label = new Date(row.created_at).toLocaleDateString(currencyFor(lang).locale, {
+    const label = new Date(row.resolved_at ?? row.created_at).toLocaleDateString(currencyFor(lang).locale, {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
-    acc[label] = [...(acc[label] ?? []), row];
+    acc[label] = [...(acc[label] ?? []), row].sort((a, b) => {
+      const aTime = new Date(a.resolved_at ?? a.created_at).getTime();
+      const bTime = new Date(b.resolved_at ?? b.created_at).getTime();
+      return bTime - aTime;
+    });
     return acc;
   }, {});
 
