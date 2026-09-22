@@ -1,13 +1,15 @@
 # CarIQ redesign
 
-- [x] Audit av routes, funktioner, teknik och mobilvyer
-- [x] Design tokens och grundkomponenter
-- [x] Appskal, safe areas och fokuserad navigation
-- [x] Förenklad hemvy med en tydlig primär analysväg
-- [x] Min bil: tydligare profil och obligatorisk variant
-- [x] Analys och snabbkoll: kompakt flöde och tydliga states
-- [x] Resultat: körbesked, åtgärd och sannolik orsak i rätt ordning
-- [x] Historik: skannbara poster och tydligt tomläge
-- [x] Konto, Premium och auth: konsekvent fokuserade vyer
-- [x] Slutkontroll vid 320 px och vanlig mobil
-- [x] Förfina första problemvalet med ikoner och matchande statusfärger
+- [ ] Ny audit av befintliga routes, funktioner, navigation och produktflöden
+- [ ] Konsolidera designbriefen mot befintlig implementation
+- [ ] Justera designsystem där det behövs
+- [ ] Navigation och appskal
+- [ ] Home och snabbkoll som primär väg
+- [ ] Min bil och garage
+- [ ] Analysflöden: quick check, varningslampor, bilen fungerar inte, dålig prestanda
+- [ ] Resultat och progressiv informationshierarki
+- [ ] Historik som biljournal
+- [ ] Premium, profil och fokuserade states
+- [ ] Empty/error/loading states
+- [ ] Responsiv QA vid 320, 375, 390, 414 px och större vyer
+- [ ] Slutlig funktionskontroll utan backend-/affärslogikändringar
