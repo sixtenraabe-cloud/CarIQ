@@ -199,10 +199,16 @@ function Home() {
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t.quickPrimary}</span>
             <span className="block text-sm leading-snug text-primary/75">{t.quickPrimarySub}</span>
-            {!quickNeedsPayment && (!signedIn || freeQuickLeft > 0) ? (
-              <span className="mt-2 inline-block rounded-md border border-primary/25 bg-primary/10 px-2 py-1 text-xs font-semibold text-primary/90">
-                {t.freeQuickBadge}
-              </span>
+            {!quickNeedsPayment ? (
+              signedIn && freeQuickLeft <= 0 ? (
+                <span className="mt-2 inline-block rounded-md border border-signal-urgent/30 bg-signal-urgent/10 px-2 py-1 text-xs font-semibold text-signal-urgent">
+                  {t.freeQuickBadgeUsed}
+                </span>
+              ) : (
+                <span className="mt-2 inline-block rounded-md border border-signal-safe/30 bg-signal-safe/10 px-2 py-1 text-xs font-semibold text-signal-safe">
+                  {t.freeQuickBadge}
+                </span>
+              )
             ) : null}
           </span>
           <ChevronRight className="size-5 shrink-0 text-primary/75" />
